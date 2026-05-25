@@ -13,7 +13,7 @@ export function Interests() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {interests.map((item, index) => (
             <article
-              className="group min-h-64 rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:bg-white/75 hover:shadow-soft"
+              className="spring-card group min-h-64 rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-sm hover:bg-white/75 hover:shadow-soft"
               key={item.title}
             >
               <div
