@@ -1,5 +1,6 @@
 import { galleryItems } from "@/data/site";
 import { SectionHeading } from "@/components/SectionHeading";
+import type { CSSProperties } from "react";
 
 const tones = [
   "from-moss/75 to-sage/70",
@@ -27,8 +28,9 @@ export function Gallery() {
                 index === 0 || index === 3 ? "lg:col-span-3" : "lg:col-span-2"
               } ${index === 1 ? "lg:row-span-2" : ""}`}
               key={item}
+              style={{ "--float-delay": `${index * 180}ms` } as CSSProperties}
             >
-              <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.28)_0,transparent_45%),radial-gradient(circle_at_75%_25%,rgba(255,255,255,0.28),transparent_12rem)] transition duration-300 group-hover:scale-105" />
+              <div className="gallery-frame absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.28)_0,transparent_45%),radial-gradient(circle_at_75%_25%,rgba(255,255,255,0.28),transparent_12rem)] transition duration-300 group-hover:scale-105" />
               <figcaption className="absolute bottom-4 left-4 rounded-full bg-paper/90 px-4 py-2 text-sm font-semibold text-ink">
                 {item}
               </figcaption>
