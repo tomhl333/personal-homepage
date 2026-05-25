@@ -133,6 +133,80 @@ body {
   animation-delay: var(--float-delay, 0ms);
 }
 
+.scene-stage {
+  background:
+    radial-gradient(circle at 25% 28%, rgba(247, 242, 232, 0.16), transparent 18rem),
+    radial-gradient(circle at 82% 18%, rgba(201, 110, 59, 0.18), transparent 16rem),
+    linear-gradient(135deg, #111812 0%, #243229 56%, #0d1110 100%);
+}
+
+.scene-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 18% 76%, rgba(0, 0, 0, 0.28)),
+    repeating-linear-gradient(90deg, transparent 0 52px, rgba(255, 255, 255, 0.025) 52px 53px);
+  animation: scene-pan 18s ease-in-out infinite alternate;
+}
+
+.scene-light {
+  position: absolute;
+  left: -8%;
+  top: 8%;
+  width: 48%;
+  height: 55%;
+  border-radius: 999px;
+  background: rgba(247, 242, 232, 0.14);
+  filter: blur(20px);
+  transform: rotate(-14deg);
+}
+
+.scene-window {
+  position: absolute;
+  left: 5%;
+  top: 10%;
+  width: 28%;
+  height: 36%;
+  border: 1px solid rgba(247, 242, 232, 0.16);
+  border-radius: 999px 999px 8px 8px;
+  background: linear-gradient(135deg, rgba(247, 242, 232, 0.14), rgba(247, 242, 232, 0.03));
+}
+
+.scene-card {
+  position: absolute;
+  right: 14%;
+  top: 9%;
+  width: min(44%, 15rem);
+  min-height: 72%;
+  border: 1px solid rgba(247, 242, 232, 0.24);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg, rgba(13, 17, 16, 0.2), rgba(13, 17, 16, 0.82)),
+    radial-gradient(circle at 50% 30%, rgba(247, 242, 232, 0.2), transparent 9rem),
+    #151b18;
+  box-shadow:
+    0 0 0 8px rgba(247, 242, 232, 0.06),
+    0 26px 80px rgba(0, 0, 0, 0.34);
+  padding: 1.4rem;
+}
+
+.contact-pop {
+  animation: contact-pop 520ms cubic-bezier(0.22, 1.35, 0.36, 1) both;
+}
+
+.contact-card-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, rgba(201, 110, 59, 0.18), transparent 13rem),
+    linear-gradient(90deg, transparent 0 31px, rgba(247, 242, 232, 0.05) 31px 32px),
+    linear-gradient(180deg, transparent 0 31px, rgba(247, 242, 232, 0.04) 31px 32px);
+  background-size: auto, 32px 32px, 32px 32px;
+  opacity: 0.8;
+}
+
 .delay-1 {
   animation-delay: 90ms;
 }
@@ -207,6 +281,28 @@ body {
 
   50% {
     transform: translateY(-8px) scale(1.01);
+  }
+}
+
+@keyframes scene-pan {
+  from {
+    transform: translateX(-2%) scale(1);
+  }
+
+  to {
+    transform: translateX(3%) scale(1.04);
+  }
+}
+
+@keyframes contact-pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
