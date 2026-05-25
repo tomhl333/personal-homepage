@@ -13,7 +13,7 @@ export function Journal() {
         <div className="grid gap-4 md:grid-cols-2">
           {journalPosts.map((title, index) => (
             <article
-              className="group flex items-center justify-between gap-5 rounded-2xl border border-ink/10 bg-paper/70 p-5 transition hover:-translate-y-0.5 hover:border-moss/30 hover:bg-paper"
+              className="spring-card group flex items-center justify-between gap-5 rounded-2xl border border-ink/10 bg-paper/70 p-5 hover:border-moss/30 hover:bg-paper"
               key={title}
             >
               <div>

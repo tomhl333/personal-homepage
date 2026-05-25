@@ -9,7 +9,10 @@ const navItems = [
 
 export function Hero() {
   return (
-    <section className="relative px-5 pb-20 pt-6 sm:px-8 lg:px-12">
+    <section className="relative isolate px-5 pb-20 pt-6 sm:px-8 lg:px-12">
+      <div className="scroll-film" aria-hidden="true">
+        <div className="film-strip" />
+      </div>
       <nav className="mx-auto flex max-w-6xl items-center justify-between border-b border-ink/10 pb-5">
         <a className="font-serif text-lg font-semibold text-ink" href="#">
           Still Curious
@@ -41,19 +44,19 @@ export function Hero() {
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <a
-              className="rounded-full bg-moss px-6 py-3 text-center text-sm font-semibold text-paper shadow-soft transition hover:-translate-y-0.5 hover:bg-ink"
+              className="spring-link rounded-full bg-moss px-6 py-3 text-center text-sm font-semibold text-paper shadow-soft hover:bg-ink"
               href="#interests"
             >
               看看我的兴趣
             </a>
             <a
-              className="rounded-full border border-ink/20 px-6 py-3 text-center text-sm font-semibold text-ink transition hover:-translate-y-0.5 hover:border-moss hover:text-moss"
+              className="spring-link rounded-full border border-ink/20 px-6 py-3 text-center text-sm font-semibold text-ink hover:border-moss hover:text-moss"
               href="#journal"
             >
               看看我的记录
             </a>
             <a
-              className="rounded-full border border-ink/20 px-6 py-3 text-center text-sm font-semibold text-ink transition hover:-translate-y-0.5 hover:border-clay hover:text-clay"
+              className="spring-link rounded-full border border-ink/20 px-6 py-3 text-center text-sm font-semibold text-ink hover:border-clay hover:text-clay"
               href="#projects"
             >
               看看我做的小东西
@@ -64,7 +67,7 @@ export function Hero() {
         <div className="section-fade delay-2 relative min-h-[420px]">
           <div className="absolute right-0 top-0 h-72 w-56 rounded-t-full bg-moss/90 shadow-soft sm:h-80 sm:w-64" />
           <div className="absolute bottom-8 left-0 h-72 w-56 rounded-b-full bg-lake/80 shadow-soft sm:h-80 sm:w-64" />
-          <div className="absolute inset-x-8 top-20 rounded-[2rem] border border-paper/80 bg-paper/80 p-6 shadow-soft backdrop-blur">
+          <div className="cinematic-card absolute inset-x-8 top-20 rounded-[2rem] border border-paper/80 bg-paper/80 p-6 shadow-soft backdrop-blur">
             <p className="font-serif text-2xl text-ink">Life, notes, tools.</p>
             <p className="mt-4 text-sm leading-7 text-ink/70">
               一点训练，一点语言，一点阅读。把日子过成可以回看的材料。
@@ -90,7 +93,7 @@ export function Hero() {
       <div className="section-fade delay-3 mx-auto mt-12 flex max-w-6xl flex-wrap gap-3">
         {tags.map((tag) => (
           <span
-            className="rounded-full border border-ink/10 bg-white/50 px-4 py-2 text-xs font-medium text-ink/70 backdrop-blur"
+            className="magnetic-tag rounded-full border border-ink/10 bg-white/50 px-4 py-2 text-xs font-medium text-ink/70 backdrop-blur"
             key={tag}
           >
             {tag}
