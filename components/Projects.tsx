@@ -13,7 +13,7 @@ export function Projects() {
         <div className="grid gap-5 md:grid-cols-2">
           {projects.map((project, index) => (
             <article
-              className="rounded-2xl border border-ink/10 bg-white/50 p-7 transition hover:-translate-y-1 hover:bg-white/75 hover:shadow-soft"
+              className="spring-card rounded-2xl border border-ink/10 bg-white/50 p-7 hover:bg-white/75 hover:shadow-soft"
               key={project.title}
             >
               <p className="mb-8 font-serif text-5xl text-clay/40">
