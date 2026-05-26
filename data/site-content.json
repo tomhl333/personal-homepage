@@ -1,0 +1,419 @@
+{
+  "navItems": [
+    { "href": "#journal", "label": "最近记录" },
+    { "href": "#interests", "label": "投入的事" },
+    { "href": "#projects", "label": "小项目" },
+    { "href": "#contact", "label": "联系" }
+  ],
+  "hero": {
+    "eyebrow": "个人生活小站",
+    "title": "人到中途，仍然好奇",
+    "description": "打球、游泳、健身，学粤语和西班牙语，读一点书，记录城市和生活，也认真做一些有意思的事。"
+  },
+  "heroTags": ["运动", "语言学习", "阅读记录", "城市生活"],
+  "heroCards": [
+    {
+      "title": "网球",
+      "subtitle": "本周练习 2 次",
+      "detail": "发球、单反和步伐还在慢慢找感觉。",
+      "icon": "tennis",
+      "className": "sm:col-span-2",
+      "tone": "bg-moss/10 text-moss"
+    },
+    {
+      "title": "游泳",
+      "subtitle": "最近一次 1200m",
+      "detail": "放松、恢复，把节奏慢慢游回来。",
+      "icon": "swim",
+      "className": "",
+      "tone": "bg-lake/10 text-lake"
+    },
+    {
+      "title": "健身",
+      "subtitle": "保持力量训练",
+      "detail": "关注体能、力量和长期状态。",
+      "icon": "dumbbell",
+      "className": "",
+      "tone": "bg-clay/10 text-clay"
+    },
+    {
+      "title": "粤语",
+      "subtitle": "Day 12",
+      "detail": "每天学一点发音、词汇和场景对话。",
+      "icon": "language",
+      "className": "sm:col-span-2",
+      "tone": "bg-sage/20 text-moss"
+    },
+    {
+      "title": "西班牙语",
+      "subtitle": "刚刚开始",
+      "detail": "先从最基础的词和句子碰一下。",
+      "icon": "globe",
+      "className": "",
+      "tone": "bg-paper text-ink/70"
+    },
+    {
+      "title": "阅读",
+      "subtitle": "最近在读",
+      "detail": "给生活留一点慢速输入。",
+      "icon": "book",
+      "className": "",
+      "tone": "bg-fog text-ink/70"
+    }
+  ],
+  "activitySpotlights": [
+    {
+      "title": "网球",
+      "status": "本周练习 2 次",
+      "summary": "发球、单反和步伐还在慢慢找感觉。",
+      "icon": "tennis",
+      "tone": "bg-moss/10 text-moss",
+      "notes": ["半小时发球练习", "二区抛球还要更稳定", "步伐启动比上周轻一点"],
+      "photos": [
+        { "label": "球场边" },
+        { "label": "练习笔记" },
+        { "label": "发球瞬间" }
+      ]
+    },
+    {
+      "title": "游泳",
+      "status": "最近一次 1200m",
+      "summary": "放松、恢复，把节奏慢慢游回来。",
+      "icon": "swim",
+      "tone": "bg-lake/10 text-lake",
+      "notes": ["自由泳节奏更稳", "水里只剩下呼吸", "游完之后人会安静下来"],
+      "photos": [
+        { "label": "泳池" },
+        { "label": "恢复" },
+        { "label": "水面" }
+      ]
+    },
+    {
+      "title": "健身",
+      "status": "保持力量训练",
+      "summary": "关注体能、力量和长期状态。",
+      "icon": "dumbbell",
+      "tone": "bg-clay/10 text-clay",
+      "notes": ["力量训练不求猛", "把状态留给长期生活", "核心和下肢继续补"],
+      "photos": [
+        { "label": "训练" },
+        { "label": "器械" },
+        { "label": "状态" }
+      ]
+    },
+    {
+      "title": "粤语",
+      "status": "Day 12",
+      "summary": "每天学一点发音、词汇和场景对话。",
+      "icon": "language",
+      "tone": "bg-sage/20 text-moss",
+      "notes": ["继续熟悉粤拼", "声调需要多听多跟", "先从日常问候开始"],
+      "photos": [
+        { "label": "词汇卡" },
+        { "label": "发音笔记" },
+        { "label": "场景句" }
+      ]
+    },
+    {
+      "title": "西班牙语",
+      "status": "刚刚开始",
+      "summary": "先从最基础的词和句子碰一下。",
+      "icon": "globe",
+      "tone": "bg-paper text-ink/70",
+      "notes": ["Hola 之后的第一步", "每天碰一点就好", "先建立声音感觉"],
+      "photos": [
+        { "label": "单词" },
+        { "label": "句子" },
+        { "label": "练习" }
+      ]
+    },
+    {
+      "title": "阅读",
+      "status": "最近在读",
+      "summary": "给生活留一点慢速输入。",
+      "icon": "book",
+      "tone": "bg-fog text-ink/70",
+      "notes": ["记录喜欢的句子", "不急着读完", "把偶然想法留下来"],
+      "photos": [
+        { "label": "书页" },
+        { "label": "摘录" },
+        { "label": "下午" }
+      ]
+    },
+    {
+      "title": "工作札记",
+      "status": "复盘与成长",
+      "summary": "轻轻记录数字化、项目管理和沟通方法带来的思考。",
+      "icon": "briefcase",
+      "tone": "bg-clay/10 text-clay",
+      "notes": ["项目管理不是只追进度", "流程背后其实是人的协作", "复盘能让经验留下来"],
+      "photos": [
+        { "label": "流程草图" },
+        { "label": "会议笔记" },
+        { "label": "复盘卡片" }
+      ]
+    }
+  ],
+  "statusItems": [
+    { "title": "网球", "english": "Tennis", "detail": "本周练习 2 次", "icon": "tennis", "tone": "bg-moss/10 text-moss" },
+    { "title": "游泳", "english": "Swimming", "detail": "最近一次 1200m", "icon": "swim", "tone": "bg-lake/10 text-lake" },
+    { "title": "健身", "english": "Fitness", "detail": "保持力量训练", "icon": "dumbbell", "tone": "bg-clay/10 text-clay" },
+    { "title": "粤语", "english": "Cantonese", "detail": "Day 12", "icon": "language", "tone": "bg-sage/20 text-moss" },
+    { "title": "西班牙语", "english": "Spanish", "detail": "刚刚开始", "icon": "globe", "tone": "bg-paper text-ink/70" },
+    { "title": "阅读", "english": "Reading", "detail": "最近在读", "icon": "book", "tone": "bg-fog text-ink/70" }
+  ],
+  "interests": [
+    {
+      "title": "网球",
+      "english": "Tennis",
+      "icon": "tennis",
+      "tone": "bg-moss/10 text-moss",
+      "className": "lg:col-span-2 lg:row-span-2",
+      "description": "单反爱好者，正在练发球、抛球、步伐和比赛节奏，也喜欢研究职业选手的动作。"
+    },
+    {
+      "title": "游泳",
+      "english": "Swimming",
+      "icon": "swim",
+      "tone": "bg-lake/10 text-lake",
+      "className": "",
+      "description": "享受在水里放松和恢复的感觉，把游泳当作一种长期运动习惯。"
+    },
+    {
+      "title": "健身",
+      "english": "Fitness",
+      "icon": "dumbbell",
+      "tone": "bg-clay/10 text-clay",
+      "className": "",
+      "description": "关注体能、力量和身体状态，希望让自己保持更好的精力和体态。"
+    },
+    {
+      "title": "粤语",
+      "english": "Cantonese",
+      "icon": "language",
+      "tone": "bg-sage/20 text-moss",
+      "className": "lg:col-span-2",
+      "description": "每天学一点粤语，记录词汇、粤拼声调、发音重点和场景对话。"
+    },
+    {
+      "title": "西班牙语",
+      "english": "Spanish",
+      "icon": "globe",
+      "tone": "bg-paper text-ink/70",
+      "className": "",
+      "description": "从基础开始接触西班牙语，记录单词、句子和语言学习过程。"
+    },
+    {
+      "title": "阅读",
+      "english": "Reading",
+      "icon": "book",
+      "tone": "bg-fog text-ink/70",
+      "className": "",
+      "description": "记录喜欢的书、句子、观点和一些偶然冒出来的想法。"
+    },
+    {
+      "title": "城市生活",
+      "english": "City Life",
+      "icon": "city",
+      "tone": "bg-lake/10 text-lake",
+      "className": "lg:col-span-2",
+      "description": "记录出差、旅行、街头、咖啡馆、展览、散步和日常里有意思的瞬间。"
+    },
+    {
+      "title": "工作札记",
+      "english": "Work Notes",
+      "icon": "briefcase",
+      "tone": "bg-clay/10 text-clay",
+      "className": "",
+      "description": "少量记录项目管理、数字化实践、团队协同和个人成长，不做正式简历，只保留一些真实思考。"
+    }
+  ],
+  "journalPosts": [
+    {
+      "date": "May 26",
+      "category": "网球",
+      "title": "今天又练了半小时发球",
+      "summary": "继续找二区发球的抛球感觉，身体侧身和出球方向还是要统一。",
+      "body": "今天又练了半小时发球。先从抛球开始，发现二区发球最容易乱的地方不是挥拍，而是身体侧身、抛球位置和出球方向没有统一起来。之后可以把练习拆小一点：十个只看抛球，十个只看落点，最后再完整发。",
+      "icon": "tennis"
+    },
+    {
+      "date": "May 24",
+      "category": "游泳",
+      "title": "游泳之后，整个人安静下来",
+      "summary": "在水里，很多杂音会慢慢变小，只剩下呼吸和节奏。",
+      "body": "游泳之后，整个人会安静下来。水里没有太多信息，动作也不能着急，最后只剩下呼吸和节奏。它很适合当作恢复日，也适合把脑子里太密的东西放松一下。",
+      "icon": "swim"
+    },
+    {
+      "date": "May 22",
+      "category": "健身",
+      "title": "健身不是为了猛，而是为了长期有状态",
+      "summary": "力量训练不只是肌肉，也是在给生活留一点底气。",
+      "body": "健身不是为了猛，而是为了长期有状态。力量训练给人的帮助不只在动作本身，也在于让身体慢慢恢复一种可靠感。先保持频率，再谈强度。",
+      "icon": "dumbbell"
+    },
+    {
+      "date": "May 18",
+      "category": "粤语",
+      "title": "粤语 Day 1：从打招呼开始",
+      "summary": "从最简单的问候开始，慢慢建立一门语言的声音感觉。",
+      "body": "粤语先从打招呼开始。新语言一开始最重要的是不要急着背太多，而是先听见它的声音形状。每天碰一点，慢慢把声调和常用句留在耳朵里。",
+      "icon": "language"
+    },
+    {
+      "date": "May 16",
+      "category": "西班牙语",
+      "title": "西班牙语入门：Hola 之后的第一步",
+      "summary": "新语言像打开一扇小窗，先不求快，只求每天碰一下。",
+      "body": "Hola 之后的第一步，是让自己习惯这门语言的节奏。先从问候、介绍、简单动词开始，不求快，只求每天碰一下。",
+      "icon": "globe"
+    },
+    {
+      "date": "May 12",
+      "category": "城市生活",
+      "title": "城市里一个安静的下午",
+      "summary": "走在街上，看见一些平时容易错过的细节。",
+      "body": "城市里一个安静的下午。没有特别重要的事情，只是走在街上，看见窗户、路口、咖啡馆和一些平时容易错过的边角。这样的记录不一定有用，但很真实。",
+      "icon": "city"
+    }
+  ],
+  "galleryItems": [
+    {
+      "category": "运动",
+      "caption": "练习之后的身体会更安静。",
+      "detail": "这里以后可以放网球、游泳、健身相关照片，也可以写每张照片背后的训练感受。",
+      "tone": "from-moss/75 via-sage/60 to-paper",
+      "className": "sm:col-span-2 lg:col-span-3",
+      "photos": [
+        { "label": "球场边" },
+        { "label": "泳池水面" },
+        { "label": "训练之后" },
+        { "label": "步伐练习" },
+        { "label": "恢复日" }
+      ]
+    },
+    {
+      "category": "城市",
+      "caption": "出差路上，也会捡到一点日常。",
+      "detail": "适合放街头、咖啡馆、出差路上、散步时看到的小细节。",
+      "tone": "from-lake/80 via-fog to-paper",
+      "className": "lg:row-span-2 lg:col-span-2",
+      "photos": [
+        { "label": "街角" },
+        { "label": "咖啡馆" },
+        { "label": "车站" },
+        { "label": "夜路" },
+        { "label": "窗边" }
+      ]
+    },
+    {
+      "category": "阅读",
+      "caption": "慢慢读，慢慢记。",
+      "detail": "可以放书页、摘录、读书笔记和那些突然冒出来的想法。",
+      "tone": "from-fog via-paper to-clay/30",
+      "className": "lg:col-span-2",
+      "photos": [
+        { "label": "书页" },
+        { "label": "摘句" },
+        { "label": "下午光线" },
+        { "label": "笔记" },
+        { "label": "书桌" }
+      ]
+    },
+    {
+      "category": "日常",
+      "caption": "咖啡馆、街头、一些停顿。",
+      "detail": "不一定重要，但是真实。这里适合保留生活里柔软的小片段。",
+      "tone": "from-sage/70 via-paper to-fog",
+      "className": "lg:col-span-3",
+      "photos": [
+        { "label": "咖啡" },
+        { "label": "散步" },
+        { "label": "窗户" },
+        { "label": "午后" },
+        { "label": "小店" }
+      ]
+    },
+    {
+      "category": "AI 实验",
+      "caption": "用工具做一点有趣的小图。",
+      "detail": "可以放 AI 图片、海报、视觉风格尝试和小工具实验的截图。",
+      "tone": "from-ink/70 via-lake/60 to-paper",
+      "className": "lg:col-span-2",
+      "photos": [
+        { "label": "风格图" },
+        { "label": "海报" },
+        { "label": "提示词" },
+        { "label": "小工具" },
+        { "label": "实验稿" }
+      ]
+    },
+    {
+      "category": "运动",
+      "caption": "长期状态比短期爆发更重要。",
+      "detail": "同一类内容可以出现多块，后续也可以按月份或主题拆分。",
+      "tone": "from-clay/70 via-fog to-paper",
+      "className": "lg:col-span-2",
+      "photos": [
+        { "label": "力量" },
+        { "label": "拉伸" },
+        { "label": "恢复" },
+        { "label": "体能" },
+        { "label": "习惯" }
+      ]
+    },
+    {
+      "category": "城市",
+      "caption": "一些平时容易错过的边角。",
+      "detail": "更宽的卡片适合放横图，比如街景、展览、酒店窗外或出差路上。",
+      "tone": "from-lake/60 via-paper to-sage/50",
+      "className": "sm:col-span-2 lg:col-span-4",
+      "photos": [
+        { "label": "路口" },
+        { "label": "展览" },
+        { "label": "窗外" },
+        { "label": "雨天" },
+        { "label": "远处" }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "个人网页本身",
+      "description": "用 Codex 一点点搭建和迭代自己的个人主页。",
+      "status": "进行中",
+      "tags": ["Next.js", "Vercel", "Codex"]
+    },
+    {
+      "title": "网球练习记录工具",
+      "description": "用来记录练球、比赛、课程和自己的技术感受。",
+      "status": "构思中",
+      "tags": ["Tennis", "Notes", "Tool"]
+    },
+    {
+      "title": "个人生活看板",
+      "description": "记录运动、学习、阅读和阶段性目标。",
+      "status": "构思中",
+      "tags": ["Dashboard", "Life", "Habit"]
+    },
+    {
+      "title": "AI 图片风格实验",
+      "description": "尝试用 AI 生成不同风格的图片、海报和生活记录。",
+      "status": "探索中",
+      "tags": ["AI", "Image", "Experiment"]
+    }
+  ],
+  "contacts": [
+    { "label": "邮箱占位", "icon": "contact" },
+    { "label": "微信二维码占位", "icon": "contact" }
+  ],
+  "contactProfile": {
+    "eyebrow": "保持联系",
+    "description": "如果你也喜欢运动、语言、阅读、AI，或者只是想聊聊生活，欢迎找到我。",
+    "email": "lei.han@aya.yale.edu",
+    "wechat": "tomhl333",
+    "wechatQr": "",
+    "footer": "© 2026 Still Curious. Built with Next.js, TypeScript and Tailwind CSS."
+  }
+}

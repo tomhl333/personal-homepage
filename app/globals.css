@@ -21,9 +21,12 @@ html {
 body {
   margin: 0;
   background:
+    linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
     radial-gradient(circle at top left, rgba(201, 110, 59, 0.14), transparent 28rem),
     linear-gradient(135deg, rgba(109, 143, 163, 0.12), transparent 22rem),
     #f7f2e8;
+  background-size: 34px 34px, 34px 34px, auto, auto, auto;
   color: #243229;
 }
 
@@ -33,6 +36,57 @@ body {
 
 .section-fade {
   animation: section-fade 720ms ease both;
+}
+
+.icon-tile {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+}
+
+.lanyard-scene {
+  perspective: 1200px;
+}
+
+.lanyard-strap {
+  width: 4.8rem;
+  height: 8rem;
+  margin: 0 auto -1.4rem;
+  border: 1px solid rgba(36, 50, 41, 0.16);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  background:
+    linear-gradient(90deg, transparent 0 35%, rgba(49, 91, 70, 0.22) 35% 43%, transparent 43% 57%, rgba(49, 91, 70, 0.22) 57% 65%, transparent 65%),
+    rgba(247, 242, 232, 0.56);
+  transform: rotateX(14deg);
+  transform-origin: bottom center;
+}
+
+.lanyard-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(36, 50, 41, 0.12);
+  border-radius: 1.75rem;
+  background:
+    radial-gradient(circle at 85% 18%, rgba(109, 143, 163, 0.18), transparent 13rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(247, 242, 232, 0.92));
+  box-shadow: 0 28px 90px rgba(36, 50, 41, 0.2);
+  padding: 1.5rem;
+  transform: rotateX(7deg) rotateY(-8deg) rotateZ(0.8deg);
+  transform-style: preserve-3d;
+  animation: lanyard-enter 520ms cubic-bezier(0.22, 1.35, 0.36, 1) both;
+}
+
+.lanyard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.5), transparent 42%);
 }
 
 .spring-link {
@@ -57,7 +111,7 @@ body {
 }
 
 .spring-card:hover {
-  transform: translateY(-7px) scale(1.015);
+  transform: translateY(-5px) scale(1.01);
 }
 
 .magnetic-tag {
@@ -69,7 +123,7 @@ body {
 }
 
 .magnetic-tag:hover {
-  transform: translateY(-4px) rotate(-1deg) scale(1.06);
+  transform: translateY(-3px) rotate(-0.6deg) scale(1.04);
   border-color: rgba(49, 91, 70, 0.35);
   background-color: rgba(255, 255, 255, 0.76);
 }
@@ -207,6 +261,18 @@ body {
 
   50% {
     transform: translateY(-8px) scale(1.01);
+  }
+}
+
+@keyframes lanyard-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotateX(18deg) rotateY(-14deg) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotateX(7deg) rotateY(-8deg) rotateZ(0.8deg) scale(1);
   }
 }
 

@@ -1,40 +1,38 @@
-const contacts = [
-  "邮箱占位",
-  "微信二维码占位",
-  "GitHub 占位",
-  "小红书 / 公众号 / LinkedIn 占位",
-];
+import { contactProfile, contacts } from "@/data/site";
+import { LineIcon } from "@/components/LineIcon";
 
 export function Contact() {
   return (
-    <section className="px-5 pb-10 pt-20 sm:px-8 lg:px-12" id="contact">
-      <div className="mx-auto max-w-6xl rounded-[2rem] bg-moss p-7 text-paper shadow-soft sm:p-10 lg:p-14">
-        <div className="grid gap-10 md:grid-cols-[1fr_1.2fr] md:items-end">
+    <section className="px-5 pb-8 pt-10 sm:px-8 lg:px-12" id="contact">
+      <div className="mx-auto max-w-6xl rounded-[1.4rem] border border-ink/10 bg-white/45 p-5 text-ink shadow-sm backdrop-blur sm:p-6">
+        <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-paper/60">
-              Contact
+            <p className="text-xs font-semibold tracking-[0.22em] text-clay">
+              {contactProfile.eyebrow}
             </p>
-            <h2 className="font-serif text-3xl font-semibold sm:text-4xl">
-              有空可以聊聊生活
-            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/65">
+              {contactProfile.description}
+            </p>
           </div>
-          <p className="text-base leading-9 text-paper/80 sm:text-lg">
-            如果你也喜欢运动、语言、阅读、AI，或者只是想聊聊生活，欢迎找到我。
-          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {contacts.map((item) => (
+              <div
+                className="flex min-w-56 items-center gap-3 rounded-2xl border border-ink/10 bg-paper/65 px-4 py-3"
+                key={item.label}
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-moss/10 text-moss">
+                  <LineIcon name={item.icon} />
+                </span>
+                <div>
+                  <p className="text-xs text-ink/45">联系我</p>
+                  <p className="mt-1 text-sm font-semibold">{item.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {contacts.map((item) => (
-            <div
-              className="rounded-2xl border border-paper/20 bg-paper/10 p-5 backdrop-blur"
-              key={item}
-            >
-              <p className="text-sm text-paper/60">Find me via</p>
-              <p className="mt-2 font-semibold">{item}</p>
-            </div>
-          ))}
-        </div>
-        <footer className="mt-12 border-t border-paper/20 pt-6 text-sm text-paper/50">
-          © 2026 Still Curious. Built with Next.js, TypeScript and Tailwind CSS.
+        <footer className="mt-5 border-t border-ink/10 pt-4 text-xs text-ink/45">
+          {contactProfile.footer}
         </footer>
       </div>
     </section>
