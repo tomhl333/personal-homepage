@@ -1,16 +1,33 @@
 {
   "navItems": [
-    { "href": "#journal", "label": "最近记录" },
-    { "href": "#interests", "label": "投入的事" },
-    { "href": "#projects", "label": "小项目" },
-    { "href": "#contact", "label": "联系" }
+    {
+      "href": "#journal",
+      "label": "最近记录"
+    },
+    {
+      "href": "#interests",
+      "label": "投入的事"
+    },
+    {
+      "href": "#projects",
+      "label": "小项目"
+    },
+    {
+      "href": "#contact",
+      "label": "联系"
+    }
   ],
   "hero": {
     "eyebrow": "个人生活小站",
     "title": "人到中途，仍然好奇",
     "description": "打球、游泳、健身，学粤语和西班牙语，读一点书，记录城市和生活，也认真做一些有意思的事。"
   },
-  "heroTags": ["运动", "语言学习", "阅读记录", "城市生活"],
+  "heroTags": [
+    "运动",
+    "语言学习",
+    "阅读记录",
+    "城市生活"
+  ],
   "heroCards": [
     {
       "title": "网球",
@@ -68,11 +85,97 @@
       "summary": "发球、单反和步伐还在慢慢找感觉。",
       "icon": "tennis",
       "tone": "bg-moss/10 text-moss",
-      "notes": ["半小时发球练习", "二区抛球还要更稳定", "步伐启动比上周轻一点"],
+      "uploadDir": "/uploads/tennis",
+      "notes": [
+        "半小时发球练习",
+        "二区抛球还要更稳定",
+        "步伐启动比上周轻一点"
+      ],
+      "records": [
+        {
+          "date": "2026-05-27",
+          "title": "半小时发球练习",
+          "summary": "继续找二区发球的抛球感觉，身体侧身和出球方向还要统一。",
+          "tags": [
+            "发球",
+            "抛球"
+          ]
+        },
+        {
+          "date": "2026-05-24",
+          "title": "单反击球点更靠前一点",
+          "summary": "今天重点感受引拍后的身体转动，击球点提前后线路更稳定。",
+          "tags": [
+            "单反",
+            "节奏"
+          ]
+        },
+        {
+          "date": "2026-05-21",
+          "title": "步伐启动比上周轻一点",
+          "summary": "小碎步和第一步启动有一点改善，但回位还需要继续练。",
+          "tags": [
+            "步伐",
+            "回位"
+          ]
+        }
+      ],
+      "essays": [
+        {
+          "date": "2026-05-27",
+          "title": "发球练习里的身体顺序",
+          "type": "训练复盘",
+          "summary": "发球不是只靠手臂，抛球、侧身、蹬转和出拍方向需要连成一个顺序。",
+          "tags": [
+            "发球",
+            "复盘"
+          ]
+        },
+        {
+          "date": "2026-05-18",
+          "title": "为什么步伐决定击球质量",
+          "type": "技术笔记",
+          "summary": "很多球不是拍面问题，而是身体没有提前到位。步伐稳定后，单反也会更从容。",
+          "tags": [
+            "步伐",
+            "单反"
+          ]
+        }
+      ],
       "photos": [
-        { "label": "球场边" },
-        { "label": "练习笔记" },
-        { "label": "发球瞬间" }
+        {
+          "label": "发球练习",
+          "src": "/uploads/tennis/2026-05-27-serve.jpg",
+          "date": "2026-05-27",
+          "month": "2026-05",
+          "note": "今天主要练二区发球，抛球比上周稳定一点。",
+          "tags": [
+            "发球",
+            "抛球"
+          ]
+        },
+        {
+          "label": "单反笔记",
+          "src": "/uploads/tennis/2026-05-24-backhand.jpg",
+          "date": "2026-05-24",
+          "month": "2026-05",
+          "note": "击球点提前后，线路会更干净。",
+          "tags": [
+            "单反",
+            "节奏"
+          ]
+        },
+        {
+          "label": "球场傍晚",
+          "src": "/uploads/tennis/2026-05-21-court.jpg",
+          "date": "2026-05-21",
+          "month": "2026-05",
+          "note": "傍晚慢慢练步伐，身体启动轻了一点。",
+          "tags": [
+            "步伐",
+            "日常"
+          ]
+        }
       ]
     },
     {
@@ -81,11 +184,84 @@
       "summary": "放松、恢复，把节奏慢慢游回来。",
       "icon": "swim",
       "tone": "bg-lake/10 text-lake",
-      "notes": ["自由泳节奏更稳", "水里只剩下呼吸", "游完之后人会安静下来"],
+      "uploadDir": "/uploads/swimming",
+      "notes": [
+        "自由泳节奏更稳",
+        "水里只剩下呼吸",
+        "游完之后人会安静下来"
+      ],
+      "records": [
+        {
+          "date": "2026-05-26",
+          "title": "最近一次 1200m",
+          "summary": "没有追速度，主要把呼吸和划水节奏游顺，游完之后人安静很多。",
+          "tags": [
+            "自由泳",
+            "恢复"
+          ]
+        },
+        {
+          "date": "2026-05-19",
+          "title": "慢慢找回水感",
+          "summary": "前半程身体有点紧，后面节奏稳定下来，水里的杂音会少很多。",
+          "tags": [
+            "水感",
+            "节奏"
+          ]
+        },
+        {
+          "date": "2026-05-12",
+          "title": "轻松游比硬撑更舒服",
+          "summary": "今天控制强度，不把游泳变成另一种压力，重点是恢复和放松。",
+          "tags": [
+            "放松",
+            "恢复"
+          ]
+        }
+      ],
+      "essays": [
+        {
+          "date": "2026-05-26",
+          "title": "游泳之后，整个人会安静下来",
+          "type": "恢复笔记",
+          "summary": "水里只剩下呼吸、划水和转身，很多白天的杂音会慢慢退到远处。",
+          "tags": [
+            "恢复",
+            "节奏"
+          ]
+        },
+        {
+          "date": "2026-05-10",
+          "title": "把游泳当成长久习惯",
+          "type": "运动札记",
+          "summary": "不必每次都追配速和距离，能持续下去的运动，才真正改变状态。",
+          "tags": [
+            "长期",
+            "习惯"
+          ]
+        }
+      ],
       "photos": [
-        { "label": "泳池" },
-        { "label": "恢复" },
-        { "label": "水面" }
+        {
+          "label": "泳池",
+          "src": "/uploads/swimming/2026-05-26-pool.jpg",
+          "date": "2026-05-26",
+          "month": "2026-05",
+          "note": "今天主要把 1200m 游顺。",
+          "tags": [
+            "自由泳"
+          ]
+        },
+        {
+          "label": "恢复",
+          "src": "/uploads/swimming/2026-05-19-recovery.jpg",
+          "date": "2026-05-19",
+          "month": "2026-05",
+          "note": "游完之后，身体和脑子都慢下来。",
+          "tags": [
+            "恢复"
+          ]
+        }
       ]
     },
     {
@@ -94,11 +270,107 @@
       "summary": "关注体能、力量和长期状态。",
       "icon": "dumbbell",
       "tone": "bg-clay/10 text-clay",
-      "notes": ["力量训练不求猛", "把状态留给长期生活", "核心和下肢继续补"],
+      "uploadDir": "/uploads/fitness",
+      "notes": [
+        "力量训练不求猛",
+        "把状态留给长期生活",
+        "核心和下肢继续补"
+      ],
+      "plans": [
+        {
+          "title": "本阶段目标",
+          "focus": "恢复基础力量和长期状态",
+          "items": [
+            "每周 2 次力量训练",
+            "先把动作做稳",
+            "核心和下肢继续补",
+            "训练后留一点拉伸时间"
+          ]
+        },
+        {
+          "title": "训练拆分",
+          "focus": "轻量但持续",
+          "items": [
+            "上肢推：胸、肩、三头",
+            "上肢拉：背、二头",
+            "下肢：臀腿、核心",
+            "恢复：活动度和拉伸"
+          ]
+        }
+      ],
+      "workouts": [
+        {
+          "date": "2026-05-25",
+          "title": "上肢拉 + 核心",
+          "parts": [
+            "背",
+            "二头",
+            "核心"
+          ],
+          "duration": "45 分钟",
+          "intensity": "中等",
+          "summary": "背部训练为主，最后补了一点核心，不追重量，先找动作稳定性。"
+        },
+        {
+          "date": "2026-05-18",
+          "title": "下肢 + 拉伸",
+          "parts": [
+            "腿",
+            "臀",
+            "活动度"
+          ],
+          "duration": "40 分钟",
+          "intensity": "轻中等",
+          "summary": "下肢动作做得比较保守，重点是让身体重新适应训练节奏。"
+        },
+        {
+          "date": "2026-05-11",
+          "title": "上肢推",
+          "parts": [
+            "胸",
+            "肩",
+            "三头"
+          ],
+          "duration": "35 分钟",
+          "intensity": "轻量",
+          "summary": "用轻重量重新熟悉动作轨迹，训练后肩部状态还可以。"
+        }
+      ],
+      "essays": [
+        {
+          "date": "2026-05-25",
+          "title": "健身不是为了猛，而是为了长期有状态",
+          "type": "状态笔记",
+          "summary": "力量训练不只是肌肉，也是在给生活留一点底气。持续比一次练得很狠更重要。",
+          "tags": [
+            "长期",
+            "状态"
+          ]
+        }
+      ],
       "photos": [
-        { "label": "训练" },
-        { "label": "器械" },
-        { "label": "状态" }
+        {
+          "label": "上肢拉 + 核心",
+          "src": "/uploads/fitness/2026-05-25-pull-core.jpg",
+          "date": "2026-05-25",
+          "month": "2026-05",
+          "note": "背部训练为主，最后补了一点核心。",
+          "tags": [
+            "背",
+            "核心"
+          ]
+        },
+        {
+          "label": "器械熟悉",
+          "src": "/uploads/fitness/2026-05-18-equipment.jpg",
+          "date": "2026-05-18",
+          "month": "2026-05",
+          "note": "先从熟悉器械和动作轨迹开始。",
+          "tags": [
+            "器械",
+            "动作"
+          ]
+        }
       ]
     },
     {
@@ -107,24 +379,252 @@
       "summary": "每天学一点发音、词汇和场景对话。",
       "icon": "language",
       "tone": "bg-sage/20 text-moss",
-      "notes": ["继续熟悉粤拼", "声调需要多听多跟", "先从日常问候开始"],
+      "uploadDir": "/uploads/cantonese",
+      "notes": [
+        "继续熟悉粤拼",
+        "声调需要多听多跟",
+        "先从日常问候开始"
+      ],
+      "phrases": [
+        {
+          "text": "唔该",
+          "jyutping": "m4 goi1",
+          "meaning": "谢谢 / 麻烦你",
+          "scene": "点餐、问路、日常",
+          "note": "语气要轻一点，像顺手递出去的一句礼貌。"
+        },
+        {
+          "text": "你食咗饭未？",
+          "jyutping": "nei5 sik6 zo2 faan6 mei6",
+          "meaning": "你吃饭了吗？",
+          "scene": "熟人问候",
+          "note": "先把句尾的 mei6 听熟。"
+        },
+        {
+          "text": "冇问题",
+          "jyutping": "mou5 man6 tai4",
+          "meaning": "没问题",
+          "scene": "回应、确认",
+          "note": "mou5 的口型不要太急。"
+        }
+      ],
+      "inputs": [
+        {
+          "type": "剧",
+          "title": "新闻女王",
+          "date": "2026-05-22",
+          "note": "听语气和句尾助词，比单独背词更有场景感。"
+        },
+        {
+          "type": "播客",
+          "title": "粤语日常对话",
+          "date": "2026-05-18",
+          "note": "通勤时听一点，先不求全懂，主要熟悉声音。"
+        },
+        {
+          "type": "短视频",
+          "title": "点餐场景句",
+          "date": "2026-05-15",
+          "note": "把常见句子和真实语速放在一起听。"
+        }
+      ],
+      "learningLogs": [
+        {
+          "date": "2026-05-27",
+          "type": "课程",
+          "title": "第 12 课：日常问候和声调",
+          "summary": "继续练粤拼和几个常用问候句，声调还是需要多听多跟。",
+          "tags": [
+            "粤拼",
+            "声调",
+            "问候"
+          ]
+        },
+        {
+          "date": "2026-05-24",
+          "type": "复盘",
+          "title": "声调比单词更容易打滑",
+          "summary": "词能记住，但一放进句子里声调就容易飘，后面要多跟读整句。",
+          "tags": [
+            "声调",
+            "跟读"
+          ]
+        },
+        {
+          "date": "2026-05-20",
+          "type": "观察",
+          "title": "听剧时先抓句尾语气",
+          "summary": "不急着逐词理解，先听出一句话是疑问、确认还是提醒。",
+          "tags": [
+            "输入",
+            "听力"
+          ]
+        }
+      ],
       "photos": [
-        { "label": "词汇卡" },
-        { "label": "发音笔记" },
-        { "label": "场景句" }
+        {
+          "label": "词汇卡",
+          "src": "/uploads/cantonese/2026-05-27-phrase-card.jpg",
+          "date": "2026-05-27",
+          "month": "2026-05",
+          "note": "把常用句和粤拼放在一起记。",
+          "tags": [
+            "词句"
+          ]
+        },
+        {
+          "label": "发音笔记",
+          "src": "/uploads/cantonese/2026-05-24-tone-note.jpg",
+          "date": "2026-05-24",
+          "month": "2026-05",
+          "note": "声调需要多听多跟。",
+          "tags": [
+            "声调"
+          ]
+        }
       ]
     },
     {
-      "title": "西班牙语",
-      "status": "刚刚开始",
-      "summary": "先从最基础的词和句子碰一下。",
-      "icon": "globe",
+      "title": "看剧",
+      "status": "最近在看",
+      "summary": "记录正在看的剧、喜欢的人物角色、剧情瞬间和一些打动人的台词。",
+      "icon": "spark",
       "tone": "bg-paper text-ink/70",
-      "notes": ["Hola 之后的第一步", "每天碰一点就好", "先建立声音感觉"],
+      "uploadDir": "/uploads/shows",
+      "notes": [
+        "记录喜欢的角色",
+        "留下一句台词",
+        "剧情里的细节常常很有意思"
+      ],
+      "shows": [
+        {
+          "title": "新闻女王",
+          "creator": "香港剧集",
+          "kind": "电视剧",
+          "status": "正在看",
+          "posterTone": "from-ink/80 via-lake/70 to-paper",
+          "meta": "职场 / 媒体 / 群像",
+          "characters": [
+            {
+              "name": "Man 姐",
+              "note": "强势、清醒，也有很复杂的柔软面。"
+            },
+            {
+              "name": "George",
+              "note": "职场关系里很值得观察的角色。"
+            }
+          ],
+          "notes": [
+            {
+              "type": "剧情",
+              "text": "好看的不是反转本身，而是每个人在压力下做出的选择。"
+            },
+            {
+              "type": "台词",
+              "text": "有些台词适合慢慢听，语气比字面意思更重要。"
+            }
+          ],
+          "poster": "/uploads/shows/news-queen-poster.jpg"
+        },
+        {
+          "title": "繁花",
+          "creator": "王家卫",
+          "kind": "电视剧",
+          "status": "想重看",
+          "posterTone": "from-clay/60 via-warm to-ink/60",
+          "meta": "城市 / 人情 / 时代",
+          "characters": [
+            {
+              "name": "阿宝",
+              "note": "人在时代里往前走，也一直被过去牵着。"
+            },
+            {
+              "name": "玲子",
+              "note": "很有烟火气的聪明和分寸。"
+            }
+          ],
+          "notes": [
+            {
+              "type": "人物",
+              "text": "角色之间最有意思的地方，常常在没说出口的话里。"
+            },
+            {
+              "type": "画面",
+              "text": "灯光、街道和饭桌，比很多对白更会讲故事。"
+            }
+          ],
+          "poster": "/uploads/shows/blossoms-poster.jpg"
+        },
+        {
+          "title": "Slow Horses",
+          "creator": "Apple TV+",
+          "kind": "电视剧",
+          "status": "断续在看",
+          "posterTone": "from-fog via-paper to-moss/55",
+          "meta": "谍战 / 黑色幽默",
+          "characters": [
+            {
+              "name": "Jackson Lamb",
+              "note": "粗糙、刻薄，但判断力非常锋利。"
+            },
+            {
+              "name": "River",
+              "note": "总是在狼狈里往前冲。"
+            }
+          ],
+          "notes": [
+            {
+              "type": "节奏",
+              "text": "它不是那种很端着的谍战剧，松弛和紧张混在一起。"
+            },
+            {
+              "type": "角色",
+              "text": "失败者小队反而更有人味。"
+            }
+          ],
+          "poster": "/uploads/shows/slow-horses-poster.jpg"
+        },
+        {
+          "title": "海上钢琴师",
+          "creator": "Giuseppe Tornatore",
+          "kind": "电影",
+          "status": "想重看",
+          "posterTone": "from-lake/70 via-fog to-warm",
+          "meta": "电影 / 音乐 / 命运",
+          "characters": [
+            {
+              "name": "1900",
+              "note": "他像是活在一艘船上的诗，也像一个没有落地的人。"
+            },
+            {
+              "name": "Max",
+              "note": "见证者和讲述者，让故事有了温度。"
+            }
+          ],
+          "notes": [
+            {
+              "type": "人物",
+              "text": "最打动人的不是传奇，而是一个人如何选择自己的边界。"
+            },
+            {
+              "type": "画面",
+              "text": "船、海和音乐本身就是这部电影的记忆点。"
+            }
+          ],
+          "poster": "/uploads/shows/legend-1900-poster.jpg"
+        }
+      ],
       "photos": [
-        { "label": "单词" },
-        { "label": "句子" },
-        { "label": "练习" }
+        {
+          "label": "片单测试图",
+          "src": "/uploads/shows/news-queen-poster.jpg",
+          "date": "2026-05-27",
+          "month": "2026-05",
+          "note": "测试海报裁切和片单展示。",
+          "tags": [
+            "海报"
+          ]
+        }
       ]
     },
     {
@@ -133,34 +633,375 @@
       "summary": "给生活留一点慢速输入。",
       "icon": "book",
       "tone": "bg-fog text-ink/70",
-      "notes": ["记录喜欢的句子", "不急着读完", "把偶然想法留下来"],
+      "uploadDir": "/uploads/reading",
+      "bookCoverDir": "/uploads/books",
+      "notes": [
+        "记录喜欢的句子",
+        "不急着读完",
+        "把偶然想法留下来"
+      ],
+      "books": [
+        {
+          "title": "读史阅世六十年",
+          "author": "何炳棣",
+          "status": "最近翻到",
+          "coverTone": "from-warm via-paper to-sage/45",
+          "notes": [
+            {
+              "type": "摘抄",
+              "text": "读历史的时候，常常是在别人的经历里重新校准自己的判断。"
+            },
+            {
+              "type": "想法",
+              "text": "这类书适合慢慢读，不急着读完，重要的是看到时代和个人选择之间的张力。"
+            }
+          ],
+          "cover": "/uploads/books/history-sixty-years-cover.jpg"
+        },
+        {
+          "title": "Same as Ever",
+          "author": "Morgan Housel",
+          "status": "想继续读",
+          "coverTone": "from-fog via-white to-clay/30",
+          "notes": [
+            {
+              "type": "摘抄",
+              "text": "很多事情会变，但人性、贪婪、恐惧和耐心的价值一直在那里。"
+            },
+            {
+              "type": "想法",
+              "text": "适合放在工作和生活之间读，提醒自己别被短期变化牵着走。"
+            }
+          ],
+          "cover": "/uploads/books/same-as-ever-cover.jpg"
+        },
+        {
+          "title": "桃花源没事儿",
+          "author": "马伯庸",
+          "status": "轻松读",
+          "coverTone": "from-clay/25 via-paper to-lake/20",
+          "notes": [
+            {
+              "type": "摘抄",
+              "text": "轻松的故事也可以留下很具体的生活感。"
+            },
+            {
+              "type": "想法",
+              "text": "通勤和睡前读一点，像给脑子换一口气。"
+            }
+          ],
+          "cover": "/uploads/books/taohuayuan-cover.jpg"
+        },
+        {
+          "title": "巴菲特的对帐单",
+          "author": "Glen Arnold",
+          "status": "断续在读",
+          "coverTone": "from-moss/30 via-sage/30 to-warm",
+          "notes": [
+            {
+              "type": "摘抄",
+              "text": "长期主义听起来简单，真正难的是在噪音里维持判断。"
+            },
+            {
+              "type": "想法",
+              "text": "投资书不只是在讲钱，也是在讲如何面对时间和不确定性。"
+            }
+          ]
+        }
+      ],
       "photos": [
-        { "label": "书页" },
-        { "label": "摘录" },
-        { "label": "下午" }
+        {
+          "label": "阅读桌面",
+          "src": "/uploads/reading/2026-05-27-reading-desk.jpg",
+          "date": "2026-05-27",
+          "month": "2026-05",
+          "note": "慢速输入的测试图。",
+          "tags": [
+            "阅读"
+          ]
+        }
       ]
     },
     {
-      "title": "工作札记",
+      "title": "练字",
+      "status": "慢慢写稳",
+      "summary": "把字写慢一点，也把心里的节奏放慢一点。",
+      "icon": "note",
+      "tone": "bg-paper text-ink/70",
+      "uploadDir": "/uploads/handwriting",
+      "notes": [
+        "每天写几行",
+        "先把结构和间距写稳",
+        "记录一点手写的安静感"
+      ],
+      "checkins": [
+        {
+          "date": "2026-05-27",
+          "label": "今日练字",
+          "content": "楷书基础笔画",
+          "duration": "20 分钟",
+          "note": "横画比前几天稳一点。",
+          "src": "/uploads/handwriting/2026-05-27-practice.jpg"
+        },
+        {
+          "date": "2026-05-25",
+          "label": "字帖临摹",
+          "content": "间架结构",
+          "duration": "15 分钟",
+          "note": "先不求快，把字放正。",
+          "src": "/uploads/handwriting/2026-05-25-copybook.jpg"
+        },
+        {
+          "date": "2026-05-22",
+          "label": "慢写几行",
+          "content": "撇捺练习",
+          "duration": "18 分钟",
+          "note": "写慢一点，线条会更安静。",
+          "src": "/uploads/handwriting/2026-05-22-strokes.jpg"
+        }
+      ],
+      "photos": [
+        {
+          "label": "字帖"
+        },
+        {
+          "label": "练习页"
+        },
+        {
+          "label": "笔迹"
+        }
+      ]
+    },
+    {
+      "title": "城市生活",
+      "status": "路上的遇见",
+      "summary": "记录在各个城市碰到的有趣的事、有趣的人和一些偶然的瞬间。",
+      "icon": "city",
+      "tone": "bg-lake/10 text-lake",
+      "uploadDir": "/uploads/city-life",
+      "records": [
+        {
+          "date": "2026-05-27",
+          "title": "街角咖啡馆里的一小段聊天",
+          "summary": "出差路上偶然坐下，听见旁边的人聊起自己的城市和生活。",
+          "tags": [
+            "咖啡馆",
+            "遇见"
+          ]
+        },
+        {
+          "date": "2026-05-20",
+          "title": "一条很安静的老街",
+          "summary": "城市里总有一些慢下来的地方，适合走路，也适合把心放松一点。",
+          "tags": [
+            "散步",
+            "街头"
+          ]
+        }
+      ],
+      "essays": [
+        {
+          "date": "2026-05-27",
+          "title": "城市里的偶然性",
+          "type": "城市札记",
+          "summary": "有些城市记忆不是景点给的，而是路上遇到的人、听见的话和那一刻的天气。",
+          "tags": [
+            "城市",
+            "观察"
+          ]
+        }
+      ],
+      "notes": [
+        "记录有趣的人",
+        "留下路上的小事",
+        "城市里的细节常常很动人"
+      ],
+      "photos": [
+        {
+          "label": "街角咖啡馆",
+          "city": "上海",
+          "src": "/uploads/city-life/2026-05-27-shanghai-street.jpg",
+          "date": "2026-05-27",
+          "month": "2026-05",
+          "note": "下午路过这里，窗边的位置看起来很适合发呆。",
+          "tags": [
+            "咖啡馆",
+            "街头"
+          ]
+        },
+        {
+          "label": "窗边座位",
+          "city": "广州",
+          "src": "/uploads/city-life/2026-05-20-guangzhou-cafe.jpg",
+          "date": "2026-05-20",
+          "month": "2026-05",
+          "note": "适合坐下来听城市声音的地方。",
+          "tags": [
+            "咖啡馆",
+            "慢下来"
+          ]
+        },
+        {
+          "label": "出差路上",
+          "city": "深圳",
+          "src": "/uploads/city-life/2026-04-28-shenzhen-road.jpg",
+          "date": "2026-04-28",
+          "month": "2026-04",
+          "note": "车窗外的城市慢慢退后，刚好适合整理思路。",
+          "tags": [
+            "出差",
+            "路上"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "做事札记",
       "status": "复盘与成长",
       "summary": "轻轻记录数字化、项目管理和沟通方法带来的思考。",
       "icon": "briefcase",
       "tone": "bg-clay/10 text-clay",
-      "notes": ["项目管理不是只追进度", "流程背后其实是人的协作", "复盘能让经验留下来"],
+      "uploadDir": "/uploads/work-notes",
+      "notes": [
+        "项目管理不是只追进度",
+        "流程背后其实是人的协作",
+        "复盘能让经验留下来"
+      ],
+      "records": [
+        {
+          "date": "2026-05-27",
+          "title": "把下一步说清楚",
+          "summary": "项目推进有时候不是催，而是把每个人下一步要做什么变得更清楚。",
+          "tags": [
+            "协作",
+            "沟通"
+          ]
+        },
+        {
+          "date": "2026-05-21",
+          "title": "流程不是画完就结束",
+          "summary": "流程图只是开始，真正重要的是它能不能被一线的人理解和使用。",
+          "tags": [
+            "流程",
+            "复盘"
+          ]
+        },
+        {
+          "date": "2026-05-16",
+          "title": "系统问题背后常常是共识问题",
+          "summary": "很多卡点看起来是系统功能，其实是大家对规则和边界理解不一样。",
+          "tags": [
+            "系统",
+            "共识"
+          ]
+        }
+      ],
+      "essays": [
+        {
+          "date": "2026-05-27",
+          "title": "一次流程梳理后的复盘",
+          "type": "项目旁记",
+          "summary": "流程梳理不只是把步骤排顺，更是在帮助不同角色重新对齐彼此的理解。",
+          "tags": [
+            "流程",
+            "协作",
+            "复盘"
+          ]
+        },
+        {
+          "date": "2026-05-12",
+          "title": "数字化项目里的沟通成本",
+          "type": "做事复盘",
+          "summary": "系统上线前最容易被低估的，往往不是技术复杂度，而是沟通和使用习惯的改变。",
+          "tags": [
+            "数字化",
+            "沟通"
+          ]
+        }
+      ],
       "photos": [
-        { "label": "流程草图" },
-        { "label": "会议笔记" },
-        { "label": "复盘卡片" }
+        {
+          "label": "流程白板",
+          "project": "门店系统梳理",
+          "src": "/uploads/work-notes/2026-05-27-flow-board.jpg",
+          "date": "2026-05-27",
+          "month": "2026-05",
+          "note": "流程不是画完就结束，还要能被人理解和使用。",
+          "tags": [
+            "流程",
+            "协作"
+          ]
+        },
+        {
+          "label": "会议笔记",
+          "project": "周例会复盘",
+          "src": "/uploads/work-notes/2026-05-21-meeting-notes.jpg",
+          "date": "2026-05-21",
+          "month": "2026-05",
+          "note": "真正有效的会议，应该让下一步更清楚。",
+          "tags": [
+            "会议",
+            "沟通"
+          ]
+        },
+        {
+          "label": "复盘卡片",
+          "project": "数字化实践",
+          "src": "/uploads/work-notes/2026-05-16-retro-card.jpg",
+          "date": "2026-05-16",
+          "month": "2026-05",
+          "note": "把经验写下来，才不会只停留在感觉里。",
+          "tags": [
+            "复盘",
+            "成长"
+          ]
+        }
       ]
     }
   ],
   "statusItems": [
-    { "title": "网球", "english": "Tennis", "detail": "本周练习 2 次", "icon": "tennis", "tone": "bg-moss/10 text-moss" },
-    { "title": "游泳", "english": "Swimming", "detail": "最近一次 1200m", "icon": "swim", "tone": "bg-lake/10 text-lake" },
-    { "title": "健身", "english": "Fitness", "detail": "保持力量训练", "icon": "dumbbell", "tone": "bg-clay/10 text-clay" },
-    { "title": "粤语", "english": "Cantonese", "detail": "Day 12", "icon": "language", "tone": "bg-sage/20 text-moss" },
-    { "title": "西班牙语", "english": "Spanish", "detail": "刚刚开始", "icon": "globe", "tone": "bg-paper text-ink/70" },
-    { "title": "阅读", "english": "Reading", "detail": "最近在读", "icon": "book", "tone": "bg-fog text-ink/70" }
+    {
+      "title": "网球",
+      "english": "Tennis",
+      "detail": "本周练习 2 次",
+      "icon": "tennis",
+      "tone": "bg-moss/10 text-moss"
+    },
+    {
+      "title": "游泳",
+      "english": "Swimming",
+      "detail": "最近一次 1200m",
+      "icon": "swim",
+      "tone": "bg-lake/10 text-lake"
+    },
+    {
+      "title": "健身",
+      "english": "Fitness",
+      "detail": "保持力量训练",
+      "icon": "dumbbell",
+      "tone": "bg-clay/10 text-clay"
+    },
+    {
+      "title": "粤语",
+      "english": "Cantonese",
+      "detail": "Day 12",
+      "icon": "language",
+      "tone": "bg-sage/20 text-moss"
+    },
+    {
+      "title": "看剧",
+      "english": "Shows",
+      "detail": "最近在看",
+      "icon": "spark",
+      "tone": "bg-paper text-ink/70"
+    },
+    {
+      "title": "阅读",
+      "english": "Reading",
+      "detail": "最近在读",
+      "icon": "book",
+      "tone": "bg-fog text-ink/70"
+    }
   ],
   "interests": [
     {
@@ -196,12 +1037,12 @@
       "description": "每天学一点粤语，记录词汇、粤拼声调、发音重点和场景对话。"
     },
     {
-      "title": "西班牙语",
-      "english": "Spanish",
-      "icon": "globe",
+      "title": "看剧",
+      "english": "Shows",
+      "icon": "spark",
       "tone": "bg-paper text-ink/70",
       "className": "",
-      "description": "从基础开始接触西班牙语，记录单词、句子和语言学习过程。"
+      "description": "记录正在看的剧、喜欢的人物角色、剧情瞬间和一些打动人的台词。"
     },
     {
       "title": "阅读",
@@ -286,11 +1127,21 @@
       "tone": "from-moss/75 via-sage/60 to-paper",
       "className": "sm:col-span-2 lg:col-span-3",
       "photos": [
-        { "label": "球场边" },
-        { "label": "泳池水面" },
-        { "label": "训练之后" },
-        { "label": "步伐练习" },
-        { "label": "恢复日" }
+        {
+          "label": "球场边"
+        },
+        {
+          "label": "泳池水面"
+        },
+        {
+          "label": "训练之后"
+        },
+        {
+          "label": "步伐练习"
+        },
+        {
+          "label": "恢复日"
+        }
       ]
     },
     {
@@ -300,11 +1151,21 @@
       "tone": "from-lake/80 via-fog to-paper",
       "className": "lg:row-span-2 lg:col-span-2",
       "photos": [
-        { "label": "街角" },
-        { "label": "咖啡馆" },
-        { "label": "车站" },
-        { "label": "夜路" },
-        { "label": "窗边" }
+        {
+          "label": "街角"
+        },
+        {
+          "label": "咖啡馆"
+        },
+        {
+          "label": "车站"
+        },
+        {
+          "label": "夜路"
+        },
+        {
+          "label": "窗边"
+        }
       ]
     },
     {
@@ -314,11 +1175,21 @@
       "tone": "from-fog via-paper to-clay/30",
       "className": "lg:col-span-2",
       "photos": [
-        { "label": "书页" },
-        { "label": "摘句" },
-        { "label": "下午光线" },
-        { "label": "笔记" },
-        { "label": "书桌" }
+        {
+          "label": "书页"
+        },
+        {
+          "label": "摘句"
+        },
+        {
+          "label": "下午光线"
+        },
+        {
+          "label": "笔记"
+        },
+        {
+          "label": "书桌"
+        }
       ]
     },
     {
@@ -328,11 +1199,21 @@
       "tone": "from-sage/70 via-paper to-fog",
       "className": "lg:col-span-3",
       "photos": [
-        { "label": "咖啡" },
-        { "label": "散步" },
-        { "label": "窗户" },
-        { "label": "午后" },
-        { "label": "小店" }
+        {
+          "label": "咖啡"
+        },
+        {
+          "label": "散步"
+        },
+        {
+          "label": "窗户"
+        },
+        {
+          "label": "午后"
+        },
+        {
+          "label": "小店"
+        }
       ]
     },
     {
@@ -342,11 +1223,21 @@
       "tone": "from-ink/70 via-lake/60 to-paper",
       "className": "lg:col-span-2",
       "photos": [
-        { "label": "风格图" },
-        { "label": "海报" },
-        { "label": "提示词" },
-        { "label": "小工具" },
-        { "label": "实验稿" }
+        {
+          "label": "风格图"
+        },
+        {
+          "label": "海报"
+        },
+        {
+          "label": "提示词"
+        },
+        {
+          "label": "小工具"
+        },
+        {
+          "label": "实验稿"
+        }
       ]
     },
     {
@@ -356,11 +1247,21 @@
       "tone": "from-clay/70 via-fog to-paper",
       "className": "lg:col-span-2",
       "photos": [
-        { "label": "力量" },
-        { "label": "拉伸" },
-        { "label": "恢复" },
-        { "label": "体能" },
-        { "label": "习惯" }
+        {
+          "label": "力量"
+        },
+        {
+          "label": "拉伸"
+        },
+        {
+          "label": "恢复"
+        },
+        {
+          "label": "体能"
+        },
+        {
+          "label": "习惯"
+        }
       ]
     },
     {
@@ -370,11 +1271,21 @@
       "tone": "from-lake/60 via-paper to-sage/50",
       "className": "sm:col-span-2 lg:col-span-4",
       "photos": [
-        { "label": "路口" },
-        { "label": "展览" },
-        { "label": "窗外" },
-        { "label": "雨天" },
-        { "label": "远处" }
+        {
+          "label": "路口"
+        },
+        {
+          "label": "展览"
+        },
+        {
+          "label": "窗外"
+        },
+        {
+          "label": "雨天"
+        },
+        {
+          "label": "远处"
+        }
       ]
     }
   ],
@@ -383,37 +1294,48 @@
       "title": "个人网页本身",
       "description": "用 Codex 一点点搭建和迭代自己的个人主页。",
       "status": "进行中",
-      "tags": ["Next.js", "Vercel", "Codex"]
+      "tags": [
+        "Next.js",
+        "Vercel",
+        "Codex"
+      ]
     },
     {
       "title": "网球练习记录工具",
       "description": "用来记录练球、比赛、课程和自己的技术感受。",
       "status": "构思中",
-      "tags": ["Tennis", "Notes", "Tool"]
+      "tags": [
+        "Tennis",
+        "Notes",
+        "Tool"
+      ]
     },
     {
       "title": "个人生活看板",
       "description": "记录运动、学习、阅读和阶段性目标。",
       "status": "构思中",
-      "tags": ["Dashboard", "Life", "Habit"]
+      "tags": [
+        "Dashboard",
+        "Life",
+        "Habit"
+      ]
     },
     {
       "title": "AI 图片风格实验",
       "description": "尝试用 AI 生成不同风格的图片、海报和生活记录。",
       "status": "探索中",
-      "tags": ["AI", "Image", "Experiment"]
+      "tags": [
+        "AI",
+        "Image",
+        "Experiment"
+      ]
     }
-  ],
-  "contacts": [
-    { "label": "邮箱占位", "icon": "contact" },
-    { "label": "微信二维码占位", "icon": "contact" }
   ],
   "contactProfile": {
     "eyebrow": "保持联系",
     "description": "如果你也喜欢运动、语言、阅读、AI，或者只是想聊聊生活，欢迎找到我。",
     "email": "lei.han@aya.yale.edu",
     "wechat": "tomhl333",
-    "wechatQr": "",
-    "footer": "© 2026 Still Curious. Built with Next.js, TypeScript and Tailwind CSS."
+    "wechatQr": ""
   }
 }
