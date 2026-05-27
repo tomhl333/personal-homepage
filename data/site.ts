@@ -4,6 +4,12 @@ import content from "@/data/site-content.json";
 export type PhotoItem = {
   label: string;
   src?: string;
+  date?: string;
+  month?: string;
+  project?: string;
+  city?: string;
+  note?: string;
+  tags?: string[];
 };
 
 export type SiteContent = {
@@ -28,8 +34,92 @@ export type SiteContent = {
     summary: string;
     icon: IconName;
     tone: string;
+    uploadDir?: string;
+    bookCoverDir?: string;
     notes: string[];
     photos: PhotoItem[];
+    records?: Array<{
+      date: string;
+      title: string;
+      summary: string;
+      tags: string[];
+    }>;
+    plans?: Array<{
+      title: string;
+      focus: string;
+      items: string[];
+    }>;
+    workouts?: Array<{
+      date: string;
+      title: string;
+      parts: string[];
+      duration: string;
+      intensity: string;
+      summary: string;
+    }>;
+    phrases?: Array<{
+      text: string;
+      jyutping?: string;
+      meaning: string;
+      scene: string;
+      note?: string;
+    }>;
+    inputs?: Array<{
+      type: string;
+      title: string;
+      date: string;
+      note: string;
+    }>;
+    learningLogs?: Array<{
+      date: string;
+      type: string;
+      title: string;
+      summary: string;
+      tags?: string[];
+    }>;
+    checkins?: Array<{
+      date: string;
+      label: string;
+      content?: string;
+      duration?: string;
+      note?: string;
+      src?: string;
+    }>;
+    essays?: Array<{
+      date: string;
+      title: string;
+      type: string;
+      summary: string;
+      tags: string[];
+    }>;
+    books?: Array<{
+      title: string;
+      author: string;
+      status: string;
+      cover?: string;
+      coverTone: string;
+      notes: Array<{
+        type: string;
+        text: string;
+      }>;
+    }>;
+    shows?: Array<{
+      title: string;
+      creator: string;
+      kind: string;
+      status: string;
+      poster?: string;
+      posterTone: string;
+      meta: string;
+      characters: Array<{
+        name: string;
+        note: string;
+      }>;
+      notes: Array<{
+        type: string;
+        text: string;
+      }>;
+    }>;
   }>;
   statusItems: Array<{
     title: string;
@@ -68,14 +158,12 @@ export type SiteContent = {
     status: string;
     tags: string[];
   }>;
-  contacts: Array<{ label: string; icon: IconName }>;
   contactProfile: {
     eyebrow: string;
     description: string;
     email: string;
     wechat: string;
     wechatQr: string;
-    footer: string;
   };
 };
 
@@ -91,5 +179,4 @@ export const interests = siteContent.interests;
 export const journalPosts = siteContent.journalPosts;
 export const galleryItems = siteContent.galleryItems;
 export const projects = siteContent.projects;
-export const contacts = siteContent.contacts;
 export const contactProfile = siteContent.contactProfile;
