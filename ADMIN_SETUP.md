@@ -33,12 +33,12 @@ Repository permissions -> Contents -> Read and write
 
 不要把 token 写进代码，只放在 Vercel 环境变量里。
 
-## 第一版能力
+## 维护台能力
 
 - 密码登录
-- 编辑首页文案
-- 编辑联系方式
-- 编辑“投入的事”的基础字段
-- 用当前模块 JSON 维护书籍、影视、照片、练字、健身等细分结构
-- 上传图片到 `public/uploads/...`
+- 复用本地维护台的完整表单和快捷新增体验
+- 维护首页文案、投入模块、长记录、照片专题、小项目、联系方式
+- 维护书籍、影视、练字、粤语、健身、网球、游泳、城市生活、做事札记等细分结构
+- 获取书籍封面和影视海报，并保存到 GitHub 的 `public/uploads/...`
+- 上传图片到 GitHub 的 `public/uploads/...`
 - 保存 `data/site-content.json` 到 GitHub，并触发 Vercel 自动部署
