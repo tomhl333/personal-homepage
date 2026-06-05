@@ -87,7 +87,7 @@ export function HeroActivityPanel() {
 
       {active ? (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-ink/35 px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-8"
+          className="fixed inset-0 z-50 overflow-x-hidden overflow-y-auto bg-ink/35 px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-8"
           role="dialog"
           aria-modal="true"
           onClick={() => setActiveIndex(null)}
@@ -96,7 +96,7 @@ export function HeroActivityPanel() {
             className="mx-auto min-h-full w-full max-w-5xl py-1 sm:py-2"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex min-h-[calc(100dvh-1.5rem)] flex-col overflow-visible rounded-[1.25rem] bg-paper text-ink shadow-soft sm:max-h-[calc(100vh-4rem)] sm:min-h-0 sm:overflow-hidden sm:rounded-[1.8rem]">
+            <div className="flex min-h-[calc(100dvh-1.5rem)] min-w-0 flex-col overflow-x-hidden overflow-y-visible rounded-[1.25rem] bg-paper text-ink shadow-soft sm:max-h-[calc(100vh-4rem)] sm:min-h-0 sm:overflow-hidden sm:rounded-[1.8rem]">
               <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-ink/10 bg-paper/92 p-4 backdrop-blur sm:gap-5 sm:p-7">
                 <div className="flex items-start gap-4">
                   <span className={`icon-tile hidden sm:grid ${active.tone}`}>
@@ -124,7 +124,7 @@ export function HeroActivityPanel() {
               </div>
 
               {active.books ? (
-                <div className="grid min-h-0 flex-1 gap-5 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[1.05fr_0.95fr]">
                   <div className="min-h-0 lg:overflow-y-auto lg:pr-2">
                     <div className="flex items-end justify-between gap-4">
                       <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
@@ -135,12 +135,12 @@ export function HeroActivityPanel() {
                       </p>
                     </div>
 
-                    <div className="mt-4 flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:pb-1">
+                    <div className="-mx-4 mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-[calc(50%-4.2rem)] pb-4 pt-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-1 sm:pt-0">
                       {active.books.map((book, index) => (
                         <button
-                          className={`group w-28 shrink-0 text-left transition duration-300 sm:w-auto ${
+                          className={`group w-32 shrink-0 snap-center text-center transition duration-300 sm:w-auto sm:text-left ${
                             index === activeBookIndex
-                              ? "-translate-y-1"
+                              ? "z-10 -translate-y-1 scale-105"
                               : "hover:-translate-y-1"
                           }`}
                           key={book.title}
@@ -232,7 +232,7 @@ export function HeroActivityPanel() {
                   </div>
                 </div>
               ) : active.shows ? (
-                <div className="grid min-h-0 flex-1 gap-5 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[1.08fr_0.92fr]">
+                <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[1.08fr_0.92fr]">
                   <div className="min-h-0 lg:overflow-y-auto lg:pr-1">
                     <div className="flex items-end justify-between gap-4">
                       <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
@@ -262,12 +262,12 @@ export function HeroActivityPanel() {
                                 {shows.length}
                               </span>
                             </div>
-                            <div className="flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:pb-0">
+                            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-[calc(50%-4.8rem)] pb-4 pt-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 sm:pt-0">
                               {shows.map((show) => (
                                 <button
-                                  className={`group w-32 shrink-0 text-left transition duration-300 sm:w-auto ${
+                                  className={`group w-36 shrink-0 snap-center text-center transition duration-300 sm:w-auto sm:text-left ${
                                     show.originalIndex === activeBookIndex
-                                      ? "-translate-y-1"
+                                      ? "z-10 -translate-y-1 scale-105"
                                       : "hover:-translate-y-1"
                                   }`}
                                   key={show.title}
