@@ -747,6 +747,14 @@
       ],
       "checkins": [
         {
+          "date": "2026-06-05",
+          "label": "今日练字",
+          "content": "行楷练习，炜/委/玮",
+          "duration": "20 分钟",
+          "note": "主要练了下韦，火字旁也有点难写",
+          "src": "/uploads/handwriting/1780660403693-image.jpg"
+        },
+        {
           "date": "2026-03-04",
           "label": "今日练字",
           "content": "行楷基础笔画",
