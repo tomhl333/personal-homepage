@@ -144,36 +144,33 @@
       ],
       "photos": [
         {
-          "label": "发球练习",
-          "src": "/uploads/tennis/2026-05-27-serve.jpg",
-          "date": "2026-05-27",
-          "month": "2026-05",
-          "note": "今天主要练二区发球，抛球比上周稳定一点。",
+          "label": "网球小程序",
+          "src": "/uploads/tennis/1780474106539-app2.jpg",
+          "date": "2026-06-01",
+          "month": "2026-06",
+          "note": "闲来无事，开发个小程序玩玩",
           "tags": [
-            "发球",
-            "抛球"
-          ]
-        },
-        {
-          "label": "单反笔记",
-          "src": "/uploads/tennis/2026-05-24-backhand.jpg",
-          "date": "2026-05-24",
-          "month": "2026-05",
-          "note": "击球点提前后，线路会更干净。",
-          "tags": [
-            "单反",
-            "节奏"
-          ]
-        },
-        {
-          "label": "球场傍晚",
-          "src": "/uploads/tennis/2026-05-21-court.jpg",
-          "date": "2026-05-21",
-          "month": "2026-05",
-          "note": "傍晚慢慢练步伐，身体启动轻了一点。",
-          "tags": [
-            "步伐",
             "日常"
+          ]
+        },
+        {
+          "label": "网球小程序",
+          "src": "/uploads/tennis/1780474065107-app1.jpg",
+          "date": "2026-06-03",
+          "month": "2026-06",
+          "note": "闲来没事开发个小程序玩玩记录一下",
+          "tags": [
+            "日常"
+          ]
+        },
+        {
+          "label": "石家庄天迹限",
+          "src": "/uploads/tennis/1780473693355-image.jpg",
+          "date": "2026-05-25",
+          "month": "2026-05",
+          "note": "在石家庄这个球场打的最多，而且都是单打比赛",
+          "tags": [
+            "比赛"
           ]
         }
       ]
@@ -498,68 +495,37 @@
       ],
       "shows": [
         {
-          "title": "新闻女王",
-          "creator": "香港剧集",
+          "title": "浴血黑帮",
+          "creator": "",
           "kind": "电视剧",
-          "status": "正在看",
-          "posterTone": "from-ink/80 via-lake/70 to-paper",
-          "meta": "职场 / 媒体 / 群像",
-          "characters": [
-            {
-              "name": "Man 姐",
-              "note": "强势、清醒，也有很复杂的柔软面。"
-            },
-            {
-              "name": "George",
-              "note": "职场关系里很值得观察的角色。"
-            }
-          ],
-          "notes": [
-            {
-              "type": "剧情",
-              "text": "好看的不是反转本身，而是每个人在压力下做出的选择。"
-            },
-            {
-              "type": "台词",
-              "text": "有些台词适合慢慢听，语气比字面意思更重要。"
-            }
-          ],
-          "poster": "/uploads/shows/news-queen-poster.jpg"
+          "status": "看完",
+          "poster": "/uploads/shows/1780465130307-浴血黑帮.webp",
+          "posterTone": "from-fog via-paper to-moss/55",
+          "meta": "",
+          "characters": [],
+          "notes": []
         },
         {
-          "title": "繁花",
-          "creator": "王家卫",
+          "title": "权利的游戏",
+          "creator": "HBO",
           "kind": "电视剧",
-          "status": "想重看",
-          "posterTone": "from-clay/60 via-warm to-ink/60",
-          "meta": "城市 / 人情 / 时代",
-          "characters": [
-            {
-              "name": "阿宝",
-              "note": "人在时代里往前走，也一直被过去牵着。"
-            },
-            {
-              "name": "玲子",
-              "note": "很有烟火气的聪明和分寸。"
-            }
-          ],
+          "status": "看完",
+          "posterTone": "from-ink/80 via-lake/70 to-paper",
+          "meta": "史诗奇幻",
+          "characters": [],
           "notes": [
             {
-              "type": "人物",
-              "text": "角色之间最有意思的地方，常常在没说出口的话里。"
-            },
-            {
-              "type": "画面",
-              "text": "灯光、街道和饭桌，比很多对白更会讲故事。"
+              "type": "台词",
+              "text": "有的胜利需要宝剑和长矛，有的胜利需要纸笔和乌鸦"
             }
           ],
-          "poster": "/uploads/shows/blossoms-poster.jpg"
+          "poster": "/uploads/shows/1780017714287-权利的游戏.jpg"
         },
         {
           "title": "Slow Horses",
           "creator": "Apple TV+",
           "kind": "电视剧",
-          "status": "断续在看",
+          "status": "看完等待新一季更新",
           "posterTone": "from-fog via-paper to-moss/55",
           "meta": "谍战 / 黑色幽默",
           "characters": [
@@ -582,7 +548,7 @@
               "text": "失败者小队反而更有人味。"
             }
           ],
-          "poster": "/uploads/shows/slow-horses-poster.jpg"
+          "poster": "/uploads/shows/1780463311185-slow-horses.webp"
         },
         {
           "title": "海上钢琴师",
@@ -611,7 +577,44 @@
               "text": "船、海和音乐本身就是这部电影的记忆点。"
             }
           ],
-          "poster": "/uploads/shows/legend-1900-poster.jpg"
+          "poster": "/uploads/shows/1780463204752-海上钢琴师.webp"
+        },
+        {
+          "title": "无耻之徒",
+          "creator": "",
+          "kind": "电视剧",
+          "status": "",
+          "poster": "/uploads/shows/1780463584682-无耻之徒.webp",
+          "posterTone": "from-fog via-paper to-moss/55",
+          "meta": "",
+          "characters": [
+            {
+              "name": "Phillip Gallagher",
+              "note": "行走的荷尔蒙，棱角分明的帅，最关键的是还非常聪明"
+            }
+          ],
+          "notes": [
+            {
+              "type": "剧情",
+              "text": "说实话，很少有让我觉得意义重大的影视作品，看电影电视基本都是为了消磨时间或者娱乐而已，而且我很少看国内的影视。有人说这是一部美国人自毁形象的电视，在我看来恰恰相反，这其实是美国精神的体现，是美国人对于传统道德和价值观的颠覆，是时代变迁下真实的美国生活；有人觉得这部电视反映了美国社会底层人民的水生火热，以及各种丑陋、无耻、不伦的现象，其实我觉得这恰恰体现了美国社会的自由、包容和博爱。"
+            }
+          ]
+        },
+        {
+          "title": "熊家餐厅",
+          "creator": "",
+          "kind": "电视剧",
+          "status": "看完等更新",
+          "poster": "/uploads/shows/1780463973126-熊家餐厅.webp",
+          "posterTone": "from-fog via-paper to-moss/55",
+          "meta": "",
+          "characters": [
+            {
+              "name": "Richard 'Richie'",
+              "note": "没什么文化，但是真诚，各有各的不容易"
+            }
+          ],
+          "notes": []
         }
       ],
       "photos": [
@@ -642,38 +645,41 @@
       ],
       "books": [
         {
-          "title": "读史阅世六十年",
-          "author": "何炳棣",
-          "status": "最近翻到",
-          "coverTone": "from-warm via-paper to-sage/45",
-          "notes": [
-            {
-              "type": "摘抄",
-              "text": "读历史的时候，常常是在别人的经历里重新校准自己的判断。"
-            },
-            {
-              "type": "想法",
-              "text": "这类书适合慢慢读，不急着读完，重要的是看到时代和个人选择之间的张力。"
-            }
-          ],
-          "cover": "/uploads/books/history-sixty-years-cover.jpg"
+          "title": "基督山伯爵",
+          "author": "大仲马",
+          "status": "读完",
+          "cover": "/uploads/books/1780465981971-基督山伯爵.jpg",
+          "coverTone": "from-fog via-white to-clay/30",
+          "notes": []
         },
         {
-          "title": "Same as Ever",
-          "author": "Morgan Housel",
-          "status": "想继续读",
+          "title": "包法利夫人",
+          "author": "福楼拜",
+          "status": "读完",
+          "cover": "/uploads/books/1780465929839-包法利夫人.jpg",
+          "coverTone": "from-fog via-white to-clay/30",
+          "notes": []
+        },
+        {
+          "title": "食南之徒",
+          "author": "马伯庸",
+          "status": "读完",
+          "cover": "/uploads/books/1780465845670-食南之徒.jpg",
           "coverTone": "from-fog via-white to-clay/30",
           "notes": [
             {
-              "type": "摘抄",
-              "text": "很多事情会变，但人性、贪婪、恐惧和耐心的价值一直在那里。"
-            },
-            {
               "type": "想法",
-              "text": "适合放在工作和生活之间读，提醒自己别被短期变化牵着走。"
+              "text": "爱吃有心细的人也挺厉害的，感觉马伯庸就挺爱吃的"
             }
-          ],
-          "cover": "/uploads/books/same-as-ever-cover.jpg"
+          ]
+        },
+        {
+          "title": "命运",
+          "author": "蔡崇达",
+          "status": "读完",
+          "cover": "/uploads/books/1780465747960-新书.jpg",
+          "coverTone": "from-fog via-white to-clay/30",
+          "notes": []
         },
         {
           "title": "桃花源没事儿",
@@ -690,23 +696,7 @@
               "text": "通勤和睡前读一点，像给脑子换一口气。"
             }
           ],
-          "cover": "/uploads/books/taohuayuan-cover.jpg"
-        },
-        {
-          "title": "巴菲特的对帐单",
-          "author": "Glen Arnold",
-          "status": "断续在读",
-          "coverTone": "from-moss/30 via-sage/30 to-warm",
-          "notes": [
-            {
-              "type": "摘抄",
-              "text": "长期主义听起来简单，真正难的是在噪音里维持判断。"
-            },
-            {
-              "type": "想法",
-              "text": "投资书不只是在讲钱，也是在讲如何面对时间和不确定性。"
-            }
-          ]
+          "cover": "/uploads/books/1779897443159-桃花源没事儿.jpg"
         }
       ],
       "photos": [
@@ -736,28 +726,28 @@
       ],
       "checkins": [
         {
-          "date": "2026-05-27",
+          "date": "2026-03-04",
           "label": "今日练字",
-          "content": "楷书基础笔画",
+          "content": "行楷基础笔画",
+          "duration": "20 分钟",
+          "note": "",
+          "src": "/uploads/handwriting/1780474043402-2.jpg"
+        },
+        {
+          "date": "2026-03-03",
+          "label": "今日练字",
+          "content": "行楷基础笔画",
+          "duration": "20 分钟",
+          "note": "认真练字",
+          "src": "/uploads/handwriting/1780474009034-1.jpg"
+        },
+        {
+          "date": "2026-05-28",
+          "label": "今日练字",
+          "content": "行楷练习，帑/屉/忝",
           "duration": "20 分钟",
           "note": "横画比前几天稳一点。",
-          "src": "/uploads/handwriting/2026-05-27-practice.jpg"
-        },
-        {
-          "date": "2026-05-25",
-          "label": "字帖临摹",
-          "content": "间架结构",
-          "duration": "15 分钟",
-          "note": "先不求快，把字放正。",
-          "src": "/uploads/handwriting/2026-05-25-copybook.jpg"
-        },
-        {
-          "date": "2026-05-22",
-          "label": "慢写几行",
-          "content": "撇捺练习",
-          "duration": "18 分钟",
-          "note": "写慢一点，线条会更安静。",
-          "src": "/uploads/handwriting/2026-05-22-strokes.jpg"
+          "src": "/uploads/handwriting/1779961717934-20260528174605-88-306.jpg"
         }
       ],
       "photos": [
@@ -780,15 +770,6 @@
       "tone": "bg-lake/10 text-lake",
       "uploadDir": "/uploads/city-life",
       "records": [
-        {
-          "date": "2026-05-27",
-          "title": "街角咖啡馆里的一小段聊天",
-          "summary": "出差路上偶然坐下，听见旁边的人聊起自己的城市和生活。",
-          "tags": [
-            "咖啡馆",
-            "遇见"
-          ]
-        },
         {
           "date": "2026-05-20",
           "title": "一条很安静的老街",
@@ -818,39 +799,36 @@
       ],
       "photos": [
         {
-          "label": "街角咖啡馆",
-          "city": "上海",
-          "src": "/uploads/city-life/2026-05-27-shanghai-street.jpg",
-          "date": "2026-05-27",
+          "label": "热米皮",
+          "src": "/uploads/city-life/1780473750354-image.jpg",
+          "city": "河北石家庄",
+          "date": "2026-05-22",
           "month": "2026-05",
-          "note": "下午路过这里，窗边的位置看起来很适合发呆。",
+          "note": "石家庄的热米皮可真难吃",
           "tags": [
-            "咖啡馆",
-            "街头"
+            "石家庄热米皮难吃"
           ]
         },
         {
-          "label": "窗边座位",
-          "city": "广州",
-          "src": "/uploads/city-life/2026-05-20-guangzhou-cafe.jpg",
-          "date": "2026-05-20",
+          "label": "电量耗光",
+          "src": "/uploads/city-life/1780473572859-image.jpg",
+          "city": "河南郑州",
+          "date": "2026-05-29",
           "month": "2026-05",
-          "note": "适合坐下来听城市声音的地方。",
+          "note": "从石家庄到郑州，第一次把电量压榨到这种程度",
           "tags": [
-            "咖啡馆",
-            "慢下来"
+            "开车长途"
           ]
         },
         {
-          "label": "出差路上",
-          "city": "深圳",
-          "src": "/uploads/city-life/2026-04-28-shenzhen-road.jpg",
-          "date": "2026-04-28",
-          "month": "2026-04",
-          "note": "车窗外的城市慢慢退后，刚好适合整理思路。",
+          "label": "黎昊结婚",
+          "src": "/uploads/city-life/1780473454845-image.jpg",
+          "city": "山东东营",
+          "date": "2026-05-01",
+          "month": "2026-05",
+          "note": "回东营凑热闹",
           "tags": [
-            "出差",
-            "路上"
+            "黎昊结婚"
           ]
         }
       ]

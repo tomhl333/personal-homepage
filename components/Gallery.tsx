@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { activitySpotlights } from "@/data/site";
+import { ImageLightbox, type LightboxImage } from "@/components/ImageLightbox";
 import { SectionHeading } from "@/components/SectionHeading";
+import { resolveMediaPath } from "@/lib/media";
 import type { CSSProperties } from "react";
+import type { PhotoItem } from "@/data/site";
 
 type MomentTopic = {
   category: string;
@@ -11,14 +14,7 @@ type MomentTopic = {
   detail: string;
   tone: string;
   className: string;
-  photos: Array<{
-    label: string;
-    src?: string;
-    date?: string;
-    month?: string;
-    note?: string;
-    tags?: string[];
-  }>;
+  photos: PhotoItem[];
 };
 
 const topicLayouts = [
@@ -33,6 +29,7 @@ const topicLayouts = [
 export function Gallery() {
   const momentTopics = buildMomentTopics();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [previewImage, setPreviewImage] = useState<LightboxImage | null>(null);
   const active = activeIndex === null ? null : momentTopics[activeIndex];
 
   useEffect(() => {
@@ -55,11 +52,12 @@ export function Gallery() {
           align="left"
           eyebrow="瞬间"
           title="一些瞬间"
-          description="这里会自动汇总各个最近状态里的照片。你只需要在维护台上传图片、写日期和标签，首页会自己挑选和排版。"
+          description="这里会自动汇总最近状态里的照片、书封和海报。你只需要在维护台维护内容，首页会自己挑选和排版。"
         />
         <div className="grid auto-rows-[190px] gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {momentTopics.map((item, index) => {
             const cover = item.photos.find((photo) => photo.src) ?? item.photos[0];
+            const isCoverTopic = item.photos.every((photo) => isCoverMedia(photo));
 
             return (
             <button
@@ -69,28 +67,34 @@ export function Gallery() {
               style={{ "--float-delay": `${index * 130}ms` } as CSSProperties}
               type="button"
             >
-              <div
-                className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
-                style={
-                  cover?.src
-                    ? {
-                        backgroundImage: `linear-gradient(180deg, rgba(36, 50, 41, 0.08), rgba(36, 50, 41, 0.42)), url(${cover.src})`,
-                      }
-                    : undefined
-                }
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.32)_0,transparent_42%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.36),transparent_10rem)] transition duration-500 group-hover:scale-105" />
-              <div className="absolute inset-x-4 bottom-4 rounded-[1.1rem] border border-white/60 bg-paper/85 p-4 text-ink shadow-sm backdrop-blur transition duration-300 group-hover:-translate-y-1">
-                <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                  {item.category}
-                </p>
-                <p className="mt-2 text-sm font-semibold leading-6">
-                  {item.caption}
-                </p>
-                {cover?.date ? (
-                  <p className="mt-1 text-xs text-ink/45">{cover.date}</p>
-                ) : null}
-              </div>
+              {isCoverTopic ? (
+                <CoverPreviewGrid photos={item.photos} title={item.category} />
+              ) : (
+                <>
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
+                    style={
+                      cover?.src
+                        ? {
+                            backgroundImage: `url("${resolveMediaPath(cover.src)}")`,
+                          }
+                        : undefined
+                    }
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_34%,rgba(14,22,18,0.12)_62%,rgba(14,22,18,0.58)_100%)] transition duration-500 group-hover:bg-[linear-gradient(180deg,transparent_28%,rgba(14,22,18,0.18)_58%,rgba(14,22,18,0.66)_100%)]" />
+                  <div className="absolute inset-x-5 bottom-5 text-white drop-shadow-[0_2px_8px_rgba(14,22,18,0.45)] transition duration-300 group-hover:-translate-y-1">
+                    <p className="text-[0.68rem] font-semibold tracking-[0.2em] text-white/70">
+                      {item.category}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold leading-6">
+                      {item.caption}
+                    </p>
+                    {cover?.date ? (
+                      <p className="mt-1 text-xs text-white/62">{cover.date}</p>
+                    ) : null}
+                  </div>
+                </>
+              )}
             </button>
             );
           })}
@@ -132,37 +136,72 @@ export function Gallery() {
 
               <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-7 lg:grid-cols-4">
                 {active.photos.map((photo, index) => (
-                  <figure
-                    className={`group flex min-h-44 items-end overflow-hidden rounded-2xl bg-gradient-to-br from-moss/20 via-fog to-clay/20 bg-cover bg-center p-3 ${
-                      index === 0 ? "sm:col-span-2 sm:row-span-2" : ""
-                    }`}
-                    key={`${photo.label}-${index}`}
-                    style={
-                      photo.src
-                        ? { backgroundImage: `linear-gradient(180deg, transparent 35%, rgba(36, 50, 41, 0.52)), url(${photo.src})` }
-                        : undefined
-                    }
-                  >
-                    <figcaption className="rounded-2xl bg-paper/88 px-3 py-2 text-xs font-semibold text-ink/65 backdrop-blur">
-                      <span className="block">{photo.label}</span>
-                      {photo.date ? (
-                        <span className="mt-1 block text-[0.68rem] text-ink/42">
-                          {photo.date}
+                  isCoverMedia(photo) ? (
+                    <button
+                      className="group rounded-2xl bg-white/35 p-3 text-center transition duration-300 hover:-translate-y-1 hover:bg-white/55"
+                      key={`${photo.label}-${index}`}
+                      onClick={() => setPreviewImage(photo)}
+                      type="button"
+                    >
+                      <div
+                        className="relative mx-auto flex aspect-[2/3] max-h-64 items-center justify-center overflow-hidden rounded-xl shadow-sm"
+                      >
+                        {photo.src ? (
+                          <img
+                            alt={photo.label}
+                            className="h-full w-full object-contain"
+                            src={resolveMediaPath(photo.src)!}
+                          />
+                        ) : null}
+                      </div>
+                      <span className="mt-3 block line-clamp-2 text-sm font-semibold leading-5 text-ink/72">
+                        {photo.label}
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      className={`group relative min-h-44 overflow-hidden rounded-2xl bg-gradient-to-br from-moss/20 via-fog to-clay/20 bg-cover bg-center text-left ${
+                        index === 0 ? "sm:col-span-2 sm:row-span-2" : ""
+                      }`}
+                      key={`${photo.label}-${index}`}
+                      onClick={() => setPreviewImage(photo)}
+                      style={
+                        photo.src
+                          ? {
+                              backgroundImage: `url("${resolveMediaPath(photo.src)}")`,
+                            }
+                          : undefined
+                      }
+                      type="button"
+                    >
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(14,22,18,0.12)_64%,rgba(14,22,18,0.68)_100%)]" />
+                      <span className="absolute inset-x-4 bottom-4 text-white drop-shadow-[0_2px_8px_rgba(14,22,18,0.48)]">
+                        <span className="block text-sm font-semibold leading-5">
+                          {photo.label}
                         </span>
-                      ) : null}
-                      {photo.note ? (
-                        <span className="mt-1 line-clamp-2 block text-[0.7rem] font-medium leading-4 text-ink/55">
-                          {photo.note}
-                        </span>
-                      ) : null}
-                    </figcaption>
-                  </figure>
+                        {photo.date ? (
+                          <span className="mt-1 block text-[0.72rem] font-medium text-white/68">
+                            {photo.date}
+                          </span>
+                        ) : null}
+                        {photo.note ? (
+                          <span className="mt-1 line-clamp-2 block text-xs font-medium leading-5 text-white/82">
+                            {photo.note}
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+                  )
                 ))}
               </div>
             </div>
           </div>
         </div>
       ) : null}
+      <ImageLightbox
+        image={previewImage}
+        onClose={() => setPreviewImage(null)}
+      />
     </section>
   );
 }
@@ -170,21 +209,142 @@ export function Gallery() {
 function buildMomentTopics(): MomentTopic[] {
   return activitySpotlights
     .map((item, index) => {
-      const photos = [...item.photos].sort((a, b) =>
-        (b.date ?? "").localeCompare(a.date ?? ""),
-      );
+      const photos = sortMomentPhotos(collectMomentPhotos(item));
       const latest = photos[0];
+      const latestIsCoverMedia = latest ? isCoverMedia(latest) : false;
 
       return {
         category: item.title,
-        caption: latest?.note ?? item.summary,
-        detail: `${item.title}里的照片会从最近状态自动汇总。后续照片多了，可以继续按月份和标签筛选。`,
+        caption: latestIsCoverMedia ? item.summary : latest?.note ?? item.summary,
+        detail: `${item.title}里的图片会从最近状态自动汇总。后续内容多了，可以继续按月份和标签筛选。`,
         tone: topicTone(item.title),
         className: topicLayouts[index % topicLayouts.length],
         photos,
       };
     })
     .filter((item) => item.photos.length > 0);
+}
+
+function collectMomentPhotos(
+  item: (typeof activitySpotlights)[number],
+): PhotoItem[] {
+  const bookCovers =
+    item.books
+      ?.filter((book) => book.cover)
+      .map((book) => ({
+        label: book.title,
+        src: book.cover,
+        note: book.author,
+        tags: [item.title, "书封"],
+      })) ?? [];
+
+  const showPosters =
+    item.shows
+      ?.filter((show) => show.poster)
+      .map((show) => ({
+        label: show.title,
+        src: show.poster,
+        note: [show.kind, show.status].filter(Boolean).join(" · "),
+        tags: [item.title, "海报"],
+      })) ?? [];
+
+  const shouldUseDirectPhotos = !item.books?.length && !item.shows?.length;
+  const photos = shouldUseDirectPhotos
+    ? item.photos
+        .filter((photo) => photo.src)
+        .map((photo) => ({
+          ...photo,
+          tags: photo.tags ?? [item.title],
+        }))
+    : [];
+
+  const checkinPhotos =
+    item.checkins
+      ?.filter((checkin) => checkin.src)
+      .map((checkin) => ({
+        label: checkin.label,
+        src: checkin.src,
+        date: checkin.date,
+        month: checkin.date?.slice(0, 7),
+        note: checkin.note ?? checkin.content,
+        tags: [item.title],
+      })) ?? [];
+
+  return dedupeMedia([
+    ...bookCovers,
+    ...showPosters,
+    ...photos,
+    ...checkinPhotos,
+  ]);
+}
+
+function sortMomentPhotos(photos: PhotoItem[]) {
+  return photos
+    .map((photo, index) => ({ photo, index }))
+    .sort((a, b) => {
+      if (a.photo.date && b.photo.date) {
+        return b.photo.date.localeCompare(a.photo.date);
+      }
+
+      return a.index - b.index;
+    })
+    .map(({ photo }) => photo);
+}
+
+function dedupeMedia(photos: PhotoItem[]) {
+  const seen = new Set<string>();
+
+  return photos.filter((photo) => {
+    const key = photo.src ?? photo.label;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function isCoverMedia(photo: PhotoItem) {
+  return photo.tags?.includes("书封") || photo.tags?.includes("海报");
+}
+
+function CoverPreviewGrid({
+  photos,
+  title,
+}: {
+  photos: PhotoItem[];
+  title: string;
+}) {
+  const previewPhotos = photos.slice(0, 4);
+
+  return (
+    <div className="absolute inset-0 flex flex-col justify-between p-4">
+      <div className="grid min-h-0 flex-1 grid-cols-4 items-center gap-3">
+        {previewPhotos.map((photo, index) => (
+          <div
+            className={`relative flex h-full min-h-0 items-center justify-center overflow-hidden rounded-xl bg-paper/45 shadow-sm transition duration-500 group-hover:-translate-y-1 ${
+              index % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"
+            }`}
+            key={`${photo.label}-${index}`}
+          >
+            {photo.src ? (
+              <img
+                alt={photo.label}
+                className="h-full w-full object-contain"
+                src={resolveMediaPath(photo.src)!}
+              />
+            ) : null}
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-ink/10 pt-3">
+        <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
+          {title}
+        </p>
+        <p className="text-xs font-semibold text-ink/45">
+          {photos.length} 个
+        </p>
+      </div>
+    </div>
+  );
 }
 
 function topicTone(title: string) {
