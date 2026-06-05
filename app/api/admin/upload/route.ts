@@ -33,7 +33,11 @@ export async function POST(request: NextRequest) {
       path: repoPath,
     });
 
-    return NextResponse.json({ ok: true, src });
+    return NextResponse.json({
+      label: body.name.replace(/\.[^.]+$/, ""),
+      ok: true,
+      src,
+    });
   } catch (error) {
     return NextResponse.json(
       {

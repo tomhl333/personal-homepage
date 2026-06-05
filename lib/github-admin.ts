@@ -117,6 +117,45 @@ export async function writeGitHubBinaryFile({
   });
 }
 
+export async function saveRemoteImageToGitHub({
+  title,
+  uploadDir,
+  url,
+}: {
+  title: string;
+  uploadDir: string;
+  url: string;
+}) {
+  const response = await fetch(url, {
+    headers: {
+      Referer: new URL(url).origin,
+      "User-Agent": "Mozilla/5.0 personal-homepage-admin/1.0",
+    },
+  });
+  const contentType = response.headers.get("content-type") ?? "image/jpeg";
+
+  if (!response.ok || !contentType.startsWith("image/")) {
+    throw new Error("远程图片无法下载");
+  }
+
+  const extension = contentType.includes("png")
+    ? ".png"
+    : contentType.includes("webp")
+      ? ".webp"
+      : contentType.includes("gif")
+        ? ".gif"
+        : ".jpg";
+  const { repoPath, src } = normalizeUploadPath(uploadDir, `${title}${extension}`);
+
+  await writeGitHubBinaryFile({
+    content: Buffer.from(await response.arrayBuffer()),
+    message: `Upload ${src} from mobile admin`,
+    path: repoPath,
+  });
+
+  return src;
+}
+
 export function normalizeUploadPath(uploadDir: string, fileName: string) {
   const dir = uploadDir.trim().replace(/\\/g, "/");
 
