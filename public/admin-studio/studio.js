@@ -1730,15 +1730,44 @@ function openNoteDialog(type) {
 }
 
 async function upload(file, endpoint = "/api/admin/upload", uploadDir = "/uploads") {
-  status("正在上传图片...");
-  const data = await readFileAsDataUrl(file);
-  const uploaded = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: file.name, type: file.type, data, uploadDir }),
-  }).then((response) => response.json());
-  status("图片已上传，记得保存内容。");
-  return uploaded;
+  status("正在压缩图片...");
+  const prepared = await prepareImageForUpload(file);
+  const sizeMb = (prepared.size / 1024 / 1024).toFixed(2);
+  status(`正在上传图片...（约 ${sizeMb} MB）`);
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 60000);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: prepared.name,
+        type: prepared.type,
+        data: prepared.data,
+        uploadDir,
+      }),
+      signal: controller.signal,
+    });
+    const uploaded = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(uploaded.message || uploaded.error || `上传失败：${response.status}`);
+    }
+
+    status("图片已上传，记得保存内容。");
+    return uploaded;
+  } catch (error) {
+    const message =
+      error.name === "AbortError"
+        ? "上传超时。手机原图可能太大或网络不稳定，请换一张图或稍后重试。"
+        : error.message || "上传失败，请稍后重试。";
+    status(message);
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 async function save() {
@@ -1858,6 +1887,84 @@ function readFileAsDataUrl(file) {
     reader.addEventListener("load", () => resolve(reader.result));
     reader.addEventListener("error", reject);
     reader.readAsDataURL(file);
+  });
+}
+
+async function prepareImageForUpload(file) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("只能上传图片。");
+  }
+
+  if (file.type === "image/gif" || file.size <= 900 * 1024) {
+    return {
+      data: await readFileAsDataUrl(file),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    };
+  }
+
+  const image = await loadImage(file);
+  const maxSide = 1800;
+  const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    return {
+      data: await readFileAsDataUrl(file),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    };
+  }
+
+  ctx.drawImage(image, 0, 0, width, height);
+  const blob = await canvasToBlob(canvas, "image/jpeg", 0.82);
+  const data = await readFileAsDataUrl(blob);
+  const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
+
+  return {
+    data,
+    name: `${baseName}.jpg`,
+    size: blob.size,
+    type: "image/jpeg",
+  };
+}
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("图片读取失败，请换一张图片。"));
+    };
+    image.src = url;
+  });
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("图片压缩失败，请换一张图片。"));
+        }
+      },
+      type,
+      quality,
+    );
   });
 }
 
