@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type TouchEvent } from "react";
 import { ImageLightbox, type LightboxImage } from "@/components/ImageLightbox";
 import { activitySpotlights } from "@/data/site";
 import { LineIcon } from "@/components/LineIcon";
@@ -10,6 +10,7 @@ import type { PhotoItem } from "@/data/site";
 export function HeroActivityPanel() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [activeBookIndex, setActiveBookIndex] = useState(0);
+  const [coverTouchStart, setCoverTouchStart] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<LightboxImage | null>(null);
   const active = activeIndex === null ? null : activitySpotlights[activeIndex];
   const activeBook =
@@ -38,6 +39,22 @@ export function HeroActivityPanel() {
   useEffect(() => {
     setActiveBookIndex(0);
   }, [activeIndex]);
+
+  function changeActiveCover(step: number, total: number) {
+    if (total <= 0) return;
+    setActiveBookIndex((index) => (index + step + total) % total);
+  }
+
+  function handleCoverTouchEnd(
+    event: TouchEvent<HTMLDivElement>,
+    total: number,
+  ) {
+    if (coverTouchStart === null) return;
+    const delta = event.changedTouches[0].clientX - coverTouchStart;
+    setCoverTouchStart(null);
+    if (Math.abs(delta) < 32) return;
+    changeActiveCover(delta < 0 ? 1 : -1, total);
+  }
 
   return (
     <>
@@ -135,14 +152,18 @@ export function HeroActivityPanel() {
                       </p>
                     </div>
 
-                    <div className="mt-4 flex w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 pb-4 pt-1 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-1 sm:pt-0">
+                    <div
+                      className="relative mt-4 h-[18.5rem] w-full max-w-full touch-pan-y select-none overflow-hidden sm:grid sm:h-auto sm:grid-cols-4 sm:gap-4 sm:overflow-visible"
+                      onTouchEnd={(event) =>
+                        handleCoverTouchEnd(event, active.books?.length ?? 0)
+                      }
+                      onTouchStart={(event) =>
+                        setCoverTouchStart(event.touches[0].clientX)
+                      }
+                    >
                       {active.books.map((book, index) => (
                         <button
-                          className={`group w-32 shrink-0 snap-center text-center transition duration-300 sm:w-auto sm:text-left ${
-                            index === activeBookIndex
-                              ? "z-10 -translate-y-1 scale-105"
-                              : "hover:-translate-y-1"
-                          }`}
+                          className={`group absolute left-1/2 top-0 w-36 text-center transition duration-300 sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
                           key={book.title}
                           onClick={() => setActiveBookIndex(index)}
                           type="button"
@@ -189,10 +210,30 @@ export function HeroActivityPanel() {
                           </span>
                         </button>
                       ))}
+                      {active.books.length > 1 ? (
+                        <>
+                          <button
+                            aria-label="上一本"
+                            className="absolute left-0 top-[5.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                            onClick={() => changeActiveCover(-1, active.books?.length ?? 0)}
+                            type="button"
+                          >
+                            ‹
+                          </button>
+                          <button
+                            aria-label="下一本文"
+                            className="absolute right-0 top-[5.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                            onClick={() => changeActiveCover(1, active.books?.length ?? 0)}
+                            type="button"
+                          >
+                            ›
+                          </button>
+                        </>
+                      ) : null}
                     </div>
                   </div>
 
-                  <div className="min-h-0 min-w-0 rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
+                  <div className="min-h-0 min-w-0 max-w-full rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
                     {activeBook ? (
                       <>
                         <p className="text-xs font-semibold tracking-[0.2em] text-clay">
@@ -208,7 +249,7 @@ export function HeroActivityPanel() {
                           <div className="mt-5 space-y-3">
                             {activeBook.notes.map((note) => (
                               <article
-                                className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
+                                className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/70 p-4"
                                 key={note.text}
                               >
                                 <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
@@ -221,7 +262,7 @@ export function HeroActivityPanel() {
                             ))}
                           </div>
                         ) : (
-                          <div className="mt-5 rounded-2xl border border-ink/10 bg-paper/55 p-5">
+                          <div className="mt-5 min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/55 p-5">
                             <p className="text-sm leading-7 text-ink/58 [overflow-wrap:anywhere]">
                               这本书还没留下摘抄。先放在书架上，等读到有意思的句子再慢慢补上。
                             </p>
@@ -244,39 +285,35 @@ export function HeroActivityPanel() {
                     </div>
 
                     <div className="mt-4 space-y-6">
-                      {Array.from(new Set((active.shows ?? []).map((show) => show.kind))).map((kind) => {
-                        const shows = (active.shows ?? [])
-                          .map((show, index) => ({ ...show, originalIndex: index }))
-                          .filter((show) => show.kind === kind);
-
-                        if (shows.length === 0) return null;
-
-                        return (
-                          <section key={kind}>
-                            <div className="mb-3 flex items-center gap-3">
-                              <h4 className="text-sm font-semibold text-ink">
-                                {kind}
-                              </h4>
-                              <span className="h-px flex-1 bg-ink/10" />
-                              <span className="text-xs text-ink/40">
-                                {shows.length}
-                              </span>
-                            </div>
-                            <div className="flex w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 pb-4 pt-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 sm:pt-0">
-                              {shows.map((show) => (
+                      <section>
+                        <div className="mb-3 flex items-center gap-3">
+                          <h4 className="text-sm font-semibold text-ink">
+                            {activeShow?.kind ?? "片单"}
+                          </h4>
+                          <span className="h-px flex-1 bg-ink/10" />
+                          <span className="text-xs text-ink/40">
+                            {active.shows.length}
+                          </span>
+                        </div>
+                        <div
+                          className="relative h-[20.5rem] w-full max-w-full touch-pan-y select-none overflow-hidden sm:grid sm:h-auto sm:grid-cols-3 sm:gap-4 sm:overflow-visible"
+                          onTouchEnd={(event) =>
+                            handleCoverTouchEnd(event, active.shows?.length ?? 0)
+                          }
+                          onTouchStart={(event) =>
+                            setCoverTouchStart(event.touches[0].clientX)
+                          }
+                        >
+                              {active.shows.map((show, index) => (
                                 <button
-                                  className={`group w-36 shrink-0 snap-center text-center transition duration-300 sm:w-auto sm:text-left ${
-                                    show.originalIndex === activeBookIndex
-                                      ? "z-10 -translate-y-1 scale-105"
-                                      : "hover:-translate-y-1"
-                                  }`}
+                                  className={`group absolute left-1/2 top-0 w-40 text-center transition duration-300 sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
                                   key={show.title}
-                                  onClick={() => setActiveBookIndex(show.originalIndex)}
+                                  onClick={() => setActiveBookIndex(index)}
                                   type="button"
                                 >
                                   <span
                                     className={`relative block aspect-[2/3] overflow-hidden rounded-[1.25rem] border bg-gradient-to-br ${show.posterTone} shadow-sm transition duration-300 ${
-                                      show.originalIndex === activeBookIndex
+                                      index === activeBookIndex
                                         ? "border-moss/40 shadow-soft"
                                         : "border-ink/10 group-hover:border-moss/25"
                                     }`}
@@ -317,14 +354,32 @@ export function HeroActivityPanel() {
                                   </span>
                                 </button>
                               ))}
-                            </div>
-                          </section>
-                        );
-                      })}
+                          {active.shows.length > 1 ? (
+                            <>
+                              <button
+                                aria-label="上一部"
+                                className="absolute left-0 top-[6.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                                onClick={() => changeActiveCover(-1, active.shows?.length ?? 0)}
+                                type="button"
+                              >
+                                ‹
+                              </button>
+                              <button
+                                aria-label="下一部"
+                                className="absolute right-0 top-[6.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                                onClick={() => changeActiveCover(1, active.shows?.length ?? 0)}
+                                type="button"
+                              >
+                                ›
+                              </button>
+                            </>
+                          ) : null}
+                        </div>
+                      </section>
                     </div>
                   </div>
 
-                  <div className="min-h-0 min-w-0 rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
+                  <div className="min-h-0 min-w-0 max-w-full rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
                     {activeShow ? (
                       <>
                         <p className="text-xs font-semibold tracking-[0.2em] text-clay">
@@ -347,7 +402,7 @@ export function HeroActivityPanel() {
                             <div className="mt-3 grid gap-3 sm:grid-cols-2">
                               {activeShow.characters.map((character) => (
                                 <article
-                                  className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
+                                  className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/70 p-4"
                                   key={character.name}
                                 >
                                   <h5 className="font-semibold text-ink">
@@ -366,7 +421,7 @@ export function HeroActivityPanel() {
                           <div className="mt-5 space-y-3">
                             {activeShow.notes.map((note) => (
                               <article
-                                className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
+                                className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/70 p-4"
                                 key={note.text}
                               >
                                 <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
@@ -379,7 +434,7 @@ export function HeroActivityPanel() {
                             ))}
                           </div>
                         ) : (
-                          <div className="mt-5 rounded-2xl border border-ink/10 bg-paper/55 p-5">
+                          <div className="mt-5 min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/55 p-5">
                             <p className="text-sm leading-7 text-ink/58 [overflow-wrap:anywhere]">
                               这部还没写下记录。先留在片单里，等哪一段人物或台词打动我再补上。
                             </p>
@@ -968,6 +1023,30 @@ function formatShowMeta(show: {
     .map((item) => item?.trim())
     .filter(Boolean)
     .join(" · ");
+}
+
+function coverFlowClass(position: number) {
+  if (position === 0) {
+    return "z-20 -translate-x-1/2 scale-100 opacity-100 sm:translate-x-0";
+  }
+
+  if (position === -1) {
+    return "z-10 -translate-x-[118%] scale-90 opacity-80 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+  }
+
+  if (position === 1) {
+    return "z-10 translate-x-[18%] scale-90 opacity-80 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+  }
+
+  if (position === -2) {
+    return "z-0 -translate-x-[178%] scale-75 opacity-35 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+  }
+
+  if (position === 2) {
+    return "z-0 translate-x-[78%] scale-75 opacity-35 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+  }
+
+  return "pointer-events-none z-0 -translate-x-1/2 scale-75 opacity-0 sm:pointer-events-auto sm:translate-x-0 sm:scale-100 sm:opacity-100";
 }
 
 function PhotoPreviewButton({
