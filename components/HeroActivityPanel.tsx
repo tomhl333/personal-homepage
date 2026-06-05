@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type TouchEvent } from "react";
+import { useEffect, useState, type CSSProperties, type TouchEvent } from "react";
 import { ImageLightbox, type LightboxImage } from "@/components/ImageLightbox";
 import { activitySpotlights } from "@/data/site";
 import { LineIcon } from "@/components/LineIcon";
@@ -11,6 +11,7 @@ export function HeroActivityPanel() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [activeBookIndex, setActiveBookIndex] = useState(0);
   const [coverTouchStart, setCoverTouchStart] = useState<number | null>(null);
+  const [coverDragOffset, setCoverDragOffset] = useState(0);
   const [previewImage, setPreviewImage] = useState<LightboxImage | null>(null);
   const active = activeIndex === null ? null : activitySpotlights[activeIndex];
   const activeBook =
@@ -54,9 +55,23 @@ export function HeroActivityPanel() {
     if (coverTouchStart === null) return;
     const delta = event.changedTouches[0].clientX - coverTouchStart;
     setCoverTouchStart(null);
+    setCoverDragOffset(0);
     if (Math.abs(delta) < 32) return;
     const distance = Math.min(3, Math.max(1, Math.floor(Math.abs(delta) / 72)));
     changeActiveCover(delta < 0 ? distance : -distance, total);
+  }
+
+  function handleCoverTouchMove(
+    event: TouchEvent<HTMLDivElement>,
+    total: number,
+  ) {
+    if (coverTouchStart === null) return;
+    const delta = event.touches[0].clientX - coverTouchStart;
+    if ((activeBookIndex === 0 && delta > 0) || (activeBookIndex >= total - 1 && delta < 0)) {
+      setCoverDragOffset(0);
+      return;
+    }
+    setCoverDragOffset(Math.max(-112, Math.min(112, delta)));
   }
 
   return (
@@ -160,13 +175,17 @@ export function HeroActivityPanel() {
                       onTouchEnd={(event) =>
                         handleCoverTouchEnd(event, active.books?.length ?? 0)
                       }
+                      onTouchMove={(event) =>
+                        handleCoverTouchMove(event, active.books?.length ?? 0)
+                      }
                       onTouchStart={(event) =>
                         setCoverTouchStart(event.touches[0].clientX)
                       }
+                      style={coverFlowStyle(coverDragOffset)}
                     >
                       {active.books.map((book, index) => (
                         <button
-                          className={`group absolute left-1/2 top-0 w-36 text-center transition-[opacity,transform] duration-500 ease-out sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
+                          className={`group absolute left-1/2 top-0 w-36 text-center sm:static sm:w-auto sm:text-left ${coverTouchStart === null ? "transition-[opacity,transform] duration-500 ease-out" : "transition-none"} ${coverFlowClass(index - activeBookIndex)}`}
                           key={book.title}
                           onClick={() => setActiveBookIndex(index)}
                           type="button"
@@ -280,35 +299,24 @@ export function HeroActivityPanel() {
               ) : active.shows ? (
                 <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[1.08fr_0.92fr]">
                   <div className="min-h-0 lg:overflow-y-auto lg:pr-1">
-                    <div className="flex items-end justify-between gap-4">
-                      <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                        片单
-                      </p>
-                    </div>
-
-                    <div className="mt-4 space-y-6">
+                    <div className="space-y-6">
                       <section>
-                        <div className="mb-3 flex items-center gap-3">
-                          <h4 className="text-sm font-semibold text-ink">
-                            片单
-                          </h4>
-                          <span className="h-px flex-1 bg-ink/10" />
-                          <span className="text-xs text-ink/40">
-                            {active.shows.length}
-                          </span>
-                        </div>
                         <div
                           className="relative h-[20.5rem] w-full max-w-full touch-pan-y select-none overflow-hidden sm:grid sm:h-auto sm:grid-cols-3 sm:gap-4 sm:overflow-visible"
                           onTouchEnd={(event) =>
                             handleCoverTouchEnd(event, active.shows?.length ?? 0)
                           }
+                          onTouchMove={(event) =>
+                            handleCoverTouchMove(event, active.shows?.length ?? 0)
+                          }
                           onTouchStart={(event) =>
                             setCoverTouchStart(event.touches[0].clientX)
                           }
+                          style={coverFlowStyle(coverDragOffset)}
                         >
                               {active.shows.map((show, index) => (
                                 <button
-                                  className={`group absolute left-1/2 top-0 w-40 text-center transition-[opacity,transform] duration-500 ease-out sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
+                                  className={`group absolute left-1/2 top-0 w-40 text-center sm:static sm:w-auto sm:text-left ${coverTouchStart === null ? "transition-[opacity,transform] duration-500 ease-out" : "transition-none"} ${coverFlowClass(index - activeBookIndex)}`}
                                   key={show.title}
                                   onClick={() => setActiveBookIndex(index)}
                                   type="button"
@@ -329,7 +337,7 @@ export function HeroActivityPanel() {
                                         : undefined
                                     }
                                   >
-                                    <span className="absolute left-2 top-2 z-10 rounded-full bg-paper/82 px-2 py-1 text-[0.62rem] font-semibold text-ink/62 shadow-sm backdrop-blur">
+                                    <span className="absolute left-2 top-2 z-10 rounded-full border border-white/70 bg-paper/95 px-2.5 py-1 text-[0.64rem] font-black text-moss shadow-sm backdrop-blur">
                                       {show.kind === "电影" ? "电影" : "剧集"}
                                     </span>
                                     {show.poster ? null : (
@@ -1034,26 +1042,30 @@ function formatShowMeta(show: {
 
 function coverFlowClass(position: number) {
   if (position === 0) {
-    return "z-20 -translate-x-1/2 scale-100 opacity-100 sm:translate-x-0";
+    return "z-20 translate-x-[calc(-50%+var(--cover-drag))] scale-100 opacity-100 sm:translate-x-0";
   }
 
   if (position === -1) {
-    return "z-10 -translate-x-[118%] scale-90 opacity-80 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+    return "z-10 translate-x-[calc(-118%+var(--cover-drag))] scale-90 opacity-80 sm:translate-x-0 sm:scale-100 sm:opacity-100";
   }
 
   if (position === 1) {
-    return "z-10 translate-x-[18%] scale-90 opacity-80 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+    return "z-10 translate-x-[calc(18%+var(--cover-drag))] scale-90 opacity-80 sm:translate-x-0 sm:scale-100 sm:opacity-100";
   }
 
   if (position === -2) {
-    return "z-0 -translate-x-[178%] scale-75 opacity-35 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+    return "z-0 translate-x-[calc(-178%+var(--cover-drag))] scale-75 opacity-35 sm:translate-x-0 sm:scale-100 sm:opacity-100";
   }
 
   if (position === 2) {
-    return "z-0 translate-x-[78%] scale-75 opacity-35 sm:translate-x-0 sm:scale-100 sm:opacity-100";
+    return "z-0 translate-x-[calc(78%+var(--cover-drag))] scale-75 opacity-35 sm:translate-x-0 sm:scale-100 sm:opacity-100";
   }
 
-  return "pointer-events-none z-0 -translate-x-1/2 scale-75 opacity-0 sm:pointer-events-auto sm:translate-x-0 sm:scale-100 sm:opacity-100";
+  return "pointer-events-none z-0 translate-x-[calc(-50%+var(--cover-drag))] scale-75 opacity-0 sm:pointer-events-auto sm:translate-x-0 sm:scale-100 sm:opacity-100";
+}
+
+function coverFlowStyle(offset: number) {
+  return { "--cover-drag": `${offset}px` } as CSSProperties;
 }
 
 function PhotoPreviewButton({
