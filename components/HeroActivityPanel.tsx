@@ -42,7 +42,9 @@ export function HeroActivityPanel() {
 
   function changeActiveCover(step: number, total: number) {
     if (total <= 0) return;
-    setActiveBookIndex((index) => (index + step + total) % total);
+    setActiveBookIndex((index) =>
+      Math.min(total - 1, Math.max(0, index + step)),
+    );
   }
 
   function handleCoverTouchEnd(
@@ -53,7 +55,8 @@ export function HeroActivityPanel() {
     const delta = event.changedTouches[0].clientX - coverTouchStart;
     setCoverTouchStart(null);
     if (Math.abs(delta) < 32) return;
-    changeActiveCover(delta < 0 ? 1 : -1, total);
+    const distance = Math.min(3, Math.max(1, Math.floor(Math.abs(delta) / 72)));
+    changeActiveCover(delta < 0 ? distance : -distance, total);
   }
 
   return (
@@ -163,7 +166,7 @@ export function HeroActivityPanel() {
                     >
                       {active.books.map((book, index) => (
                         <button
-                          className={`group absolute left-1/2 top-0 w-36 text-center transition duration-300 sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
+                          className={`group absolute left-1/2 top-0 w-36 text-center transition-[opacity,transform] duration-500 ease-out sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
                           key={book.title}
                           onClick={() => setActiveBookIndex(index)}
                           type="button"
@@ -214,7 +217,8 @@ export function HeroActivityPanel() {
                         <>
                           <button
                             aria-label="上一本"
-                            className="absolute left-0 top-[5.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                            className="absolute left-0 top-[5.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur transition disabled:pointer-events-none disabled:opacity-25 sm:hidden"
+                            disabled={activeBookIndex === 0}
                             onClick={() => changeActiveCover(-1, active.books?.length ?? 0)}
                             type="button"
                           >
@@ -222,7 +226,8 @@ export function HeroActivityPanel() {
                           </button>
                           <button
                             aria-label="下一本文"
-                            className="absolute right-0 top-[5.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                            className="absolute right-0 top-[5.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur transition disabled:pointer-events-none disabled:opacity-25 sm:hidden"
+                            disabled={activeBookIndex >= active.books.length - 1}
                             onClick={() => changeActiveCover(1, active.books?.length ?? 0)}
                             type="button"
                           >
@@ -233,7 +238,7 @@ export function HeroActivityPanel() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 min-w-0 max-w-full rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
+                  <div className="min-h-0 min-w-0 max-w-full overflow-hidden rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
                     {activeBook ? (
                       <>
                         <p className="text-xs font-semibold tracking-[0.2em] text-clay">
@@ -279,16 +284,13 @@ export function HeroActivityPanel() {
                       <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
                         片单
                       </p>
-                      <p className="text-xs text-ink/45">
-                        电视剧和电影分开记录
-                      </p>
                     </div>
 
                     <div className="mt-4 space-y-6">
                       <section>
                         <div className="mb-3 flex items-center gap-3">
                           <h4 className="text-sm font-semibold text-ink">
-                            {activeShow?.kind ?? "片单"}
+                            片单
                           </h4>
                           <span className="h-px flex-1 bg-ink/10" />
                           <span className="text-xs text-ink/40">
@@ -306,7 +308,7 @@ export function HeroActivityPanel() {
                         >
                               {active.shows.map((show, index) => (
                                 <button
-                                  className={`group absolute left-1/2 top-0 w-40 text-center transition duration-300 sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
+                                  className={`group absolute left-1/2 top-0 w-40 text-center transition-[opacity,transform] duration-500 ease-out sm:static sm:w-auto sm:text-left ${coverFlowClass(index - activeBookIndex)}`}
                                   key={show.title}
                                   onClick={() => setActiveBookIndex(index)}
                                   type="button"
@@ -327,6 +329,9 @@ export function HeroActivityPanel() {
                                         : undefined
                                     }
                                   >
+                                    <span className="absolute left-2 top-2 z-10 rounded-full bg-paper/82 px-2 py-1 text-[0.62rem] font-semibold text-ink/62 shadow-sm backdrop-blur">
+                                      {show.kind === "电影" ? "电影" : "剧集"}
+                                    </span>
                                     {show.poster ? null : (
                                       <>
                                         <span className="absolute inset-0 bg-[radial-gradient(circle_at_70%_15%,rgba(255,255,255,0.24),transparent_7rem),linear-gradient(160deg,transparent_35%,rgba(0,0,0,0.22))]" />
@@ -358,7 +363,8 @@ export function HeroActivityPanel() {
                             <>
                               <button
                                 aria-label="上一部"
-                                className="absolute left-0 top-[6.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                                className="absolute left-0 top-[6.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur transition disabled:pointer-events-none disabled:opacity-25 sm:hidden"
+                                disabled={activeBookIndex === 0}
                                 onClick={() => changeActiveCover(-1, active.shows?.length ?? 0)}
                                 type="button"
                               >
@@ -366,7 +372,8 @@ export function HeroActivityPanel() {
                               </button>
                               <button
                                 aria-label="下一部"
-                                className="absolute right-0 top-[6.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur sm:hidden"
+                                className="absolute right-0 top-[6.2rem] z-20 grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-paper/80 text-lg font-semibold text-ink/60 shadow-sm backdrop-blur transition disabled:pointer-events-none disabled:opacity-25 sm:hidden"
+                                disabled={activeBookIndex >= active.shows.length - 1}
                                 onClick={() => changeActiveCover(1, active.shows?.length ?? 0)}
                                 type="button"
                               >
@@ -379,7 +386,7 @@ export function HeroActivityPanel() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 min-w-0 max-w-full rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
+                  <div className="min-h-0 min-w-0 max-w-full overflow-hidden rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
                     {activeShow ? (
                       <>
                         <p className="text-xs font-semibold tracking-[0.2em] text-clay">
