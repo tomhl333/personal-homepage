@@ -119,6 +119,7 @@ function renderActivity() {
         selected = 0;
         render();
       }),
+      quickActionsForActivity(item),
       field("标题", item.title, (value) => (item.title = value)),
       field("状态", item.status, (value) => (item.status = value)),
       textarea("简介", item.summary, 4, (value) => (item.summary = value)),
@@ -145,7 +146,6 @@ function renderActivity() {
       item.title,
       item.status,
       `<p>${escapeHtml(item.summary)}</p><div class="note-list">${item.notes.map((note) => `<span>${escapeHtml(note)}</span>`).join("")}</div>`,
-      quickActionsForActivity(item),
     ),
   );
   bindInputs();
