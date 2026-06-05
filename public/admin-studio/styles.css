@@ -524,3 +524,89 @@ textarea {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
   }
 }
+
+@media (max-width: 899px) {
+  body {
+    padding-bottom: 170px;
+  }
+
+  .shell {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .sidebar,
+  .workspace,
+  .panel,
+  .preview {
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .save {
+    position: sticky;
+    top: 8px;
+    z-index: 30;
+    box-shadow: 0 12px 28px rgba(49, 91, 70, 0.22);
+  }
+
+  .item-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    margin-inline: -14px;
+    padding: 8px 14px;
+    background: rgba(247, 242, 232, 0.92);
+    backdrop-filter: blur(14px);
+  }
+
+  .quick-actions {
+    position: fixed;
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 72px);
+    left: 12px;
+    z-index: 70;
+    max-height: min(48vh, 360px);
+    overflow-y: auto;
+    margin-top: 0;
+    background: rgba(247, 242, 232, 0.96);
+    box-shadow: 0 18px 48px rgba(36, 50, 41, 0.2);
+    backdrop-filter: blur(18px);
+  }
+
+  .quick-actions > div:not(.quick-draft-slot) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .quick-actions button {
+    flex: 0 0 auto;
+    padding: 11px 14px;
+  }
+
+  .quick-draft {
+    max-height: 32vh;
+  }
+
+  .photo-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .upload,
+  .delete-photo {
+    justify-content: center;
+    width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 46px;
+    font-size: 16px;
+  }
+}
