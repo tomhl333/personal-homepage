@@ -15,6 +15,7 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { contactProfile } from "@/data/site";
 
 const cardGLB = "/lanyard/card.glb";
 const bandTexture = "/lanyard/lanyard.png";
@@ -138,7 +139,10 @@ function Band({
 
   const { nodes, materials } = useGLTF(cardGLB) as unknown as GLTFResult;
   const texture = useTexture(bandTexture) as THREE.Texture;
-  const cardTexture = useMemo(() => createContactCardTexture(), []);
+  const cardTexture = useMemo(
+    () => createContactCardTexture(contactProfile.wechat, contactProfile.email),
+    [],
+  );
   const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([
@@ -289,7 +293,7 @@ function Band({
 
 useGLTF.preload(cardGLB);
 
-function createContactCardTexture() {
+function createContactCardTexture(wechat: string, email: string) {
   const canvas = document.createElement("canvas");
   canvas.width = 1024;
   canvas.height = 1024;
@@ -319,7 +323,7 @@ function createContactCardTexture() {
     ctx.stroke();
   }
 
-  drawPremiumBlackFront(ctx);
+  drawPremiumBlackFront(ctx, wechat, email);
   drawBackQr(ctx, 512, 0);
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -369,7 +373,11 @@ function drawTextureLine(
   ctx.fillText(value, x + 145, y + 91);
 }
 
-function drawPremiumBlackFront(ctx: CanvasRenderingContext2D) {
+function drawPremiumBlackFront(
+  ctx: CanvasRenderingContext2D,
+  wechat: string,
+  email: string,
+) {
   const centerX = 256;
 
   ctx.textAlign = "center";
@@ -393,7 +401,7 @@ function drawPremiumBlackFront(ctx: CanvasRenderingContext2D) {
   ctx.shadowColor = "rgba(0,0,0,0.72)";
   ctx.shadowBlur = 18;
   ctx.shadowOffsetY = 8;
-  ctx.fillText("tomhl333", centerX, 382);
+  ctx.fillText(wechat || "微信号", centerX, 382);
   ctx.shadowColor = "transparent";
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;
@@ -406,7 +414,7 @@ function drawPremiumBlackFront(ctx: CanvasRenderingContext2D) {
 
   ctx.fillStyle = "rgba(255,255,255,0.92)";
   ctx.font = "800 33px Inter, Arial, sans-serif";
-  ctx.fillText("lei.han@aya.yale.edu", centerX, 638);
+  ctx.fillText(email || "邮箱", centerX, 638);
 }
 
 function drawWechatIcon(ctx: CanvasRenderingContext2D, x: number, y: number) {
