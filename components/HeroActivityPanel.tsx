@@ -135,7 +135,7 @@ export function HeroActivityPanel() {
                       </p>
                     </div>
 
-                    <div className="-mx-4 mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-[calc(50%-4.2rem)] pb-4 pt-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-1 sm:pt-0">
+                    <div className="mt-4 flex w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 pb-4 pt-1 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-1 sm:pt-0">
                       {active.books.map((book, index) => (
                         <button
                           className={`group w-32 shrink-0 snap-center text-center transition duration-300 sm:w-auto sm:text-left ${
@@ -192,7 +192,7 @@ export function HeroActivityPanel() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
+                  <div className="min-h-0 min-w-0 rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
                     {activeBook ? (
                       <>
                         <p className="text-xs font-semibold tracking-[0.2em] text-clay">
@@ -214,7 +214,7 @@ export function HeroActivityPanel() {
                                 <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
                                   {note.type}
                                 </p>
-                                <p className="mt-2 text-sm leading-7 text-ink/70">
+                                <p className="mt-2 text-sm leading-7 text-ink/70 [overflow-wrap:anywhere]">
                                   {note.text}
                                 </p>
                               </article>
@@ -222,7 +222,7 @@ export function HeroActivityPanel() {
                           </div>
                         ) : (
                           <div className="mt-5 rounded-2xl border border-ink/10 bg-paper/55 p-5">
-                            <p className="text-sm leading-7 text-ink/58">
+                            <p className="text-sm leading-7 text-ink/58 [overflow-wrap:anywhere]">
                               这本书还没留下摘抄。先放在书架上，等读到有意思的句子再慢慢补上。
                             </p>
                           </div>
@@ -262,7 +262,7 @@ export function HeroActivityPanel() {
                                 {shows.length}
                               </span>
                             </div>
-                            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-[calc(50%-4.8rem)] pb-4 pt-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 sm:pt-0">
+                            <div className="flex w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 pb-4 pt-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 sm:pt-0">
                               {shows.map((show) => (
                                 <button
                                   className={`group w-36 shrink-0 snap-center text-center transition duration-300 sm:w-auto sm:text-left ${
@@ -324,7 +324,7 @@ export function HeroActivityPanel() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
+                  <div className="min-h-0 min-w-0 rounded-[1.4rem] border border-ink/10 bg-white/45 p-4 sm:overflow-y-auto sm:p-5">
                     {activeShow ? (
                       <>
                         <p className="text-xs font-semibold tracking-[0.2em] text-clay">
@@ -353,7 +353,7 @@ export function HeroActivityPanel() {
                                   <h5 className="font-semibold text-ink">
                                     {character.name}
                                   </h5>
-                                  <p className="mt-2 text-sm leading-6 text-ink/62">
+                                  <p className="mt-2 text-sm leading-6 text-ink/62 [overflow-wrap:anywhere]">
                                     {character.note}
                                   </p>
                                 </article>
@@ -372,7 +372,7 @@ export function HeroActivityPanel() {
                                 <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
                                   {note.type}
                                 </p>
-                                <p className="mt-2 text-sm leading-7 text-ink/70">
+                                <p className="mt-2 text-sm leading-7 text-ink/70 [overflow-wrap:anywhere]">
                                   {note.text}
                                 </p>
                               </article>
@@ -380,7 +380,7 @@ export function HeroActivityPanel() {
                           </div>
                         ) : (
                           <div className="mt-5 rounded-2xl border border-ink/10 bg-paper/55 p-5">
-                            <p className="text-sm leading-7 text-ink/58">
+                            <p className="text-sm leading-7 text-ink/58 [overflow-wrap:anywhere]">
                               这部还没写下记录。先留在片单里，等哪一段人物或台词打动我再补上。
                             </p>
                           </div>
