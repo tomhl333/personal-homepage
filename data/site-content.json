@@ -971,6 +971,17 @@
       ],
       "photos": [
         {
+          "label": "AI 会议分享",
+          "src": "/uploads/work-notes/1780710997291-IMG_3905.jpg",
+          "project": "智数年会",
+          "date": "2026-06-06",
+          "month": "2026-06",
+          "note": "人类现在才站在第 40 格",
+          "tags": [
+            "做事"
+          ]
+        },
+        {
           "label": "流程白板",
           "project": "门店系统梳理",
           "src": "/uploads/work-notes/2026-05-27-flow-board.jpg",
