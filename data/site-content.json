@@ -811,6 +811,14 @@
       ],
       "checkins": [
         {
+          "date": "2026-06-07",
+          "label": "今日练字",
+          "content": "武/物/昔",
+          "duration": "20 分钟",
+          "note": "昔好像不是很好看",
+          "src": "/uploads/handwriting/1780796561034-image.jpg"
+        },
+        {
           "date": "2026-06-06",
           "label": "今日练字",
           "content": "味/瓮/卧",
