@@ -437,6 +437,15 @@
       ],
       "learningLogs": [
         {
+          "date": "2026-06-07",
+          "type": "课程",
+          "title": "阿May的课",
+          "summary": "今日\ngam1 jat6\n昨天\nkam4 jat6\n前天\ncin4 jat6\n\n今朝 / 今日朝早\ngam1 ziu1 / gam1 jat6 ziu1 zou2\n\n琴朝 / 琴日朝早\nkam4 ziu1 / kam4 jat6 ziu1 zou2\n\n前朝 / 前日朝早\ncin4 ziu1 / cin4 jat6 ziu1 zou2\n\n晏昼/中午\naan3 zau3\n\n今天中午\n今日晏昼\ngam1 jat6 aan3 zau3\n\n昨天中午\n琴日晏昼\nkam4 jat6 aan3 zau3\n\n前天中午\n前日晏昼\ncin4 jat6 aan3 zau3\n\n晚上 / 夜晚\nje6 maan5\n\n今晚\ngam1 maan5\n\n昨晚\nkam4 maan5\n\n前晚\ncin4 maan5",
+          "tags": [
+            "粤语"
+          ]
+        },
+        {
           "date": "2026-05-27",
           "type": "课程",
           "title": "第 12 课：日常问候和声调",
