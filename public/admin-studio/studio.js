@@ -295,7 +295,7 @@ function quickActionsForActivity(item) {
     actions.push(["新增词句", "add-phrase"], ["新增输入", "add-language-input"], ["新增记录", "add-learning-log"]);
   }
   if (isFitness) {
-    actions.push(["新增训练", "add-workout"]);
+    actions.push(["新增文字训练", "add-workout"]);
   } else if (item.records || item.essays) {
     actions.push(["新增短记录", "add-record"]);
     if (!hidesLongRecords) actions.push(["新增长记录", "add-essay"]);
@@ -309,7 +309,7 @@ function quickActionsForActivity(item) {
     : item.phrases || item.inputs || item.learningLogs
     ? ["上传照片", "language-photo-upload"]
     : isFitness
-    ? ["上传照片并记录", "fitness-photo-upload"]
+    ? ["上传照片训练", "fitness-photo-upload"]
     : item.records || item.essays
     ? [item.uploadDir === "/uploads/work-notes" ? "上传随手照片" : item.uploadDir === "/uploads/city-life" ? "上传城市照片" : "上传训练照片", "tennis-photo-upload"]
     : null;
@@ -537,8 +537,8 @@ function fitnessTrainingEditor(item) {
   return `<div class="topic-grid">
     <section class="topic-panel">
       <div class="topic-heading">
-        <h3>最近训练</h3>
-        <button class="pill-button" data-add-workout type="button">新增训练</button>
+        <h3>纯文字训练</h3>
+        <button class="pill-button" data-add-workout type="button">新增文字训练</button>
       </div>
       ${(item.workouts ?? []).map((workout, index) => `
         <div class="topic-row" data-workout="${index}">
@@ -555,16 +555,16 @@ function fitnessTrainingEditor(item) {
 
     <section class="topic-panel">
       <div class="topic-heading">
-        <h3>训练照片和记录</h3>
-        <label class="upload">上传照片并记录<input data-fitness-photo-upload type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
+        <h3>带照片训练</h3>
+        <label class="upload">上传照片训练<input data-fitness-photo-upload type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
       </div>
       ${(item.photos ?? []).map((photo, index) => `
         <div class="topic-row" data-fitness-photo="${index}">
-          <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="训练标题 / 照片标签" />
+          <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="训练标题，例如上肢拉 + 核心" />
           <input data-photo-src value="${escapeAttr(photo.src ?? "")}" placeholder="${escapeAttr(uploadDir)}/photo.jpg" />
           <input data-photo-date value="${escapeAttr(photo.date ?? today())}" type="date" />
           <input data-photo-month value="${escapeAttr(photo.month ?? monthFromDate(photo.date ?? today()))}" placeholder="YYYY-MM" />
-          <textarea data-photo-note rows="4" placeholder="训练内容、动作、重量、感受都可以写在这里">${escapeHtml(photo.note ?? "")}</textarea>
+          <textarea data-photo-note rows="4" placeholder="这次带照片训练的内容、动作、重量、感受">${escapeHtml(photo.note ?? "")}</textarea>
           <textarea data-photo-tags rows="2" placeholder="训练部位 / 动作 / 强度，一行一个">${escapeHtml((photo.tags ?? []).join("\n"))}</textarea>
           <button class="delete-photo" data-delete-fitness-photo type="button">删除照片</button>
         </div>

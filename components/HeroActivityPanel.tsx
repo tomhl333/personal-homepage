@@ -577,7 +577,7 @@ export function HeroActivityPanel() {
                 <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-2">
                   <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      最近训练
+                      纯文字训练
                     </p>
                     <div className="mt-4 space-y-3">
                       {(active.workouts ?? []).map((workout) => (
@@ -619,7 +619,7 @@ export function HeroActivityPanel() {
 
                   <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      训练照片和记录
+                      带照片训练
                     </p>
                     <div className="mt-4 grid gap-3">
                       {active.photos.filter(hasRealPhoto).map((photo) => (
