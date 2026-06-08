@@ -722,9 +722,10 @@ function mountPendingQuickDraft() {
   slot.replaceChildren(draft);
   slot.hidden = false;
 
-  draft.querySelector("[data-finish-quick-draft]").addEventListener("click", () => {
+  draft.querySelector("[data-finish-quick-draft]").addEventListener("click", async () => {
     pendingQuickDraft = null;
     render();
+    await save();
   });
 
   requestAnimationFrame(() => {
