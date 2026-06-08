@@ -883,7 +883,7 @@ export function HeroActivityPanel() {
                       </p>
                     </div>
                     <div className="mt-4 grid auto-rows-[96px] grid-cols-2 gap-3 sm:auto-rows-[118px] sm:grid-cols-3">
-                      {active.photos.map((photo, index) => (
+                      {active.photos.filter(hasRealPhoto).map((photo, index) => (
                         <PhotoPreviewButton
                           className={`min-h-0 ${
                             index === 0 ? "col-span-2 row-span-2 sm:col-span-2" : ""
@@ -1066,6 +1066,10 @@ function coverFlowClass(position: number) {
 
 function coverFlowStyle(offset: number) {
   return { "--cover-drag": `${offset}px` } as CSSProperties;
+}
+
+function hasRealPhoto(photo: PhotoItem) {
+  return Boolean(resolveMediaPath(photo.src));
 }
 
 function PhotoPreviewButton({
