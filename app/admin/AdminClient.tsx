@@ -121,6 +121,15 @@ export function AdminClient() {
           <p className="hint">
             手机上也能维护主页内容。保存后会提交到 GitHub，并触发 Vercel 自动部署。
           </p>
+          <div className="studio-search">
+            <label htmlFor="studioSearch">快速搜索</label>
+            <input
+              id="studioSearch"
+              placeholder="搜书名、剧名、记录、照片..."
+              type="search"
+            />
+            <div className="search-results" id="searchResults" />
+          </div>
           <nav className="tabs" id="tabs" />
           <button className="save" id="save" type="button">
             保存到网站

@@ -22,6 +22,8 @@ const saveButtonEl = document.querySelector("#save");
 const tabsEl = document.querySelector("#tabs");
 const itemTabsEl = document.querySelector("#itemTabs");
 const editorEl = document.querySelector("#editor");
+const searchInputEl = document.querySelector("#studioSearch");
+const searchResultsEl = document.querySelector("#searchResults");
 const handlers = new Map();
 let handlerId = 0;
 
@@ -31,6 +33,7 @@ async function init() {
   content = await fetch("/api/admin/content").then((response) => response.json()).then((data) => data.content ?? data);
   status("内容已载入");
   document.querySelector("#save").addEventListener("click", save);
+  bindStudioSearch();
   render();
 }
 
@@ -50,6 +53,7 @@ function render() {
   if (!pendingQuickDraft) {
     requestAnimationFrame(() => window.scrollTo(0, scrollY));
   }
+  renderSearchResults();
 }
 
 function renderTabs() {
@@ -95,6 +99,235 @@ function itemCount() {
   if (currentTab === "gallery") return content.galleryItems.length;
   if (currentTab === "projects") return content.projects.length;
   return 1;
+}
+
+function bindStudioSearch() {
+  if (!searchInputEl || !searchResultsEl) return;
+
+  searchInputEl.addEventListener("input", renderSearchResults);
+  searchInputEl.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      searchInputEl.value = "";
+      renderSearchResults();
+    }
+  });
+}
+
+function renderSearchResults() {
+  if (!searchInputEl || !searchResultsEl || !content) return;
+
+  const query = searchInputEl.value.trim();
+  if (!query) {
+    searchResultsEl.innerHTML = "";
+    searchResultsEl.hidden = true;
+    return;
+  }
+
+  const results = buildSearchIndex()
+    .filter((result) => includesSearch(result.searchText, query))
+    .slice(0, 12);
+
+  searchResultsEl.hidden = false;
+  searchResultsEl.innerHTML = results.length
+    ? results.map((result, index) => `
+      <button type="button" data-search-result="${index}">
+        <span>${escapeHtml(result.title || "未命名内容")}</span>
+        <small>${escapeHtml(result.subtitle)}</small>
+      </button>
+    `).join("")
+    : `<p>没有找到相关内容</p>`;
+
+  searchResultsEl.querySelectorAll("[data-search-result]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const result = results[Number(button.dataset.searchResult)];
+      if (!result) return;
+
+      currentTab = result.tab;
+      selected = result.parentIndex;
+      pendingQuickDraft = result.target
+        ? {
+            target: result.target,
+            index: result.childIndex,
+            datasetKey: quickDraftDatasetKey(result.target),
+          }
+        : null;
+      render();
+      requestAnimationFrame(() => {
+        const target = pendingQuickDraft ? editorEl.querySelector(".quick-draft") : editorEl;
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  });
+}
+
+function includesSearch(text, query) {
+  return normalizeSearchText(text).includes(normalizeSearchText(query));
+}
+
+function normalizeSearchText(value) {
+  return String(value ?? "").toLowerCase().replace(/\s+/g, "");
+}
+
+function buildSearchIndex() {
+  const results = [];
+
+  (content.activitySpotlights ?? []).forEach((item, parentIndex) => {
+    addSearchResult(results, {
+      tab: "activity",
+      parentIndex,
+      title: item.title,
+      subtitle: `投入的事 / ${item.status ?? ""}`,
+      searchText: [item.title, item.status, item.summary, item.notes],
+    });
+
+    (item.books ?? []).forEach((book, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-book",
+        title: book.title,
+        subtitle: `${item.title} / 书籍 / ${book.author ?? ""}`,
+        searchText: [item.title, book.title, book.author, book.status, book.notes?.map((note) => [note.type, note.text])],
+      });
+    });
+
+    (item.shows ?? []).forEach((show, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-show",
+        title: show.title,
+        subtitle: `${item.title} / 影视 / ${show.creator ?? ""}`,
+        searchText: [item.title, show.title, show.creator, show.kind, show.status, show.meta, show.characters?.map((character) => [character.name, character.note]), show.notes?.map((note) => [note.type, note.text])],
+      });
+    });
+
+    (item.checkins ?? []).forEach((checkin, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-handwriting-checkin",
+        title: checkin.label,
+        subtitle: `${item.title} / 打卡 / ${checkin.date ?? ""}`,
+        searchText: [item.title, checkin.label, checkin.content, checkin.note, checkin.date],
+      });
+    });
+
+    (item.phrases ?? []).forEach((phrase, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-phrase",
+        title: phrase.text,
+        subtitle: `${item.title} / 词句 / ${phrase.jyutping ?? ""}`,
+        searchText: [item.title, phrase.text, phrase.jyutping, phrase.meaning, phrase.scene, phrase.note],
+      });
+    });
+
+    (item.learningLogs ?? []).forEach((log, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-learning-log",
+        title: log.title,
+        subtitle: `${item.title} / 学习记录 / ${log.date ?? ""}`,
+        searchText: [item.title, log.title, log.type, log.summary, log.tags, log.date],
+      });
+    });
+
+    (item.workouts ?? []).forEach((workout, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-workout",
+        title: workout.title,
+        subtitle: `${item.title} / 训练 / ${workout.date ?? ""}`,
+        searchText: [item.title, workout.title, workout.parts, workout.duration, workout.intensity, workout.summary, workout.date],
+      });
+    });
+
+    (item.records ?? []).forEach((record, childIndex) => {
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target: "add-record",
+        title: record.title,
+        subtitle: `${item.title} / 记录 / ${record.date ?? ""}`,
+        searchText: [item.title, record.title, record.summary, record.tags, record.date],
+      });
+    });
+
+    (item.photos ?? []).forEach((photo, childIndex) => {
+      const target = item.plans || item.workouts
+        ? "fitness-photo-upload"
+        : item.records || item.essays
+        ? "tennis-photo-upload"
+        : "add-photo";
+      addSearchResult(results, {
+        tab: "activity",
+        parentIndex,
+        childIndex,
+        target,
+        title: photo.label,
+        subtitle: `${item.title} / 照片 / ${photo.date ?? ""}`,
+        searchText: [item.title, photo.label, photo.note, photo.project, photo.city, photo.tags, photo.date],
+      });
+    });
+  });
+
+  (content.journalPosts ?? []).forEach((post, parentIndex) => {
+    addSearchResult(results, {
+      tab: "journal",
+      parentIndex,
+      title: post.title,
+      subtitle: `长记录 / ${post.date ?? ""}`,
+      searchText: [post.title, post.category, post.summary, post.body, post.date],
+    });
+  });
+
+  (content.galleryItems ?? []).forEach((item, parentIndex) => {
+    addSearchResult(results, {
+      tab: "gallery",
+      parentIndex,
+      title: item.category,
+      subtitle: `照片专题 / ${item.caption ?? ""}`,
+      searchText: [item.category, item.caption, item.detail, item.photos?.map((photo) => [photo.label, photo.note, photo.tags])],
+    });
+  });
+
+  (content.projects ?? []).forEach((project, parentIndex) => {
+    addSearchResult(results, {
+      tab: "projects",
+      parentIndex,
+      title: project.title,
+      subtitle: `小项目 / ${project.status ?? ""}`,
+      searchText: [project.title, project.status, project.description, project.tags],
+    });
+  });
+
+  return results;
+}
+
+function addSearchResult(results, result) {
+  results.push({
+    childIndex: 0,
+    target: null,
+    ...result,
+    searchText: flattenSearchText(result.searchText),
+  });
+}
+
+function flattenSearchText(value) {
+  if (Array.isArray(value)) return value.map(flattenSearchText).join(" ");
+  if (value && typeof value === "object") return Object.values(value).map(flattenSearchText).join(" ");
+  return value ?? "";
 }
 
 function renderHero() {
