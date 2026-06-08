@@ -115,7 +115,7 @@ function renderActivity() {
   editorEl.innerHTML = grid(
     panel("投入的事", [
       actionButton("新增", () => {
-        content.activitySpotlights.unshift({ title: "新主题", status: "新的状态", summary: "写一点简介。", icon: "spark", tone: "bg-moss/10 text-moss", notes: ["第一条记录"], photos: [{ label: "照片" }] });
+        content.activitySpotlights.unshift({ title: "", status: "", summary: "", icon: "spark", tone: "bg-moss/10 text-moss", notes: [], photos: [] });
         selected = 0;
         render();
       }),
@@ -180,7 +180,7 @@ function renderJournal() {
   editorEl.innerHTML = grid(
     panel("长记录", [
       actionButton("新增", () => {
-        content.journalPosts.unshift({ date: "May 26", category: "日常", title: "新记录", summary: "写一句摘要。", body: "在这里写完整记录。", icon: "note" });
+        content.journalPosts.unshift({ date: "", category: "", title: "", summary: "", body: "", icon: "note" });
         selected = 0;
         render();
       }),
@@ -201,7 +201,7 @@ function renderGallery() {
   editorEl.innerHTML = grid(
     panel("照片专题", [
       actionButton("新增", () => {
-        content.galleryItems.unshift({ category: "新专题", caption: "一句展示文案", detail: "写一点这个专题的说明。", tone: "from-moss/75 via-sage/60 to-paper", className: "lg:col-span-2", photos: [{ label: "照片" }] });
+        content.galleryItems.unshift({ category: "", caption: "", detail: "", tone: "from-moss/75 via-sage/60 to-paper", className: "lg:col-span-2", photos: [] });
         selected = 0;
         render();
       }),
@@ -786,7 +786,7 @@ function bindPhotoInputs(photos, onChange, uploadDir = "/uploads") {
   const getNext = () => structuredClone(photos);
 
   editorEl.querySelector("[data-add-photo]")?.addEventListener("click", () => {
-    onChange([{ label: "新照片" }, ...photos]);
+    onChange([{ label: "" }, ...photos]);
   });
 
   editorEl.querySelectorAll("[data-photo]").forEach((row) => {
@@ -821,12 +821,12 @@ function bindBookInputs(books, onChange, bookCoverDir = "/uploads/books") {
   editorEl.querySelector("[data-add-book]")?.addEventListener("click", () => {
     onChange([
       {
-        title: "新书",
+        title: "",
         author: "",
-        status: "正在读",
+        status: "",
         cover: "",
         coverTone: "from-fog via-white to-clay/30",
-        notes: [{ type: "想法", text: "写一点读到这里的想法。" }],
+        notes: [],
       },
       ...books,
     ]);
@@ -947,10 +947,10 @@ function bindShowInputs(shows, onChange, posterDir = "/uploads/shows") {
   editorEl.querySelector("[data-add-show]")?.addEventListener("click", () => {
     onChange([
       {
-        title: "新片名",
+        title: "",
         creator: "",
         kind: "电视剧",
-        status: "想看",
+        status: "",
         poster: "",
         posterTone: "from-fog via-paper to-moss/55",
         meta: "",
@@ -1049,7 +1049,7 @@ function bindShowInputs(shows, onChange, posterDir = "/uploads/shows") {
 
     row.querySelector("[data-add-character]").addEventListener("click", () => {
       const next = getNext();
-      next[index].characters = [{ name: "新人物", note: "" }, ...(next[index].characters ?? [])];
+      next[index].characters = [{ name: "", note: "" }, ...(next[index].characters ?? [])];
       onChange(next);
     });
 
@@ -1112,9 +1112,9 @@ function bindHandwritingCheckins(item) {
       checkins: [
         {
           date: today(),
-          label: "今日练字",
-          content: "楷书基础笔画",
-          duration: "20 分钟",
+          label: "",
+          content: "",
+          duration: "",
           note: "",
           src: "",
         },
@@ -1161,7 +1161,7 @@ function bindLanguageArchive(item) {
   editorEl.querySelector("[data-add-phrase]")?.addEventListener("click", () => {
     updateItem({
       phrases: [
-        { text: "新句子", jyutping: "", meaning: "", scene: "", note: "" },
+        { text: "", jyutping: "", meaning: "", scene: "", note: "" },
         ...(item.phrases ?? []),
       ],
     });
@@ -1170,7 +1170,7 @@ function bindLanguageArchive(item) {
   editorEl.querySelector("[data-add-learning-log]")?.addEventListener("click", () => {
     updateItem({
       learningLogs: [
-        { date: today(), type: "复盘", title: "新的学习记录", summary: "", tags: ["粤语"] },
+        { date: today(), type: "复盘", title: "", summary: "", tags: [] },
         ...(item.learningLogs ?? []),
       ],
     });
@@ -1210,7 +1210,7 @@ function bindFitnessTraining(item) {
   editorEl.querySelector("[data-add-workout]")?.addEventListener("click", () => {
     updateItem({
       workouts: [
-        { date: today(), title: "新的训练", parts: ["核心"], duration: "40 分钟", intensity: "中等", summary: "" },
+        { date: today(), title: "", parts: [], duration: "", intensity: "", summary: "" },
         ...(item.workouts ?? []),
       ],
     });
@@ -1223,7 +1223,7 @@ function bindFitnessTraining(item) {
     updateItem({
       photos: [
         {
-          label: uploaded.label || "新的训练照片",
+          label: uploaded.label || "",
           src: uploaded.src,
           date: today(),
           month: monthFromDate(today()),
@@ -1280,7 +1280,7 @@ function bindTennisTopic(item) {
   editorEl.querySelector("[data-add-record]")?.addEventListener("click", () => {
     updateItem({
       records: [
-        { date: today(), title: "新的短记录", summary: "", tags: ["日常"] },
+        { date: today(), title: "", summary: "", tags: [] },
         ...(item.records ?? []),
       ],
     });
@@ -1289,7 +1289,7 @@ function bindTennisTopic(item) {
   editorEl.querySelector("[data-add-essay]")?.addEventListener("click", () => {
     updateItem({
       essays: [
-        { date: today(), title: "新的长记录", type: "训练复盘", summary: "", tags: ["复盘"] },
+        { date: today(), title: "", type: "", summary: "", tags: [] },
         ...(item.essays ?? []),
       ],
     });
