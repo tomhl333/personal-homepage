@@ -1066,42 +1066,6 @@
           "tags": [
             "做事"
           ]
-        },
-        {
-          "label": "流程白板",
-          "project": "门店系统梳理",
-          "src": "/uploads/work-notes/2026-05-27-flow-board.jpg",
-          "date": "2026-05-27",
-          "month": "2026-05",
-          "note": "流程不是画完就结束，还要能被人理解和使用。",
-          "tags": [
-            "流程",
-            "协作"
-          ]
-        },
-        {
-          "label": "会议笔记",
-          "project": "周例会复盘",
-          "src": "/uploads/work-notes/2026-05-21-meeting-notes.jpg",
-          "date": "2026-05-21",
-          "month": "2026-05",
-          "note": "真正有效的会议，应该让下一步更清楚。",
-          "tags": [
-            "会议",
-            "沟通"
-          ]
-        },
-        {
-          "label": "复盘卡片",
-          "project": "数字化实践",
-          "src": "/uploads/work-notes/2026-05-16-retro-card.jpg",
-          "date": "2026-05-16",
-          "month": "2026-05",
-          "note": "把经验写下来，才不会只停留在感觉里。",
-          "tags": [
-            "复盘",
-            "成长"
-          ]
         }
       ]
     }
