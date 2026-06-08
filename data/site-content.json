@@ -984,16 +984,16 @@
       ]
     },
     {
-      "title": "做事札记",
-      "status": "复盘与成长",
-      "summary": "轻轻记录数字化、项目管理和沟通方法带来的思考。",
+      "title": "随手札记",
+      "status": "日常摘记",
+      "summary": "轻轻记录日常看到的话、文字、灵感和一点做事观察。",
       "icon": "briefcase",
       "tone": "bg-clay/10 text-clay",
       "uploadDir": "/uploads/work-notes",
       "notes": [
-        "项目管理不是只追进度",
-        "流程背后其实是人的协作",
-        "复盘能让经验留下来"
+        "日常里也会遇到有意思的话",
+        "把灵感和观察顺手留下",
+        "一点做事心得也可以放这里"
       ],
       "records": [
         {
@@ -1059,7 +1059,7 @@
         {
           "label": "AI 会议分享",
           "src": "/uploads/work-notes/1780710997291-IMG_3905.jpg",
-          "project": "智数年会",
+          "project": "年会分享",
           "date": "2026-06-06",
           "month": "2026-06",
           "note": "人类现在才站在第 40 格",
@@ -1208,12 +1208,12 @@
       "description": "记录出差、旅行、街头、咖啡馆、展览、散步和日常里有意思的瞬间。"
     },
     {
-      "title": "工作札记",
-      "english": "Work Notes",
+      "title": "随手札记",
+      "english": "Notes",
       "icon": "briefcase",
       "tone": "bg-clay/10 text-clay",
       "className": "",
-      "description": "少量记录项目管理、数字化实践、团队协同和个人成长，不做正式简历，只保留一些真实思考。"
+      "description": "记录日常看到的话、文字、灵感和一点做事观察，不做正式文章，只保留真实的小片段。"
     }
   ],
   "journalPosts": [

@@ -49,7 +49,9 @@ export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
             <p className="mt-1 text-xs text-ink/45">{image.date}</p>
           ) : null}
           {image.note ? (
-            <p className="mt-2 text-sm leading-6 text-ink/62">{image.note}</p>
+            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink/62 [overflow-wrap:anywhere]">
+              {image.note}
+            </p>
           ) : null}
         </figcaption>
       </figure>

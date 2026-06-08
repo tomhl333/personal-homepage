@@ -284,6 +284,9 @@ function actionButton(label, onClick) {
 
 function quickActionsForActivity(item) {
   const actions = [];
+  const isFitness = item.plans || item.workouts;
+  const isSimpleSport = item.uploadDir === "/uploads/tennis" || item.uploadDir === "/uploads/swimming";
+  const hidesLongRecords = isSimpleSport || item.uploadDir === "/uploads/work-notes";
 
   if (item.shows) actions.push(["新增影视", "add-show"]);
   if (item.books) actions.push(["新增书籍", "add-book"]);
@@ -291,11 +294,11 @@ function quickActionsForActivity(item) {
   if (item.phrases || item.inputs || item.learningLogs) {
     actions.push(["新增词句", "add-phrase"], ["新增输入", "add-language-input"], ["新增记录", "add-learning-log"]);
   }
-  if (item.plans || item.workouts) {
-    actions.push(["新增计划", "add-fitness-plan"], ["新增训练", "add-workout"], ["新增长记录", "add-fitness-essay"]);
-  }
-  if (item.records || item.essays) {
-    actions.push(["新增短记录", "add-record"], ["新增长记录", "add-essay"]);
+  if (isFitness) {
+    actions.push(["新增训练", "add-workout"]);
+  } else if (item.records || item.essays) {
+    actions.push(["新增短记录", "add-record"]);
+    if (!hidesLongRecords) actions.push(["新增长记录", "add-essay"]);
   }
   if (!item.books && !item.shows && !item.checkins && !item.phrases && !item.inputs && !item.learningLogs && !item.plans && !item.workouts && !item.records && !item.essays) {
     actions.push(["新增照片", "add-photo"]);
@@ -305,10 +308,10 @@ function quickActionsForActivity(item) {
     ? null
     : item.phrases || item.inputs || item.learningLogs
     ? ["上传照片", "language-photo-upload"]
-    : item.plans || item.workouts
-    ? ["上传照片", "fitness-photo-upload"]
+    : isFitness
+    ? ["上传照片并记录", "fitness-photo-upload"]
     : item.records || item.essays
-    ? [item.uploadDir === "/uploads/work-notes" ? "上传现场照片" : item.uploadDir === "/uploads/city-life" ? "上传城市照片" : "上传训练照片", "tennis-photo-upload"]
+    ? [item.uploadDir === "/uploads/work-notes" ? "上传随手照片" : item.uploadDir === "/uploads/city-life" ? "上传城市照片" : "上传训练照片", "tennis-photo-upload"]
     : null;
 
   if (photoUpload) actions.push(photoUpload);
@@ -534,21 +537,6 @@ function fitnessTrainingEditor(item) {
   return `<div class="topic-grid">
     <section class="topic-panel">
       <div class="topic-heading">
-        <h3>当前计划</h3>
-        <button class="pill-button" data-add-fitness-plan type="button">新增计划</button>
-      </div>
-      ${(item.plans ?? []).map((plan, index) => `
-        <div class="topic-row" data-fitness-plan="${index}">
-          <input data-plan-title value="${escapeAttr(plan.title ?? "")}" placeholder="计划标题，例如本阶段目标" />
-          <input data-plan-focus value="${escapeAttr(plan.focus ?? "")}" placeholder="重点，例如恢复基础力量" />
-          <textarea data-plan-items rows="5" placeholder="计划条目，一行一条">${escapeHtml((plan.items ?? []).join("\n"))}</textarea>
-          <button class="delete-photo" data-delete-fitness-plan type="button">删除计划</button>
-        </div>
-      `).join("")}
-    </section>
-
-    <section class="topic-panel">
-      <div class="topic-heading">
         <h3>最近训练</h3>
         <button class="pill-button" data-add-workout type="button">新增训练</button>
       </div>
@@ -567,45 +555,33 @@ function fitnessTrainingEditor(item) {
 
     <section class="topic-panel">
       <div class="topic-heading">
-        <h3>状态照片</h3>
-        <label class="upload">上传状态照片<input data-fitness-photo-upload type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
+        <h3>训练照片和记录</h3>
+        <label class="upload">上传照片并记录<input data-fitness-photo-upload type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
       </div>
       ${(item.photos ?? []).map((photo, index) => `
         <div class="topic-row" data-fitness-photo="${index}">
-          <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="照片标题 / label" />
+          <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="训练标题 / 照片标签" />
           <input data-photo-src value="${escapeAttr(photo.src ?? "")}" placeholder="${escapeAttr(uploadDir)}/photo.jpg" />
           <input data-photo-date value="${escapeAttr(photo.date ?? today())}" type="date" />
           <input data-photo-month value="${escapeAttr(photo.month ?? monthFromDate(photo.date ?? today()))}" placeholder="YYYY-MM" />
-          <textarea data-photo-note rows="2" placeholder="备注，可不写">${escapeHtml(photo.note ?? "")}</textarea>
-          <textarea data-photo-tags rows="2" placeholder="标签，一行一个">${escapeHtml((photo.tags ?? []).join("\n"))}</textarea>
+          <textarea data-photo-note rows="4" placeholder="训练内容、动作、重量、感受都可以写在这里">${escapeHtml(photo.note ?? "")}</textarea>
+          <textarea data-photo-tags rows="2" placeholder="训练部位 / 动作 / 强度，一行一个">${escapeHtml((photo.tags ?? []).join("\n"))}</textarea>
           <button class="delete-photo" data-delete-fitness-photo type="button">删除照片</button>
         </div>
       `).join("")}
-
-      <div class="topic-heading topic-heading-spaced">
-        <h3>长记录</h3>
-        <button class="pill-button" data-add-fitness-essay type="button">新增长记录</button>
-      </div>
-      ${(item.essays ?? []).map((essay, index) => `
-        <div class="topic-row" data-fitness-essay="${index}">
-          <input data-essay-date value="${escapeAttr(essay.date ?? today())}" type="date" />
-          <input data-essay-type value="${escapeAttr(essay.type ?? "状态笔记")}" placeholder="类型，例如状态笔记" />
-          <input data-essay-title value="${escapeAttr(essay.title ?? "")}" placeholder="标题" />
-          <textarea data-essay-summary rows="4" placeholder="摘要 / 内容预览">${escapeHtml(essay.summary ?? "")}</textarea>
-          <textarea data-essay-tags rows="2" placeholder="标签，一行一个">${escapeHtml((essay.tags ?? []).join("\n"))}</textarea>
-          <button class="delete-photo" data-delete-fitness-essay type="button">删除长记录</button>
-        </div>
-      `).join("")}
     </section>
+
   </div>`;
 }
 
 function tennisTopicEditor(item) {
-  const isWorkNotes = item.uploadDir === "/uploads/work-notes" || item.title === "做事札记";
+  const isWorkNotes = item.uploadDir === "/uploads/work-notes" || item.title === "随手札记" || item.title === "做事札记";
   const isCityLife = item.uploadDir === "/uploads/city-life" || item.title === "城市生活";
+  const isSimpleSport = item.uploadDir === "/uploads/tennis" || item.uploadDir === "/uploads/swimming";
+  const hidesLongRecords = isSimpleSport || isWorkNotes;
   const usesFreeTags = isWorkNotes || isCityLife;
-  const photoTitle = isWorkNotes ? "现场照片" : isCityLife ? "城市照片" : "训练照片";
-  const uploadLabel = isWorkNotes ? "上传现场照片" : isCityLife ? "上传城市照片" : "上传训练照片";
+  const photoTitle = isWorkNotes ? "随手照片" : isCityLife ? "城市照片" : "训练照片";
+  const uploadLabel = isWorkNotes ? "上传随手照片" : isCityLife ? "上传城市照片" : "上传训练照片";
   return `<div class="topic-grid">
     <section class="topic-panel">
       <div class="topic-heading">
@@ -631,7 +607,7 @@ function tennisTopicEditor(item) {
       ${(item.photos ?? []).map((photo, index) => `
         <div class="topic-row" data-tennis-photo="${index}">
           <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="照片标题 / label" />
-          ${isWorkNotes ? `<input data-photo-project value="${escapeAttr(photo.project ?? "")}" placeholder="项目名称，例如门店系统梳理" />` : ""}
+          ${isWorkNotes ? `<input data-photo-project value="${escapeAttr(photo.project ?? "")}" placeholder="来源 / 场景，例如路上看到、会议、聊天" />` : ""}
           ${isCityLife ? `<input data-photo-city value="${escapeAttr(photo.city ?? "")}" placeholder="城市，例如上海" />` : ""}
           <input data-photo-src value="${escapeAttr(photo.src ?? "")}" placeholder="${escapeAttr(item.uploadDir ?? "/uploads")}/photo.jpg" />
           <input data-photo-date value="${escapeAttr(photo.date ?? today())}" type="date" />
@@ -643,7 +619,7 @@ function tennisTopicEditor(item) {
       `).join("")}
     </section>
 
-    <section class="topic-panel">
+    ${hidesLongRecords ? "" : `<section class="topic-panel">
       <div class="topic-heading">
         <h3>长记录</h3>
         <button class="pill-button" data-add-essay type="button">新增长记录</button>
@@ -658,7 +634,7 @@ function tennisTopicEditor(item) {
           <button class="delete-photo" data-delete-essay type="button">删除长记录</button>
         </div>
       `).join("")}
-    </section>
+    </section>`}
   </div>`;
 }
 
@@ -763,10 +739,8 @@ function quickDraftList(target) {
     "add-language-input": item.inputs,
     "add-learning-log": item.learningLogs,
     "language-photo-upload": item.photos,
-    "add-fitness-plan": item.plans,
     "add-workout": item.workouts,
     "fitness-photo-upload": item.photos,
-    "add-fitness-essay": item.essays,
     "add-record": item.records,
     "tennis-photo-upload": item.photos,
     "add-essay": item.essays,
@@ -783,10 +757,8 @@ function quickDraftSelector(target) {
     "add-language-input": "[data-language-input]",
     "add-learning-log": "[data-learning-log]",
     "language-photo-upload": "[data-language-photo]",
-    "add-fitness-plan": "[data-fitness-plan]",
     "add-workout": "[data-workout]",
     "fitness-photo-upload": "[data-fitness-photo]",
-    "add-fitness-essay": "[data-fitness-essay]",
     "add-record": "[data-record]",
     "tennis-photo-upload": "[data-tennis-photo]",
     "add-essay": "[data-essay]",
@@ -803,10 +775,8 @@ function quickDraftDatasetKey(target) {
     "add-language-input": "languageInput",
     "add-learning-log": "learningLog",
     "language-photo-upload": "languagePhoto",
-    "add-fitness-plan": "fitnessPlan",
     "add-workout": "workout",
     "fitness-photo-upload": "fitnessPhoto",
-    "add-fitness-essay": "fitnessEssay",
     "add-record": "record",
     "tennis-photo-upload": "tennisPhoto",
     "add-essay": "essay",
@@ -1312,29 +1282,11 @@ function bindFitnessTraining(item) {
     if (shouldRender) render();
   };
 
-  editorEl.querySelector("[data-add-fitness-plan]")?.addEventListener("click", () => {
-    updateItem({
-      plans: [
-        { title: "新计划", focus: "本阶段重点", items: ["写一条计划"] },
-        ...(item.plans ?? []),
-      ],
-    });
-  });
-
   editorEl.querySelector("[data-add-workout]")?.addEventListener("click", () => {
     updateItem({
       workouts: [
         { date: today(), title: "新的训练", parts: ["核心"], duration: "40 分钟", intensity: "中等", summary: "" },
         ...(item.workouts ?? []),
-      ],
-    });
-  });
-
-  editorEl.querySelector("[data-add-fitness-essay]")?.addEventListener("click", () => {
-    updateItem({
-      essays: [
-        { date: today(), title: "新的训练复盘", type: "状态笔记", summary: "", tags: ["训练"] },
-        ...(item.essays ?? []),
       ],
     });
   });
@@ -1346,7 +1298,7 @@ function bindFitnessTraining(item) {
     updateItem({
       photos: [
         {
-          label: uploaded.label,
+          label: uploaded.label || "新的训练照片",
           src: uploaded.src,
           date: today(),
           month: monthFromDate(today()),
@@ -1356,16 +1308,6 @@ function bindFitnessTraining(item) {
         ...(item.photos ?? []),
       ],
     });
-  });
-
-  editorEl.querySelectorAll("[data-fitness-plan]").forEach((row) => {
-    const index = Number(row.dataset.fitnessPlan);
-    bindListItem(row, item.plans, index, updateItem, "plans", {
-      title: "[data-plan-title]",
-      focus: "[data-plan-focus]",
-    });
-    bindLineList(row, item.plans, index, updateItem, "plans", "items", "[data-plan-items]");
-    row.querySelector("[data-delete-fitness-plan]").addEventListener("click", () => deleteListItem(item.plans, index, updateItem, "plans"));
   });
 
   editorEl.querySelectorAll("[data-workout]").forEach((row) => {
@@ -1399,21 +1341,10 @@ function bindFitnessTraining(item) {
     row.querySelector("[data-delete-fitness-photo]").addEventListener("click", () => deleteListItem(item.photos, index, updateItem, "photos"));
   });
 
-  editorEl.querySelectorAll("[data-fitness-essay]").forEach((row) => {
-    const index = Number(row.dataset.fitnessEssay);
-    bindListItem(row, item.essays, index, updateItem, "essays", {
-      date: "[data-essay-date]",
-      type: "[data-essay-type]",
-      title: "[data-essay-title]",
-      summary: "[data-essay-summary]",
-    });
-    bindLineList(row, item.essays, index, updateItem, "essays", "tags", "[data-essay-tags]");
-    row.querySelector("[data-delete-fitness-essay]").addEventListener("click", () => deleteListItem(item.essays, index, updateItem, "essays"));
-  });
 }
 
 function bindTennisTopic(item) {
-  const isWorkNotes = item.uploadDir === "/uploads/work-notes" || item.title === "做事札记";
+  const isWorkNotes = item.uploadDir === "/uploads/work-notes" || item.title === "随手札记" || item.title === "做事札记";
   const isCityLife = item.uploadDir === "/uploads/city-life" || item.title === "城市生活";
   const usesFreeTags = isWorkNotes || isCityLife;
   const updateItem = (patch, shouldRender = true) => {
@@ -1572,9 +1503,8 @@ function quickDraftTargetForKey(key) {
     phrases: ["add-phrase"],
     inputs: ["add-language-input"],
     learningLogs: ["add-learning-log"],
-    plans: ["add-fitness-plan"],
     workouts: ["add-workout"],
-    essays: ["add-fitness-essay", "add-essay"],
+    essays: ["add-essay"],
     records: ["add-record"],
   };
   return map[key]?.includes(pendingQuickDraft.target) ? pendingQuickDraft.target : "";
