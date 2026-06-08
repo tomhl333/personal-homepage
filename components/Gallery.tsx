@@ -63,6 +63,14 @@ export function Gallery() {
     };
   }, [active, previewImage]);
 
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    preloadImageSources(active.photos.map((photo) => photo.src));
+  }, [active]);
+
   return (
     <section className="px-5 py-16 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">
@@ -168,6 +176,8 @@ export function Gallery() {
                           <img
                             alt={photo.label}
                             className="h-full w-full object-contain"
+                            decoding="async"
+                            loading="lazy"
                             src={resolveMediaPath(photo.src)!}
                           />
                         ) : null}
@@ -354,6 +364,8 @@ function CoverPreviewGrid({
               <img
                 alt={photo.label}
                 className="h-full w-full object-contain"
+                decoding="async"
+                loading="lazy"
                 src={resolveMediaPath(photo.src)!}
               />
             ) : null}
@@ -386,4 +398,15 @@ function topicTone(title: string) {
     return "from-fog via-paper to-clay/30";
   }
   return "from-sage/70 via-paper to-fog";
+}
+
+function preloadImageSources(sources: Array<string | undefined>) {
+  sources.slice(0, 12).forEach((source) => {
+    const src = resolveMediaPath(source);
+    if (!src) return;
+
+    const image = new window.Image();
+    image.decoding = "async";
+    image.src = src;
+  });
 }

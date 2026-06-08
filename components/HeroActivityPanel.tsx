@@ -65,6 +65,14 @@ export function HeroActivityPanel() {
     setActiveBookIndex(0);
   }, [activeIndex]);
 
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    preloadImageSources(getActivityImageSources(active));
+  }, [active]);
+
   function changeActiveCover(step: number, total: number) {
     if (total <= 0) return;
     setActiveBookIndex((index) =>
@@ -1170,4 +1178,24 @@ function checkinToPhoto(checkin: {
     note: checkin.note ?? checkin.content,
     src: checkin.src,
   };
+}
+
+function getActivityImageSources(item: (typeof activitySpotlights)[number]) {
+  return [
+    ...(item.photos ?? []).map((photo) => photo.src),
+    ...(item.checkins ?? []).map((checkin) => checkin.src),
+    ...(item.books ?? []).map((book) => book.cover),
+    ...(item.shows ?? []).map((show) => show.poster),
+  ];
+}
+
+function preloadImageSources(sources: Array<string | undefined>) {
+  sources.slice(0, 12).forEach((source) => {
+    const src = resolveMediaPath(source);
+    if (!src) return;
+
+    const image = new window.Image();
+    image.decoding = "async";
+    image.src = src;
+  });
 }

@@ -1750,7 +1750,7 @@ async function prepareImageForUpload(file) {
     throw new Error("只能上传图片。");
   }
 
-  if (file.type === "image/gif" || file.size <= 900 * 1024) {
+  if (file.type === "image/gif" || file.size <= 450 * 1024) {
     return {
       data: await readFileAsDataUrl(file),
       name: file.name,
@@ -1760,7 +1760,7 @@ async function prepareImageForUpload(file) {
   }
 
   const image = await loadImage(file);
-  const maxSide = 1800;
+  const maxSide = 1600;
   const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
   const width = Math.max(1, Math.round(image.width * scale));
   const height = Math.max(1, Math.round(image.height * scale));
@@ -1779,7 +1779,7 @@ async function prepareImageForUpload(file) {
   }
 
   ctx.drawImage(image, 0, 0, width, height);
-  const blob = await canvasToBlob(canvas, "image/jpeg", 0.82);
+  const blob = await canvasToBlob(canvas, "image/jpeg", 0.78);
   const data = await readFileAsDataUrl(blob);
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
 
