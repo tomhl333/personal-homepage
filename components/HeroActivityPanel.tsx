@@ -465,8 +465,8 @@ export function HeroActivityPanel() {
                     ) : null}
                   </div>
                 </div>
-              ) : active.phrases || active.inputs || active.learningLogs ? (
-                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-[1fr_0.9fr_1fr]">
+              ) : active.phrases || active.learningLogs ? (
+                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-2">
                   <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
                       词句卡片
@@ -498,35 +498,6 @@ export function HeroActivityPanel() {
                               {phrase.note}
                             </p>
                           ) : null}
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                    <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      输入清单
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {(active.inputs ?? []).map((input) => (
-                        <article
-                          className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
-                          key={`${input.date}-${input.title}`}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="rounded-full bg-moss/10 px-2.5 py-1 text-[0.68rem] font-semibold text-moss">
-                              {input.type}
-                            </span>
-                            <span className="text-xs text-ink/40">
-                              {input.date}
-                            </span>
-                          </div>
-                          <h4 className="mt-3 text-base font-semibold text-ink">
-                            {input.title}
-                          </h4>
-                          <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
-                            {input.note}
-                          </p>
                         </article>
                       ))}
                     </div>

@@ -292,7 +292,7 @@ function quickActionsForActivity(item) {
   if (item.books) actions.push(["新增书籍", "add-book"]);
   if (item.checkins) actions.push(["新增打卡", "add-handwriting-checkin"]);
   if (item.phrases || item.inputs || item.learningLogs) {
-    actions.push(["新增词句", "add-phrase"], ["新增输入", "add-language-input"], ["新增记录", "add-learning-log"]);
+    actions.push(["新增词句", "add-phrase"], ["新增记录", "add-learning-log"]);
   }
   if (isFitness) {
     actions.push(["新增文字训练", "add-workout"]);
@@ -480,23 +480,6 @@ function languageArchiveEditor(item) {
           <button class="delete-photo" data-delete-phrase type="button">删除词句</button>
         </div>
       `).join("")}
-    </section>
-
-    <section class="topic-panel">
-      <div class="topic-heading">
-        <h3>输入清单</h3>
-        <button class="pill-button" data-add-language-input type="button">新增输入</button>
-      </div>
-      ${(item.inputs ?? []).map((input, index) => `
-        <div class="topic-row" data-language-input="${index}">
-          <input data-input-date value="${escapeAttr(input.date ?? today())}" type="date" />
-          <input data-input-type value="${escapeAttr(input.type ?? "")}" placeholder="类型，例如剧 / 播客 / 短视频 / 歌" />
-          <input data-input-title value="${escapeAttr(input.title ?? "")}" placeholder="素材标题" />
-          <textarea data-input-note rows="3" placeholder="听了什么、注意到什么">${escapeHtml(input.note ?? "")}</textarea>
-          <button class="delete-photo" data-delete-language-input type="button">删除输入</button>
-        </div>
-      `).join("")}
-
     </section>
 
     <section class="topic-panel">
@@ -741,7 +724,6 @@ function quickDraftList(target) {
     "add-show": item.shows,
     "add-handwriting-checkin": item.checkins,
     "add-phrase": item.phrases,
-    "add-language-input": item.inputs,
     "add-learning-log": item.learningLogs,
     "add-workout": item.workouts,
     "fitness-photo-upload": item.photos,
@@ -758,7 +740,6 @@ function quickDraftSelector(target) {
     "add-show": "[data-show]",
     "add-handwriting-checkin": "[data-handwriting-checkin]",
     "add-phrase": "[data-phrase]",
-    "add-language-input": "[data-language-input]",
     "add-learning-log": "[data-learning-log]",
     "add-workout": "[data-workout]",
     "fitness-photo-upload": "[data-fitness-photo]",
@@ -775,7 +756,6 @@ function quickDraftDatasetKey(target) {
     "add-show": "show",
     "add-handwriting-checkin": "handwritingCheckin",
     "add-phrase": "phrase",
-    "add-language-input": "languageInput",
     "add-learning-log": "learningLog",
     "add-workout": "workout",
     "fitness-photo-upload": "fitnessPhoto",
@@ -1187,15 +1167,6 @@ function bindLanguageArchive(item) {
     });
   });
 
-  editorEl.querySelector("[data-add-language-input]")?.addEventListener("click", () => {
-    updateItem({
-      inputs: [
-        { type: "剧", title: "新素材", date: today(), note: "" },
-        ...(item.inputs ?? []),
-      ],
-    });
-  });
-
   editorEl.querySelector("[data-add-learning-log]")?.addEventListener("click", () => {
     updateItem({
       learningLogs: [
@@ -1215,17 +1186,6 @@ function bindLanguageArchive(item) {
       note: "[data-phrase-note]",
     });
     row.querySelector("[data-delete-phrase]").addEventListener("click", () => deleteListItem(item.phrases, index, updateItem, "phrases"));
-  });
-
-  editorEl.querySelectorAll("[data-language-input]").forEach((row) => {
-    const index = Number(row.dataset.languageInput);
-    bindListItem(row, item.inputs, index, updateItem, "inputs", {
-      date: "[data-input-date]",
-      type: "[data-input-type]",
-      title: "[data-input-title]",
-      note: "[data-input-note]",
-    });
-    row.querySelector("[data-delete-language-input]").addEventListener("click", () => deleteListItem(item.inputs, index, updateItem, "inputs"));
   });
 
   editorEl.querySelectorAll("[data-learning-log]").forEach((row) => {
@@ -1466,7 +1426,6 @@ function quickDraftTargetForKey(key) {
     shows: ["add-show"],
     checkins: ["add-handwriting-checkin"],
     phrases: ["add-phrase"],
-    inputs: ["add-language-input"],
     learningLogs: ["add-learning-log"],
     workouts: ["add-workout"],
     essays: ["add-essay"],

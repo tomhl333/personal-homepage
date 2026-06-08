@@ -248,7 +248,14 @@ function collectMomentPhotos(
         tags: [item.title, "海报"],
       })) ?? [];
 
-  const shouldUseDirectPhotos = !item.books?.length && !item.shows?.length;
+  const isTextOnlyArchive = Boolean(
+    item.phrases?.length ||
+      item.inputs?.length ||
+      item.learningLogs?.length ||
+      item.uploadDir === "/uploads/work-notes",
+  );
+  const shouldUseDirectPhotos =
+    !item.books?.length && !item.shows?.length && !isTextOnlyArchive;
   const photos = shouldUseDirectPhotos
     ? item.photos
         .filter((photo) => photo.src)
