@@ -23,6 +23,12 @@ export function HeroActivityPanel() {
       ? active.shows[Math.min(activeBookIndex, active.shows.length - 1)]
       : null;
   const cityPhotos = active?.title === "城市生活" ? active.photos : [];
+  const isWorkNotesActive = active?.uploadDir === "/uploads/work-notes";
+  const isSimpleSportActive =
+    active?.uploadDir === "/uploads/tennis" ||
+    active?.uploadDir === "/uploads/swimming";
+  const hidesLongRecords = isSimpleSportActive || isWorkNotesActive;
+  const readableTextClass = "whitespace-pre-line [overflow-wrap:anywhere]";
 
   useEffect(() => {
     if (!active) {
@@ -38,8 +44,34 @@ export function HeroActivityPanel() {
   }, [active]);
 
   useEffect(() => {
+    if (!active || previewImage) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveIndex(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [active, previewImage]);
+
+  useEffect(() => {
     setActiveBookIndex(0);
   }, [activeIndex]);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    preloadImageSources(getActivityImageSources(active));
+  }, [active]);
 
   function changeActiveCover(step: number, total: number) {
     if (total <= 0) return;
@@ -144,7 +176,7 @@ export function HeroActivityPanel() {
                     <h3 className="mt-2 font-serif text-2xl font-semibold leading-tight sm:text-4xl">
                       {active.status}
                     </h3>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/65 sm:mt-3 sm:text-base sm:leading-7">
+                    <p className={`mt-2 max-w-2xl text-sm leading-6 text-ink/65 sm:mt-3 sm:text-base sm:leading-7 ${readableTextClass}`}>
                       {active.summary}
                     </p>
                   </div>
@@ -279,7 +311,7 @@ export function HeroActivityPanel() {
                                 <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
                                   {note.type}
                                 </p>
-                                <p className="mt-2 text-sm leading-7 text-ink/70 [overflow-wrap:anywhere]">
+                                <p className={`mt-2 text-sm leading-7 text-ink/70 ${readableTextClass}`}>
                                   {note.text}
                                 </p>
                               </article>
@@ -287,7 +319,7 @@ export function HeroActivityPanel() {
                           </div>
                         ) : (
                           <div className="mt-5 min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/55 p-5">
-                            <p className="text-sm leading-7 text-ink/58 [overflow-wrap:anywhere]">
+                            <p className={`text-sm leading-7 text-ink/58 ${readableTextClass}`}>
                               这本书还没留下摘抄。先放在书架上，等读到有意思的句子再慢慢补上。
                             </p>
                           </div>
@@ -423,7 +455,7 @@ export function HeroActivityPanel() {
                                   <h5 className="font-semibold text-ink">
                                     {character.name}
                                   </h5>
-                                  <p className="mt-2 text-sm leading-6 text-ink/62 [overflow-wrap:anywhere]">
+                                  <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
                                     {character.note}
                                   </p>
                                 </article>
@@ -442,7 +474,7 @@ export function HeroActivityPanel() {
                                 <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
                                   {note.type}
                                 </p>
-                                <p className="mt-2 text-sm leading-7 text-ink/70 [overflow-wrap:anywhere]">
+                                <p className={`mt-2 text-sm leading-7 text-ink/70 ${readableTextClass}`}>
                                   {note.text}
                                 </p>
                               </article>
@@ -450,7 +482,7 @@ export function HeroActivityPanel() {
                           </div>
                         ) : (
                           <div className="mt-5 min-w-0 max-w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper/55 p-5">
-                            <p className="text-sm leading-7 text-ink/58 [overflow-wrap:anywhere]">
+                            <p className={`text-sm leading-7 text-ink/58 ${readableTextClass}`}>
                               这部还没写下记录。先留在片单里，等哪一段人物或台词打动我再补上。
                             </p>
                           </div>
@@ -459,8 +491,8 @@ export function HeroActivityPanel() {
                     ) : null}
                   </div>
                 </div>
-              ) : active.phrases || active.inputs || active.learningLogs ? (
-                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-[1fr_0.9fr_1fr]">
+              ) : active.phrases || active.learningLogs ? (
+                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-2">
                   <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
                       词句卡片
@@ -479,7 +511,7 @@ export function HeroActivityPanel() {
                               {phrase.jyutping}
                             </p>
                           ) : null}
-                          <p className="mt-3 text-sm leading-6 text-ink/68">
+                          <p className={`mt-3 text-sm leading-6 text-ink/68 ${readableTextClass}`}>
                             {phrase.meaning}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -488,39 +520,10 @@ export function HeroActivityPanel() {
                             </span>
                           </div>
                           {phrase.note ? (
-                            <p className="mt-3 border-t border-ink/10 pt-3 text-xs leading-5 text-ink/50">
+                            <p className={`mt-3 border-t border-ink/10 pt-3 text-xs leading-5 text-ink/50 ${readableTextClass}`}>
                               {phrase.note}
                             </p>
                           ) : null}
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                    <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      输入清单
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {(active.inputs ?? []).map((input) => (
-                        <article
-                          className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
-                          key={`${input.date}-${input.title}`}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="rounded-full bg-moss/10 px-2.5 py-1 text-[0.68rem] font-semibold text-moss">
-                              {input.type}
-                            </span>
-                            <span className="text-xs text-ink/40">
-                              {input.date}
-                            </span>
-                          </div>
-                          <h4 className="mt-3 text-base font-semibold text-ink">
-                            {input.title}
-                          </h4>
-                          <p className="mt-2 text-sm leading-6 text-ink/62">
-                            {input.note}
-                          </p>
                         </article>
                       ))}
                     </div>
@@ -547,7 +550,7 @@ export function HeroActivityPanel() {
                           <h4 className="mt-3 font-serif text-xl font-semibold text-ink">
                             {log.title}
                           </h4>
-                          <p className="mt-2 text-sm leading-6 text-ink/62">
+                          <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
                             {log.summary}
                           </p>
                           {log.tags ? (
@@ -568,42 +571,10 @@ export function HeroActivityPanel() {
                   </div>
                 </div>
               ) : active.plans || active.workouts ? (
-                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-[0.95fr_1.05fr_0.9fr]">
+                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-2">
                   <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      当前计划
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {(active.plans ?? []).map((plan) => (
-                        <article
-                          className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
-                          key={plan.title}
-                        >
-                          <p className="text-xs font-semibold text-clay">
-                            {plan.focus}
-                          </p>
-                          <h4 className="mt-2 font-serif text-xl font-semibold text-ink">
-                            {plan.title}
-                          </h4>
-                          <ul className="mt-3 space-y-2">
-                            {plan.items.map((item) => (
-                              <li
-                                className="flex gap-2 text-sm leading-6 text-ink/65"
-                                key={item}
-                              >
-                                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-clay" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                    <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      最近训练
+                      纯文字训练
                     </p>
                     <div className="mt-4 space-y-3">
                       {(active.workouts ?? []).map((workout) => (
@@ -622,7 +593,7 @@ export function HeroActivityPanel() {
                           <h4 className="mt-2 text-base font-semibold text-ink">
                             {workout.title}
                           </h4>
-                          <p className="mt-2 text-sm leading-6 text-ink/62">
+                          <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
                             {workout.summary}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -643,47 +614,47 @@ export function HeroActivityPanel() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 overflow-y-auto space-y-4">
-                    <div className="rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                      <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                        状态照片
-                      </p>
-                      <div className="mt-4 grid gap-3">
-                        {active.photos.map((photo) => (
+                  <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
+                    <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
+                      带照片训练
+                    </p>
+                    <div className="mt-4 grid gap-3">
+                      {active.photos.filter(hasRealPhoto).map((photo) => (
+                        <article
+                          className="rounded-2xl border border-ink/10 bg-paper/70 p-3"
+                          key={`${photo.label}-${photo.date ?? ""}`}
+                        >
                           <PhotoPreviewButton
-                            className="min-h-32"
+                            className="min-h-36"
                             key={`${photo.label}-${photo.date ?? ""}`}
                             onOpen={setPreviewImage}
                             photo={photo}
                           />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                      <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                        长记录
-                      </p>
-                      <div className="mt-4 space-y-3">
-                        {(active.essays ?? []).map((essay) => (
-                          <article
-                            className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
-                            key={`${essay.date}-${essay.title}`}
-                          >
-                            <span className="rounded-full bg-clay/10 px-2.5 py-1 text-[0.68rem] font-semibold text-clay">
-                              {essay.type}
-                            </span>
-                            <h4 className="mt-3 font-serif text-xl font-semibold text-ink">
-                              {essay.title}
-                            </h4>
-                            <p className="mt-2 text-sm leading-6 text-ink/62">
-                              {essay.summary}
+                          {photo.note ? (
+                            <p className={`mt-3 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
+                              {photo.note}
                             </p>
-                          </article>
-                        ))}
-                      </div>
+                          ) : null}
+                          <div className="mt-3 flex flex-wrap gap-1.5">
+                            {photo.tags?.map((tag) => (
+                              <span
+                                className="rounded-full bg-sage/35 px-2 py-1 text-[0.68rem] font-semibold text-moss"
+                                key={tag}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                            {photo.date ? (
+                              <span className="rounded-full bg-paper px-2 py-1 text-[0.68rem] font-semibold text-ink/50">
+                                {photo.date}
+                              </span>
+                            ) : null}
+                          </div>
+                        </article>
+                      ))}
                     </div>
                   </div>
+
                 </div>
               ) : active.title === "城市生活" ? (
                 <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-7">
@@ -755,7 +726,7 @@ export function HeroActivityPanel() {
                                   {photo.label}
                                 </h5>
                                 {photo.note ? (
-                                  <p className="mt-2 text-xs leading-5 text-ink/58">
+                                  <p className={`mt-2 text-xs leading-5 text-ink/58 ${readableTextClass}`}>
                                     {photo.note}
                                   </p>
                                 ) : null}
@@ -827,7 +798,7 @@ export function HeroActivityPanel() {
                               photo={checkinToPhoto(checkin)}
                             />
                             {checkin.note ? (
-                              <p className="mt-3 text-xs leading-5 text-ink/58">
+                              <p className={`mt-3 text-xs leading-5 text-ink/58 ${readableTextClass}`}>
                                 {checkin.note}
                               </p>
                             ) : null}
@@ -838,7 +809,68 @@ export function HeroActivityPanel() {
                   </div>
                 </div>
               ) : active.records || active.essays ? (
-                <div className="grid min-h-0 flex-1 gap-4 p-4 sm:gap-5 sm:p-7 lg:grid-cols-[0.9fr_1.1fr_0.9fr]">
+                isWorkNotesActive ? (
+                <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-7">
+                  <div className="mx-auto max-w-3xl">
+                    <div className="flex items-end justify-between gap-4">
+                      <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
+                        文字札记
+                      </p>
+                      <p className="text-xs text-ink/45">
+                        摘抄、感悟和小观察
+                      </p>
+                    </div>
+                    <div className="mt-5 space-y-6">
+                      {groupPhotosByMonth(active.records ?? []).map(([month, records]) => (
+                        <section key={month}>
+                          <div className="mb-3 flex items-center gap-3">
+                            <h4 className="text-sm font-semibold text-ink">
+                              {month}
+                            </h4>
+                            <span className="h-px flex-1 bg-ink/10" />
+                            <span className="text-xs text-ink/40">
+                              {records.length} 条
+                            </span>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {records.map((record) => (
+                              <article
+                                className="rounded-[1.25rem] border border-ink/10 bg-paper/70 p-4"
+                                key={`${record.date}-${record.title}`}
+                              >
+                                <p className="text-xs font-semibold text-clay">
+                                  {record.date}
+                                </p>
+                                <h4 className="mt-2 text-lg font-semibold text-ink">
+                                  {record.title}
+                                </h4>
+                                <p className={`mt-3 text-sm leading-7 text-ink/68 ${readableTextClass}`}>
+                                  {record.summary}
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-1.5">
+                                  {record.tags.map((tag) => (
+                                    <span
+                                      className="rounded-full bg-sage/35 px-2 py-1 text-[0.68rem] font-semibold text-moss"
+                                      key={tag}
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                ) : (
+                <div className={`grid min-h-0 flex-1 gap-4 p-4 sm:gap-5 sm:p-7 ${
+                  hidesLongRecords
+                    ? "lg:grid-cols-[0.95fr_1.05fr]"
+                    : "lg:grid-cols-[0.9fr_1.1fr_0.9fr]"
+                }`}>
                   <div className="min-h-0 rounded-[1.35rem] border border-ink/10 bg-white/45 p-4 lg:overflow-y-auto">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
                       最近记录
@@ -855,7 +887,7 @@ export function HeroActivityPanel() {
                           <h4 className="mt-2 text-base font-semibold text-ink">
                             {record.title}
                           </h4>
-                          <p className="mt-2 text-sm leading-6 text-ink/62">
+                          <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
                             {record.summary}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -876,14 +908,14 @@ export function HeroActivityPanel() {
                   <div className="min-h-0 lg:overflow-y-auto">
                     <div className="flex items-end justify-between gap-4">
                       <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                        现场照片
+                        {isSimpleSportActive ? "训练照片" : isWorkNotesActive ? "随手照片" : "现场照片"}
                       </p>
                       <p className="text-xs text-ink/45">
                         维护台上传后自动带日期
                       </p>
                     </div>
                     <div className="mt-4 grid auto-rows-[96px] grid-cols-2 gap-3 sm:auto-rows-[118px] sm:grid-cols-3">
-                      {active.photos.map((photo, index) => (
+                      {active.photos.filter(hasRealPhoto).map((photo, index) => (
                         <PhotoPreviewButton
                           className={`min-h-0 ${
                             index === 0 ? "col-span-2 row-span-2 sm:col-span-2" : ""
@@ -897,7 +929,7 @@ export function HeroActivityPanel() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 rounded-[1.35rem] border border-ink/10 bg-white/45 p-4 lg:overflow-y-auto">
+                  {hidesLongRecords ? null : <div className="min-h-0 rounded-[1.35rem] border border-ink/10 bg-white/45 p-4 lg:overflow-y-auto">
                     <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
                       长记录
                     </p>
@@ -918,7 +950,7 @@ export function HeroActivityPanel() {
                           <h4 className="mt-3 font-serif text-xl font-semibold text-ink">
                             {essay.title}
                           </h4>
-                          <p className="mt-2 text-sm leading-6 text-ink/62">
+                          <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
                             {essay.summary}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -934,8 +966,9 @@ export function HeroActivityPanel() {
                         </article>
                       ))}
                     </div>
-                  </div>
+                  </div>}
                 </div>
+                )
               ) : (
               <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[0.88fr_1.12fr]">
                 <div>
@@ -945,7 +978,7 @@ export function HeroActivityPanel() {
                   <div className="mt-4 space-y-3">
                     {active.notes.map((note) => (
                       <article
-                        className="rounded-2xl border border-ink/10 bg-white/50 px-4 py-3 text-sm leading-6 text-ink/70"
+                        className={`rounded-2xl border border-ink/10 bg-white/50 px-4 py-3 text-sm leading-6 text-ink/70 ${readableTextClass}`}
                         key={note}
                       >
                         {note}
@@ -960,7 +993,7 @@ export function HeroActivityPanel() {
                     <h4 className="mt-3 font-serif text-2xl font-semibold">
                       这里以后可以放一篇完整心得
                     </h4>
-                    <p className="mt-3 text-sm leading-7 text-ink/65">
+                    <p className={`mt-3 text-sm leading-7 text-ink/65 ${readableTextClass}`}>
                       比如一次训练复盘、一段语言学习记录、一本书的摘录，或者一组照片背后的生活片段。首页只做入口，更多内容在这个专题页里慢慢展开。
                     </p>
                   </div>
@@ -988,7 +1021,7 @@ export function HeroActivityPanel() {
                       <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
                         可扩展内容
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-ink/65">
+                      <p className={`mt-2 text-sm leading-6 text-ink/65 ${readableTextClass}`}>
                         训练数据、路线、读书摘句、语言词卡都可以放进来。
                       </p>
                     </div>
@@ -996,7 +1029,7 @@ export function HeroActivityPanel() {
                       <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">
                         后续形态
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-ink/65">
+                      <p className={`mt-2 text-sm leading-6 text-ink/65 ${readableTextClass}`}>
                         内容多了以后，可以升级成独立页面或按月份筛选。
                       </p>
                     </div>
@@ -1066,6 +1099,10 @@ function coverFlowClass(position: number) {
 
 function coverFlowStyle(offset: number) {
   return { "--cover-drag": `${offset}px` } as CSSProperties;
+}
+
+function hasRealPhoto(photo: PhotoItem) {
+  return Boolean(resolveMediaPath(photo.src));
 }
 
 function PhotoPreviewButton({
@@ -1141,4 +1178,24 @@ function checkinToPhoto(checkin: {
     note: checkin.note ?? checkin.content,
     src: checkin.src,
   };
+}
+
+function getActivityImageSources(item: (typeof activitySpotlights)[number]) {
+  return [
+    ...(item.photos ?? []).map((photo) => photo.src),
+    ...(item.checkins ?? []).map((checkin) => checkin.src),
+    ...(item.books ?? []).map((book) => book.cover),
+    ...(item.shows ?? []).map((show) => show.poster),
+  ];
+}
+
+function preloadImageSources(sources: Array<string | undefined>) {
+  sources.slice(0, 12).forEach((source) => {
+    const src = resolveMediaPath(source);
+    if (!src) return;
+
+    const image = new window.Image();
+    image.decoding = "async";
+    image.src = src;
+  });
 }

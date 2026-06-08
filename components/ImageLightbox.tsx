@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { resolveMediaPath } from "@/lib/media";
 
 export type LightboxImage = {
@@ -16,6 +17,29 @@ type ImageLightboxProps = {
 };
 
 export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(false);
+  }, [image?.src]);
+
+  useEffect(() => {
+    if (!image?.src) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [image?.src, onClose]);
+
   if (!image?.src) return null;
 
   return (
@@ -29,8 +53,13 @@ export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
         className="relative max-h-full max-w-5xl"
         onClick={(event) => event.stopPropagation()}
       >
+        {!isLoaded ? (
+          <div className="absolute inset-0 z-10 flex min-h-72 items-center justify-center rounded-[1.4rem] bg-paper/10 text-sm font-semibold text-white/78 backdrop-blur-sm">
+            正在打开图片...
+          </div>
+        ) : null}
         <button
-          className="absolute right-3 top-3 z-10 rounded-full border border-white/25 bg-ink/45 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-ink/65"
+          className="absolute right-3 top-3 z-20 rounded-full border border-white/25 bg-ink/45 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-ink/65"
           onClick={onClose}
           type="button"
         >
@@ -38,8 +67,13 @@ export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
         </button>
         <Image
           alt={image.label}
-          className="max-h-[82vh] max-w-[92vw] rounded-[1.4rem] object-contain shadow-2xl"
+          className={`max-h-[82vh] max-w-[92vw] rounded-[1.4rem] object-contain shadow-2xl transition duration-300 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
           height={1200}
+          onLoad={() => setIsLoaded(true)}
+          quality={82}
+          sizes="92vw"
           src={resolveMediaPath(image.src)!}
           width={1600}
         />
@@ -49,7 +83,9 @@ export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
             <p className="mt-1 text-xs text-ink/45">{image.date}</p>
           ) : null}
           {image.note ? (
-            <p className="mt-2 text-sm leading-6 text-ink/62">{image.note}</p>
+            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink/62 [overflow-wrap:anywhere]">
+              {image.note}
+            </p>
           ) : null}
         </figcaption>
       </figure>

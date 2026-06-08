@@ -80,6 +80,72 @@ h1 {
   line-height: 1.7;
 }
 
+.studio-search {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.studio-search label {
+  color: rgba(36, 50, 41, 0.58);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.studio-search input {
+  border-radius: 14px;
+}
+
+.search-results {
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.search-results[hidden] {
+  display: none;
+}
+
+.search-results button {
+  width: 100%;
+  border: 1px solid rgba(36, 50, 41, 0.08);
+  border-radius: 13px;
+  background: rgba(247, 242, 232, 0.72);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.search-results button:hover {
+  border-color: rgba(49, 91, 70, 0.22);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.search-results span,
+.search-results small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-results span {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.search-results small,
+.search-results p {
+  margin: 0;
+  color: rgba(36, 50, 41, 0.48);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .tabs {
   display: grid;
   gap: 8px;
@@ -544,6 +610,14 @@ textarea {
 
   .tabs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .studio-search {
+    margin-top: 14px;
+  }
+
+  .search-results {
+    max-height: 220px;
   }
 
   .save {

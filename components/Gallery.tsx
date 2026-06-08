@@ -45,6 +45,32 @@ export function Gallery() {
     };
   }, [active]);
 
+  useEffect(() => {
+    if (!active || previewImage) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveIndex(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [active, previewImage]);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    preloadImageSources(active.photos.map((photo) => photo.src));
+  }, [active]);
+
   return (
     <section className="px-5 py-16 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">
@@ -150,6 +176,8 @@ export function Gallery() {
                           <img
                             alt={photo.label}
                             className="h-full w-full object-contain"
+                            decoding="async"
+                            loading="lazy"
                             src={resolveMediaPath(photo.src)!}
                           />
                         ) : null}
@@ -248,7 +276,14 @@ function collectMomentPhotos(
         tags: [item.title, "海报"],
       })) ?? [];
 
-  const shouldUseDirectPhotos = !item.books?.length && !item.shows?.length;
+  const isTextOnlyArchive = Boolean(
+    item.phrases?.length ||
+      item.inputs?.length ||
+      item.learningLogs?.length ||
+      item.uploadDir === "/uploads/work-notes",
+  );
+  const shouldUseDirectPhotos =
+    !item.books?.length && !item.shows?.length && !isTextOnlyArchive;
   const photos = shouldUseDirectPhotos
     ? item.photos
         .filter((photo) => photo.src)
@@ -329,6 +364,8 @@ function CoverPreviewGrid({
               <img
                 alt={photo.label}
                 className="h-full w-full object-contain"
+                decoding="async"
+                loading="lazy"
                 src={resolveMediaPath(photo.src)!}
               />
             ) : null}
@@ -361,4 +398,15 @@ function topicTone(title: string) {
     return "from-fog via-paper to-clay/30";
   }
   return "from-sage/70 via-paper to-fog";
+}
+
+function preloadImageSources(sources: Array<string | undefined>) {
+  sources.slice(0, 12).forEach((source) => {
+    const src = resolveMediaPath(source);
+    if (!src) return;
+
+    const image = new window.Image();
+    image.decoding = "async";
+    image.src = src;
+  });
 }

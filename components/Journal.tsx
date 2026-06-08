@@ -31,6 +31,24 @@ export function Journal() {
     };
   }, [active]);
 
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveIndex(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [active]);
+
   return (
     <section className="bg-fog/60 px-5 py-16 sm:px-8 lg:px-12" id="journal">
       <div className="mx-auto max-w-6xl">
