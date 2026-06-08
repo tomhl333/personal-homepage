@@ -307,7 +307,7 @@ function quickActionsForActivity(item) {
   const photoUpload = item.checkins
     ? null
     : item.phrases || item.inputs || item.learningLogs
-    ? ["上传照片", "language-photo-upload"]
+    ? null
     : isFitness
     ? ["上传照片训练", "fitness-photo-upload"]
     : item.uploadDir === "/uploads/work-notes"
@@ -464,7 +464,6 @@ function handwritingCheckinsEditor(item) {
 }
 
 function languageArchiveEditor(item) {
-  const uploadDir = item.uploadDir ?? "/uploads/cantonese";
   return `<div class="topic-grid">
     <section class="topic-panel">
       <div class="topic-heading">
@@ -498,21 +497,6 @@ function languageArchiveEditor(item) {
         </div>
       `).join("")}
 
-      <div class="topic-heading topic-heading-spaced">
-        <h3>粤语照片</h3>
-        <label class="upload">上传照片<input data-language-photo-upload type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
-      </div>
-      ${(item.photos ?? []).map((photo, index) => `
-        <div class="topic-row" data-language-photo="${index}">
-          <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="照片标题 / label" />
-          <input data-photo-src value="${escapeAttr(photo.src ?? "")}" placeholder="${escapeAttr(uploadDir)}/photo.jpg" />
-          <input data-photo-date value="${escapeAttr(photo.date ?? today())}" type="date" />
-          <input data-photo-month value="${escapeAttr(photo.month ?? monthFromDate(photo.date ?? today()))}" placeholder="YYYY-MM" />
-          <textarea data-photo-note rows="2" placeholder="备注，可不写">${escapeHtml(photo.note ?? "")}</textarea>
-          <textarea data-photo-tags rows="2" placeholder="标签，一行一个">${escapeHtml((photo.tags ?? []).join("\n"))}</textarea>
-          <button class="delete-photo" data-delete-language-photo type="button">删除照片</button>
-        </div>
-      `).join("")}
     </section>
 
     <section class="topic-panel">
@@ -759,7 +743,6 @@ function quickDraftList(target) {
     "add-phrase": item.phrases,
     "add-language-input": item.inputs,
     "add-learning-log": item.learningLogs,
-    "language-photo-upload": item.photos,
     "add-workout": item.workouts,
     "fitness-photo-upload": item.photos,
     "add-record": item.records,
@@ -777,7 +760,6 @@ function quickDraftSelector(target) {
     "add-phrase": "[data-phrase]",
     "add-language-input": "[data-language-input]",
     "add-learning-log": "[data-learning-log]",
-    "language-photo-upload": "[data-language-photo]",
     "add-workout": "[data-workout]",
     "fitness-photo-upload": "[data-fitness-photo]",
     "add-record": "[data-record]",
@@ -795,7 +777,6 @@ function quickDraftDatasetKey(target) {
     "add-phrase": "phrase",
     "add-language-input": "languageInput",
     "add-learning-log": "learningLog",
-    "language-photo-upload": "languagePhoto",
     "add-workout": "workout",
     "fitness-photo-upload": "fitnessPhoto",
     "add-record": "record",
@@ -1224,25 +1205,6 @@ function bindLanguageArchive(item) {
     });
   });
 
-  editorEl.querySelector("[data-language-photo-upload]")?.addEventListener("change", async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const uploaded = await upload(file, "/api/admin/upload", item.uploadDir);
-    updateItem({
-      photos: [
-        {
-          label: uploaded.label,
-          src: uploaded.src,
-          date: today(),
-          month: monthFromDate(today()),
-          note: "",
-          tags: ["粤语"],
-        },
-        ...(item.photos ?? []),
-      ],
-    });
-  });
-
   editorEl.querySelectorAll("[data-phrase]").forEach((row) => {
     const index = Number(row.dataset.phrase);
     bindListItem(row, item.phrases, index, updateItem, "phrases", {
@@ -1264,24 +1226,6 @@ function bindLanguageArchive(item) {
       note: "[data-input-note]",
     });
     row.querySelector("[data-delete-language-input]").addEventListener("click", () => deleteListItem(item.inputs, index, updateItem, "inputs"));
-  });
-
-  editorEl.querySelectorAll("[data-language-photo]").forEach((row) => {
-    const index = Number(row.dataset.languagePhoto);
-    bindListItem(row, item.photos, index, updateItem, "photos", {
-      label: "[data-photo-label]",
-      src: "[data-photo-src]",
-      date: "[data-photo-date]",
-      month: "[data-photo-month]",
-      note: "[data-photo-note]",
-    });
-    row.querySelector("[data-photo-date]").addEventListener("input", (event) => {
-      const next = structuredClone(item.photos ?? []);
-      next[index] = { ...next[index], date: event.target.value, month: monthFromDate(event.target.value) };
-      updateItem({ photos: next }, false);
-    });
-    bindLineList(row, item.photos, index, updateItem, "photos", "tags", "[data-photo-tags]");
-    row.querySelector("[data-delete-language-photo]").addEventListener("click", () => deleteListItem(item.photos, index, updateItem, "photos"));
   });
 
   editorEl.querySelectorAll("[data-learning-log]").forEach((row) => {
@@ -1517,7 +1461,7 @@ function deleteListItem(list, index, updateItem, key) {
 function quickDraftTargetForKey(key) {
   if (!pendingQuickDraft) return "";
   const map = {
-    photos: ["add-photo", "language-photo-upload", "fitness-photo-upload", "tennis-photo-upload"],
+    photos: ["add-photo", "fitness-photo-upload", "tennis-photo-upload"],
     books: ["add-book"],
     shows: ["add-show"],
     checkins: ["add-handwriting-checkin"],
