@@ -45,6 +45,24 @@ export function Gallery() {
     };
   }, [active]);
 
+  useEffect(() => {
+    if (!active || previewImage) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveIndex(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [active, previewImage]);
+
   return (
     <section className="px-5 py-16 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">

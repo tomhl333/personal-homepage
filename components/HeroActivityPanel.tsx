@@ -44,6 +44,24 @@ export function HeroActivityPanel() {
   }, [active]);
 
   useEffect(() => {
+    if (!active || previewImage) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveIndex(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [active, previewImage]);
+
+  useEffect(() => {
     setActiveBookIndex(0);
   }, [activeIndex]);
 

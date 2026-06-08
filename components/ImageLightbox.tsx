@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect } from "react";
 import { resolveMediaPath } from "@/lib/media";
 
 export type LightboxImage = {
@@ -16,6 +17,23 @@ type ImageLightboxProps = {
 };
 
 export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
+  useEffect(() => {
+    if (!image?.src) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [image?.src, onClose]);
+
   if (!image?.src) return null;
 
   return (
