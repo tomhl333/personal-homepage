@@ -9,7 +9,8 @@ function githubConfig() {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_BRANCH || "main";
+  const branch =
+    process.env.VERCEL_GIT_COMMIT_REF || process.env.GITHUB_BRANCH || "main";
 
   if (!token || !owner || !repo) {
     throw new Error(
