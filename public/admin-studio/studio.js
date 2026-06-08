@@ -297,7 +297,7 @@ function quickActionsForActivity(item) {
   if (isFitness) {
     actions.push(["新增文字训练", "add-workout"]);
   } else if (item.records || item.essays) {
-    actions.push(["新增短记录", "add-record"]);
+    actions.push([item.uploadDir === "/uploads/work-notes" ? "新增札记" : "新增短记录", "add-record"]);
     if (!hidesLongRecords) actions.push(["新增长记录", "add-essay"]);
   }
   if (!item.books && !item.shows && !item.checkins && !item.phrases && !item.inputs && !item.learningLogs && !item.plans && !item.workouts && !item.records && !item.essays) {
@@ -310,6 +310,8 @@ function quickActionsForActivity(item) {
     ? ["上传照片", "language-photo-upload"]
     : isFitness
     ? ["上传照片训练", "fitness-photo-upload"]
+    : item.uploadDir === "/uploads/work-notes"
+    ? null
     : item.records || item.essays
     ? [item.uploadDir === "/uploads/work-notes" ? "上传随手照片" : item.uploadDir === "/uploads/city-life" ? "上传城市照片" : "上传训练照片", "tennis-photo-upload"]
     : null;
@@ -582,6 +584,25 @@ function tennisTopicEditor(item) {
   const usesFreeTags = isWorkNotes || isCityLife;
   const photoTitle = isWorkNotes ? "随手照片" : isCityLife ? "城市照片" : "训练照片";
   const uploadLabel = isWorkNotes ? "上传随手照片" : isCityLife ? "上传城市照片" : "上传训练照片";
+  if (isWorkNotes) {
+    return `<div class="topic-grid single-topic-grid">
+      <section class="topic-panel">
+        <div class="topic-heading">
+          <h3>文字札记</h3>
+          <button class="pill-button" data-add-record type="button">新增札记</button>
+        </div>
+        ${(item.records ?? []).map((record, index) => `
+          <div class="topic-row" data-record="${index}">
+            <input data-record-date value="${escapeAttr(record.date ?? today())}" type="date" />
+            <input data-record-title value="${escapeAttr(record.title ?? "")}" placeholder="标题，例如路上看到的一句话" />
+            <textarea data-record-summary rows="5" placeholder="摘抄、感悟、观察，都可以短短写下来">${escapeHtml(record.summary ?? "")}</textarea>
+            <textarea data-record-tags rows="2" placeholder="标签，一行一个">${escapeHtml((record.tags ?? []).join("\n"))}</textarea>
+            <button class="delete-photo" data-delete-record type="button">删除札记</button>
+          </div>
+        `).join("")}
+      </section>
+    </div>`;
+  }
   return `<div class="topic-grid">
     <section class="topic-panel">
       <div class="topic-heading">

@@ -812,6 +812,63 @@ export function HeroActivityPanel() {
                   </div>
                 </div>
               ) : active.records || active.essays ? (
+                isWorkNotesActive ? (
+                <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-7">
+                  <div className="mx-auto max-w-3xl">
+                    <div className="flex items-end justify-between gap-4">
+                      <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
+                        文字札记
+                      </p>
+                      <p className="text-xs text-ink/45">
+                        摘抄、感悟和小观察
+                      </p>
+                    </div>
+                    <div className="mt-5 space-y-6">
+                      {groupPhotosByMonth(active.records ?? []).map(([month, records]) => (
+                        <section key={month}>
+                          <div className="mb-3 flex items-center gap-3">
+                            <h4 className="text-sm font-semibold text-ink">
+                              {month}
+                            </h4>
+                            <span className="h-px flex-1 bg-ink/10" />
+                            <span className="text-xs text-ink/40">
+                              {records.length} 条
+                            </span>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {records.map((record) => (
+                              <article
+                                className="rounded-[1.25rem] border border-ink/10 bg-paper/70 p-4"
+                                key={`${record.date}-${record.title}`}
+                              >
+                                <p className="text-xs font-semibold text-clay">
+                                  {record.date}
+                                </p>
+                                <h4 className="mt-2 text-lg font-semibold text-ink">
+                                  {record.title}
+                                </h4>
+                                <p className={`mt-3 text-sm leading-7 text-ink/68 ${readableTextClass}`}>
+                                  {record.summary}
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-1.5">
+                                  {record.tags.map((tag) => (
+                                    <span
+                                      className="rounded-full bg-sage/35 px-2 py-1 text-[0.68rem] font-semibold text-moss"
+                                      key={tag}
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                ) : (
                 <div className={`grid min-h-0 flex-1 gap-4 p-4 sm:gap-5 sm:p-7 ${
                   hidesLongRecords
                     ? "lg:grid-cols-[0.95fr_1.05fr]"
@@ -914,6 +971,7 @@ export function HeroActivityPanel() {
                     </div>
                   </div>}
                 </div>
+                )
               ) : (
               <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[0.88fr_1.12fr]">
                 <div>
