@@ -576,13 +576,30 @@ textarea {
 
 @media (min-width: 900px) {
   .shell {
+    align-items: start;
     grid-template-columns: 256px 1fr;
+    min-height: 100vh;
   }
 
   .sidebar {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     position: sticky;
     top: 20px;
-    height: calc(100vh - 40px);
+  }
+
+  .save {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    box-shadow: 0 -10px 22px rgba(247, 242, 232, 0.92);
+  }
+
+  .workspace {
+    min-width: 0;
+    padding-bottom: 28px;
   }
 
   .editor-grid {
