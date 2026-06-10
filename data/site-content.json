@@ -992,6 +992,17 @@
       ],
       "photos": [
         {
+          "label": "流水席馄饨",
+          "src": "/uploads/city-life/1781095129201-image.jpg",
+          "city": "石家庄",
+          "date": "2026-06-10",
+          "month": "2026-06",
+          "note": "馄饨不用点，直接流水席，吃完再付",
+          "tags": [
+            "城市"
+          ]
+        },
+        {
           "label": "热米皮",
           "src": "/uploads/city-life/1780473750354-image.jpg",
           "city": "河北石家庄",
