@@ -572,7 +572,12 @@
           "posterTone": "from-fog via-paper to-moss/55",
           "meta": "",
           "characters": [],
-          "notes": []
+          "notes": [
+            {
+              "type": "剧情",
+              "text": "纳达尔原来从 2006 年开始就一直忍受脚部疼痛，带着矫正鞋垫在打球。与疼痛共生，真勇士"
+            }
+          ]
         },
         {
           "title": "掩耳盗邻",
