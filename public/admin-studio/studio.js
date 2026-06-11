@@ -172,6 +172,7 @@ function buildSearchIndex() {
   const results = [];
 
   (content.activitySpotlights ?? []).forEach((item, parentIndex) => {
+    const isCityLife = item.uploadDir === "/uploads/city-life" || item.title === "城市生活";
     addSearchResult(results, {
       tab: "activity",
       parentIndex,
@@ -224,7 +225,7 @@ function buildSearchIndex() {
         target: "add-phrase",
         title: phrase.text,
         subtitle: `${item.title} / 词句 / ${phrase.jyutping ?? ""}`,
-        searchText: [item.title, phrase.text, phrase.jyutping, phrase.meaning, phrase.scene, phrase.note],
+        searchText: [item.title, phrase.text, phrase.jyutping, phrase.meaning],
       });
     });
 
@@ -252,17 +253,19 @@ function buildSearchIndex() {
       });
     });
 
-    (item.records ?? []).forEach((record, childIndex) => {
-      addSearchResult(results, {
-        tab: "activity",
-        parentIndex,
-        childIndex,
-        target: "add-record",
-        title: record.title,
-        subtitle: `${item.title} / 记录 / ${record.date ?? ""}`,
-        searchText: [item.title, record.title, record.summary, record.tags, record.date],
+    if (!isCityLife) {
+      (item.records ?? []).forEach((record, childIndex) => {
+        addSearchResult(results, {
+          tab: "activity",
+          parentIndex,
+          childIndex,
+          target: "add-record",
+          title: record.title,
+          subtitle: `${item.title} / 记录 / ${record.date ?? ""}`,
+          searchText: [item.title, record.title, record.summary, record.tags, record.date],
+        });
       });
-    });
+    }
 
     (item.photos ?? []).forEach((photo, childIndex) => {
       const target = item.plans || item.workouts
@@ -519,6 +522,7 @@ function quickActionsForActivity(item) {
   const actions = [];
   const isFitness = item.plans || item.workouts;
   const isSimpleSport = item.uploadDir === "/uploads/tennis" || item.uploadDir === "/uploads/swimming";
+  const isCityLife = item.uploadDir === "/uploads/city-life" || item.title === "城市生活";
   const hidesLongRecords = isSimpleSport || item.uploadDir === "/uploads/work-notes";
 
   if (item.shows) actions.push(["新增影视", "add-show"]);
@@ -529,7 +533,7 @@ function quickActionsForActivity(item) {
   }
   if (isFitness) {
     actions.push(["新增文字训练", "add-workout"]);
-  } else if (item.records || item.essays) {
+  } else if ((item.records || item.essays) && !isCityLife) {
     actions.push([item.uploadDir === "/uploads/work-notes" ? "新增札记" : "新增短记录", "add-record"]);
     if (!hidesLongRecords) actions.push(["新增长记录", "add-essay"]);
   }
@@ -545,7 +549,7 @@ function quickActionsForActivity(item) {
     ? ["上传照片训练", "fitness-photo-upload"]
     : item.uploadDir === "/uploads/work-notes"
     ? null
-    : item.records || item.essays
+    : item.records || item.essays || isCityLife
     ? [item.uploadDir === "/uploads/work-notes" ? "上传随手照片" : item.uploadDir === "/uploads/city-life" ? "上传城市照片" : "上传训练照片", "tennis-photo-upload"]
     : null;
 
@@ -708,8 +712,6 @@ function languageArchiveEditor(item) {
           <input data-phrase-text value="${escapeAttr(phrase.text ?? "")}" placeholder="粤语句子" />
           <input data-phrase-jyutping value="${escapeAttr(phrase.jyutping ?? "")}" placeholder="粤拼" />
           <input data-phrase-meaning value="${escapeAttr(phrase.meaning ?? "")}" placeholder="中文意思" />
-          <input data-phrase-scene value="${escapeAttr(phrase.scene ?? "")}" placeholder="使用场景" />
-          <textarea data-phrase-note rows="3" placeholder="发音提醒">${escapeHtml(phrase.note ?? "")}</textarea>
           <button class="delete-photo" data-delete-phrase type="button">删除词句</button>
         </div>
       `).join("")}
@@ -784,6 +786,28 @@ function tennisTopicEditor(item) {
   const usesFreeTags = isWorkNotes || isCityLife;
   const photoTitle = isWorkNotes ? "随手照片" : isCityLife ? "城市照片" : "训练照片";
   const uploadLabel = isWorkNotes ? "上传随手照片" : isCityLife ? "上传城市照片" : "上传训练照片";
+  if (isCityLife) {
+    return `<div class="topic-grid single-topic-grid">
+      <section class="topic-panel">
+        <div class="topic-heading">
+          <h3>${photoTitle}</h3>
+          <label class="upload">${uploadLabel}<input data-tennis-photo-upload type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
+        </div>
+        ${(item.photos ?? []).map((photo, index) => `
+          <div class="topic-row" data-tennis-photo="${index}">
+            <input data-photo-label value="${escapeAttr(photo.label ?? "")}" placeholder="照片标题 / label" />
+            <input data-photo-city value="${escapeAttr(photo.city ?? "")}" placeholder="城市，例如上海" />
+            <input data-photo-src value="${escapeAttr(photo.src ?? "")}" placeholder="${escapeAttr(item.uploadDir ?? "/uploads/city-life")}/photo.jpg" />
+            <input data-photo-date value="${escapeAttr(photo.date ?? today())}" type="date" />
+            <input data-photo-month value="${escapeAttr(photo.month ?? monthFromDate(photo.date ?? today()))}" placeholder="YYYY-MM" />
+            <textarea data-photo-note rows="2" placeholder="一句话备注，可不写">${escapeHtml(photo.note ?? "")}</textarea>
+            <textarea data-photo-tags rows="2" placeholder="标签，一行一个">${escapeHtml((photo.tags ?? []).join("\n"))}</textarea>
+            <button class="delete-photo" data-delete-tennis-photo type="button">删除照片</button>
+          </div>
+        `).join("")}
+      </section>
+    </div>`;
+  }
   if (isWorkNotes) {
     return `<div class="topic-grid single-topic-grid">
       <section class="topic-panel">
@@ -1394,7 +1418,7 @@ function bindLanguageArchive(item) {
   editorEl.querySelector("[data-add-phrase]")?.addEventListener("click", () => {
     updateItem({
       phrases: [
-        { text: "", jyutping: "", meaning: "", scene: "", note: "" },
+        { text: "", jyutping: "", meaning: "" },
         ...(item.phrases ?? []),
       ],
     });
@@ -1415,8 +1439,6 @@ function bindLanguageArchive(item) {
       text: "[data-phrase-text]",
       jyutping: "[data-phrase-jyutping]",
       meaning: "[data-phrase-meaning]",
-      scene: "[data-phrase-scene]",
-      note: "[data-phrase-note]",
     });
     row.querySelector("[data-delete-phrase]").addEventListener("click", () => deleteListItem(item.phrases, index, updateItem, "phrases"));
   });
