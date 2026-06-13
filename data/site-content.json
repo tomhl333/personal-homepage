@@ -572,7 +572,12 @@
           "posterTone": "from-fog via-paper to-moss/55",
           "meta": "",
           "characters": [],
-          "notes": []
+          "notes": [
+            {
+              "type": "剧情",
+              "text": "在那场让皇马球迷全体为小罗鼓掌的那场比赛，现在回想起来，我还是初中的时候，小罗后悔没有在过掉拉莫斯后再过掉卡洛斯后进球。足球精灵都是那么爱过人"
+            }
+          ]
         },
         {
           "title": "纳达尔",
