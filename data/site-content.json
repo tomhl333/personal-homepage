@@ -1096,6 +1096,17 @@
       ],
       "photos": [
         {
+          "label": "理发",
+          "src": "/uploads/city-life/1781770464903-IMG_3988.jpg",
+          "city": "武汉",
+          "date": "2026-06-17",
+          "month": "2026-06",
+          "note": "尝试一下武汉 tony 的手艺",
+          "tags": [
+            "城市"
+          ]
+        },
+        {
           "label": "热干面",
           "src": "/uploads/city-life/1781770404131-IMG_3987.jpg",
           "city": "武汉",
