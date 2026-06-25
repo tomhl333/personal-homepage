@@ -1140,6 +1140,17 @@
       ],
       "photos": [
         {
+          "label": "爱国理想",
+          "src": "/uploads/city-life/1782371747768-IMG_4039.jpg",
+          "city": "石家庄",
+          "date": "2026-06-25",
+          "month": "2026-06",
+          "note": "这车有点猛",
+          "tags": [
+            "城市"
+          ]
+        },
+        {
           "label": "秦托邦数字游民社区",
           "src": "/uploads/city-life/1782037438997-IMG_4006.jpg",
           "city": "西安",
