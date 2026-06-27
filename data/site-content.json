@@ -833,6 +833,14 @@
       ],
       "books": [
         {
+          "title": "心态制胜",
+          "author": "提摩西·加尔韦",
+          "status": "",
+          "cover": "/uploads/books/1782575889672-IMG_4066.jpeg",
+          "coverTone": "from-fog via-white to-clay/30",
+          "notes": []
+        },
+        {
           "title": "哈萨比斯：谷歌 AI 之脑",
           "author": "塞巴斯蒂安·马拉比",
           "status": "正在读",
