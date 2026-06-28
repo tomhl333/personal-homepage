@@ -569,6 +569,22 @@
       ],
       "shows": [
         {
+          "title": "达顿农场",
+          "creator": "Paramount",
+          "kind": "电视剧",
+          "status": "正在看",
+          "poster": "/uploads/shows/1782658628264-IMG_4085.webp",
+          "posterTone": "from-fog via-paper to-moss/55",
+          "meta": "",
+          "characters": [],
+          "notes": [
+            {
+              "type": "剧情",
+              "text": "男人应该看的剧，跟黄石，石油天王一样"
+            }
+          ]
+        },
+        {
           "title": "谜探休格",
           "creator": "Apple TV+",
           "kind": "电视剧",
