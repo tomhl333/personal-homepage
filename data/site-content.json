@@ -865,6 +865,14 @@
       ],
       "books": [
         {
+          "title": "还是要相信",
+          "author": "陈鲁豫",
+          "status": "",
+          "cover": "/uploads/books/1783217916266-IMG_4099.jpeg",
+          "coverTone": "from-fog via-white to-clay/30",
+          "notes": []
+        },
+        {
           "title": "心态制胜",
           "author": "提摩西·加尔韦",
           "status": "",
