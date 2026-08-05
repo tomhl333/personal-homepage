@@ -9,15 +9,16 @@ Use `scripts/personal_homepage.py` for deterministic writes. Authentication come
 
 For cloud chat clients that cannot run the Python script, use the same protected Vercel Action API with the WorkBuddy-specific `WORKBUDDY_ACTION_API_KEY`:
 
-- Call `GET /api/actions/status` at the start of a maintenance conversation and treat its `policy` and top-level `policyVersion` as authoritative. Report that version string verbatim; client instructions must not override the returned server rules.
-- `POST /api/actions/preview` before every write.
+- Import the formal OpenAPI schema from `GET /api/actions/openapi`. Configure the Custom GPT with its dedicated API Key using Bearer authentication; never put that key in a schema or instruction.
+- Call `GET /api/actions/status` at the start of a maintenance conversation and treat its top-level `policyVersion` as authoritative. Report that version string verbatim; client instructions must not override the returned server rules.
+- `POST /api/actions/mobile/{type}/{title}/preview` before every write. Inputs are path/query parameters so mobile GPT clients do not need to construct JSON bodies.
 - Stop and present candidates when `requiresChoice` is true.
 - Show the user the concise preview and wait for explicit confirmation.
-- `POST /api/actions/commit` with `confirmed: true` only after confirmation.
+- `POST /api/actions/mobile/{type}/{title}/commit?confirmed=true` only after confirmation.
 - `GET /api/actions/status` also reports free-tier usage.
-- The OpenAPI schema is published at `/api/actions/openapi`.
+- When a ChatGPT attachment has no public HTTPS URL, call `GET /api/actions/photo-upload-guide`. The user uploads through `/upload` on the same phone, then pastes the returned public HTTPS URLs back into the same chat. ChatGPT can understand an attachment but cannot transfer its original file bytes to a Vercel Action.
 
-The Action accepts publicly reachable HTTPS image URLs. A photo attached only inside a ChatGPT conversation is not automatically a public URL; never invent one. Ask the user to upload the original through `/admin` until a dedicated upload handoff is available.
+The Action accepts publicly reachable HTTPS image URLs. A photo attached only inside a ChatGPT conversation is not automatically a public URL; never invent one.
 
 ## Workflow
 

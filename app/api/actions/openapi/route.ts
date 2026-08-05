@@ -1,65 +1,106 @@
-export const dynamic = "force-dynamic";
-
 import { actionPolicy } from "@/lib/action-policy";
 
-const inputSchema = {
+const server = "https://personal-homepage-nine-ashen.vercel.app";
+
+const commonParameters = [
+  { name: "type", in: "path", required: true, description: "Record type.", schema: { type: "string", enum: ["book", "show", "activity", "journal"] } },
+  { name: "title", in: "path", required: true, description: "Concise title of the book, show, activity, or journal entry.", schema: { type: "string" } },
+  { name: "note", in: "query", description: "The user's reflection. Do not invent facts.", schema: { type: "string" } },
+  { name: "status", in: "query", description: "For example read, watched, or completed.", schema: { type: "string" } },
+  { name: "date", in: "query", description: "Record date in YYYY-MM-DD.", schema: { type: "string", format: "date" } },
+  { name: "season", in: "query", description: "Season label for a show note. Do not create a separate show record.", schema: { type: "string" } },
+  { name: "author", in: "query", schema: { type: "string" } },
+  { name: "creator", in: "query", schema: { type: "string" } },
+  { name: "mediaKind", in: "query", schema: { type: "string", enum: ["电视剧", "电影", "纪录片", "综艺"] } },
+  { name: "category", in: "query", description: "Required for activity.", schema: { type: "string", enum: ["练字", "城市生活", "粤语", "网球", "游泳", "健身"] } },
+  { name: "tag", in: "query", description: "Repeat for each tag.", schema: { type: "array", items: { type: "string" } }, style: "form", explode: true },
+  { name: "imageUrl", in: "query", description: "Repeat for each already-public HTTPS image URL from the mobile upload page. Never invent an attachment URL.", schema: { type: "array", items: { type: "string", format: "uri" } }, style: "form", explode: true },
+  { name: "workoutId", in: "query", description: "Use only after a unique workout is selected.", schema: { type: "string" } },
+];
+
+const previewResponse = {
   type: "object",
-  required: ["type", "title"],
+  required: ["ok", "policyVersion", "action", "candidates", "input", "requiresChoice"],
   properties: {
-    type: { type: "string", enum: ["show", "book", "activity", "journal"], description: "Named book/show reactions must use book or show, never journal." },
-    title: { type: "string", description: "Concise Chinese display title. Remove season suffix from a series title." },
-    note: { type: "string", description: "Lightly polished user reflection or summary without inventing facts." },
-    date: { type: "string", format: "date" },
-    season: { type: "string", description: "For example 第三季; stored as a note type under one canonical series." },
-    author: { type: "string" }, creator: { type: "string" }, mediaKind: { type: "string", enum: ["电视剧", "电影", "纪录片", "综艺"] }, status: { type: "string" },
-    category: { type: "string", enum: ["练字", "城市生活", "粤语", "网球", "游泳", "健身"] },
-    tags: { type: "array", items: { type: "string" } },
-    imageUrls: { type: "array", items: { type: "string", format: "uri" }, description: "Only publicly reachable HTTPS image URLs. Chat attachments cannot be invented as URLs." },
-    workoutId: { type: "string", description: "Use only after the user selects an ambiguous workout candidate." },
+    ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] },
+    candidates: { type: "array", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, detail: { type: "string" } } } },
+    input: { type: "object" }, revision: { type: "number" }, requiresChoice: { type: "boolean" }, message: { type: "string" },
   },
 };
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-  return Response.json({
-    // GPT Builder validates 3.1 schemas. Authentication stays in the Builder;
-    // the server still enforces it for writes.
-    openapi: "3.1.1",
-    info: { title: "个人主页维护 Action", version: "1.3.0", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
-    servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
-    components: {
-      schemas: {},
-      securitySchemes: {
-        actionApiKey: {
-          type: "apiKey",
-          in: "header",
-          name: "Authorization",
-          description: "Configured in GPT Builder as a Bearer API key.",
+  const previewOperation = {
+    operationId: "previewPersonalRecord",
+    summary: "Preview a record before writing",
+    description: "Always call first. If requiresChoice is true, present candidates and stop. This operation never writes.",
+    security: [{ actionApiKey: [] }],
+    "x-openai-isConsequential": false,
+    parameters: commonParameters,
+    responses: {
+      "200": { description: "Authoritative preview", content: { "application/json": { schema: previewResponse } } },
+      "401": { description: "Authorization was not accepted" },
+    },
+  };
+  const commitOperation = {
+    operationId: "commitPersonalRecord",
+    summary: "Commit a confirmed preview and verify the public page",
+    description: "Call only after the user explicitly confirms the exact preview. Set confirmed to true. Never call when requiresChoice is true.",
+    security: [{ actionApiKey: [] }],
+    "x-openai-isConsequential": true,
+    parameters: [...commonParameters, { name: "confirmed", in: "query", required: true, description: "Must be true after explicit user confirmation.", schema: { type: "boolean", enum: [true] } }, { name: "targetId", in: "query", description: "Required only when the user selected a candidate.", schema: { type: "string" } }],
+    responses: {
+      "200": {
+        description: "Write and public-page verification result",
+        content: {
+          "application/json": {
+            schema: { type: "object", properties: { ok: { type: "boolean" }, saved: { type: "boolean" }, verified: { type: "boolean" }, publicVisible: { type: "boolean" }, policyVersion: { type: "string" }, message: { type: "string" } } },
+          },
         },
       },
+      "409": { description: "Choice required; nothing was written" },
     },
+  };
+
+  return Response.json({
+    openapi: "3.1.0",
+    info: { title: "Personal Homepage Maintenance", version: "2.0.0", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
+    servers: [{ url: server }],
+    components: { schemas: {}, securitySchemes: { actionApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Configure this Action in GPT Builder with API Key and Bearer." } } },
+    security: [{ actionApiKey: [] }],
     paths: {
-      "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record before writing", security: [{ actionApiKey: [] }], "x-openai-isConsequential": false, requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
-      "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a confirmed preview", security: [{ actionApiKey: [] }], "x-openai-isConsequential": true, requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": { description: "Write and verification result" }, "401": { description: "Unauthorized" }, "409": { description: "Ambiguous; select a candidate" } } } },
-      "/actions/status.json": {
+      "/api/actions/mobile/{type}/{title}/preview": {
+        post: previewOperation,
+      },
+      "/api/actions/mobile/{type}/{title}/commit": {
+        post: commitOperation,
+      },
+      "/api/actions/status": {
         get: {
           operationId: "getPersonalStorageStatus",
-          "x-openai-isConsequential": false,
+          summary: "Get the server policy version and storage state",
           security: [{ actionApiKey: [] }],
-          summary: "Read the authoritative policy version",
-          description: "Call before answering. Return policyVersion verbatim.",
+          "x-openai-isConsequential": false,
           responses: {
             "200": {
-              description: "Policy version result",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    required: ["policyVersion"],
-                    additionalProperties: false,
-                    properties: { policyVersion: { type: "string", example: actionPolicy.version } },
-                  },
-                },
-              },
+              description: "Authoritative policy status",
+              content: { "application/json": { schema: { type: "object", required: ["policyVersion"], properties: { policyVersion: { type: "string" } } } } },
+            },
+          },
+        },
+      },
+      "/api/actions/photo-upload-guide": {
+        get: {
+          operationId: "getPhotoUploadGuide",
+          summary: "Get the secure mobile image upload page",
+          description: "Use when the user attached an image but no public HTTPS URL exists.",
+          security: [{ actionApiKey: [] }],
+          "x-openai-isConsequential": false,
+          responses: {
+            "200": {
+              description: "Mobile upload handoff",
+              content: { "application/json": { schema: { type: "object", required: ["ok", "uploadUrl", "policyVersion"], properties: { ok: { type: "boolean" }, uploadUrl: { type: "string", format: "uri" }, policyVersion: { type: "string" }, message: { type: "string" } } } } },
             },
           },
         },
