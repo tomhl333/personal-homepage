@@ -1,6 +1,5 @@
 import { actionPolicy } from "@/lib/action-policy";
 
-export const dynamic = "force-static";
 export const runtime = "edge";
 
 export async function GET() {

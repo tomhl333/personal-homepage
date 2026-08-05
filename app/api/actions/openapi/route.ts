@@ -34,7 +34,27 @@ export async function GET() {
     paths: {
       "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record before writing", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
       "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a confirmed preview", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": { description: "Write and verification result" }, "401": { description: "Unauthorized" }, "409": { description: "Ambiguous; select a candidate" } } } },
-      "/api/actions/status": { get: { operationId: "getPersonalStorageStatus", summary: "Read the authoritative policy version", description: "Call before answering. Return policyVersion verbatim.", security: [], responses: { "200": { description: "Policy version result", content: { "application/json": { schema: { type: "object", properties: { policyVersion: { type: "string", example: actionPolicy.version } } } } } } } },
+      "/api/actions/status": {
+        get: {
+          operationId: "getPersonalStorageStatus",
+          summary: "Read the authoritative policy version",
+          description: "Call before answering. Return policyVersion verbatim.",
+          security: [],
+          responses: {
+            "200": {
+              description: "Policy version result",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { policyVersion: { type: "string", example: actionPolicy.version } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   }, { headers: { "Cache-Control": "no-store" } });
 }
