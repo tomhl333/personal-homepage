@@ -130,7 +130,7 @@ export async function cleanupMedia({ dryRun = true, targetBytes }: { dryRun?: bo
     for (const item of next.galleryItems) {
       item.photos = item.photos.filter((photo) => !photo.src || !removedUrls.has(photo.src));
     }
-    await writeSiteContent(next, revision);
+    await writeSiteContent(next, revision, { bypassBudget: true });
     await del(selected.map((row) => row.blob_url));
     await sql`UPDATE personal.media_assets SET status='deleted' WHERE id=ANY(${ids}::uuid[])`;
   }
