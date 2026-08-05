@@ -4,7 +4,7 @@ export const dynamic = "force-static";
 export const runtime = "edge";
 
 export async function GET() {
-  const body = JSON.stringify({ ok: true, policyVersion: actionPolicy.version, policyAuthority: actionPolicy.authority });
+  const body = JSON.stringify({ policyVersion: actionPolicy.version });
   return new Response(body, {
     status: 200,
     headers: {
