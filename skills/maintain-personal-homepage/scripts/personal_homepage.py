@@ -65,6 +65,22 @@ def normalized(value):
     return re.sub(r"[\W_]+", "", (value or "").casefold())
 
 
+def closest_matches(items, requested_titles, title_getter, compatible=lambda _item: True, minimum=0.72):
+    requested = [normalized(title) for title in requested_titles if normalized(title)]
+    scored = []
+    for item in items:
+        if not compatible(item):
+            continue
+        existing = normalized(title_getter(item))
+        score = max((SequenceMatcher(None, existing, title).ratio() for title in requested), default=0)
+        if score >= minimum:
+            scored.append((score, item))
+    if not scored:
+        return []
+    best = max(score for score, _item in scored)
+    return [item for score, item in scored if best - score <= 0.03]
+
+
 def unique_items(items, key):
     result, seen = [], set()
     for item in items:
@@ -182,14 +198,19 @@ def series_identity(title):
 def add_show(args):
     base_title, parsed_season = series_identity(args.title)
     season = args.season or parsed_season or "观后札记"
-    status, poster = request("/api/admin/show-poster", "POST", {"title": base_title, "kind": args.kind, "uploadDir": "/uploads/shows"})
-    if status != 200:
-        poster = {}
     note_text = args.note.strip()
+    poster = None
+
+    def load_poster():
+        nonlocal poster
+        if poster is None:
+            status, result = request("/api/admin/show-poster", "POST", {"title": base_title, "kind": args.kind, "uploadDir": "/uploads/shows"})
+            poster = result if status == 200 else {}
+        return poster
 
     def change(content):
         shows = activity(content, "看剧").setdefault("shows", [])
-        matches = [show for show in shows if normalized(series_identity(show.get("title", ""))[0]) == normalized(base_title)]
+        matches = closest_matches(shows, [base_title], lambda show: series_identity(show.get("title", ""))[0])
         if matches:
             show = matches[0]
             for duplicate in matches[1:]:
@@ -199,30 +220,51 @@ def add_show(args):
                     show["poster"] = duplicate["poster"]
                 shows.remove(duplicate)
         else:
-            show = {"title": base_title, "creator": poster.get("creator") or args.creator or "", "kind": args.kind, "status": args.status or "", "posterTone": "from-fog via-paper to-moss/55", "meta": poster.get("year") or "", "characters": [], "notes": []}
+            asset = load_poster()
+            show = {"title": base_title, "creator": asset.get("creator") or args.creator or "", "kind": args.kind, "status": args.status or "", "posterTone": "from-fog via-paper to-moss/55", "meta": asset.get("year") or "", "characters": [], "notes": []}
             shows.insert(0, show)
         show["title"] = base_title
         show["status"] = args.status or show.get("status", "")
-        if poster.get("poster") and not show.get("poster"):
-            show["poster"] = poster["poster"]
+        if not show.get("poster"):
+            asset = load_poster()
+            if asset.get("poster"):
+                show["poster"] = asset["poster"]
         if note_text and normalized(note_text) not in {normalized(n.get("text", "")) for n in show.get("notes", [])}:
             show.setdefault("notes", []).insert(0, {"type": season, "text": note_text})
         show["notes"] = unique_text_items(show.get("notes", []))
-        return {"type": "show", "title": base_title, "deduplicated": max(0, len(matches) - 1), "noteAdded": bool(note_text), "coverSource": poster.get("source", "existing"), "hasCover": bool(show.get("poster")), "publicMarker": note_text or base_title}
+        return {"type": "show", "title": base_title, "deduplicated": max(0, len(matches) - 1), "noteAdded": bool(note_text), "coverSource": (poster or {}).get("source", "existing"), "hasCover": bool(show.get("poster")), "publicMarker": note_text or base_title}
 
-    return mutate(change, lambda c: any(normalized(series_identity(s.get("title", ""))[0]) == normalized(base_title) and (not note_text or any(normalized(n.get("text", "")) == normalized(note_text) for n in s.get("notes", []))) for s in activity(c, "看剧").get("shows", [])))
+    return mutate(change, lambda c: any(s in closest_matches(activity(c, "看剧").get("shows", []), [base_title], lambda show: series_identity(show.get("title", ""))[0]) and (not note_text or any(normalized(n.get("text", "")) == normalized(note_text) for n in s.get("notes", []))) for s in activity(c, "看剧").get("shows", [])))
 
 
 def add_book(args):
-    status, cover = request("/api/admin/book-cover", "POST", {"title": args.title, "author": args.author, "uploadDir": "/uploads/books"})
-    if status != 200:
-        cover = {}
-    canonical = cover.get("title") or args.title
     note_text = args.note.strip()
+    cover = None
+    canonical = args.title
+
+    def load_cover():
+        nonlocal cover, canonical
+        if cover is None:
+            status, result = request("/api/admin/book-cover", "POST", {"title": args.title, "author": args.author, "uploadDir": "/uploads/books"})
+            cover = result if status == 200 else {}
+            canonical = cover.get("title") or args.title
+        return cover
+
+    def compatible_author(book):
+        existing_author = normalized(book.get("author", ""))
+        requested_author = normalized((cover or {}).get("author") or args.author)
+        return not requested_author or not existing_author or existing_author == requested_author
+
+    def find_matches(books):
+        return closest_matches(books, [args.title, canonical], lambda book: book.get("title", ""), compatible_author)
 
     def change(content):
         books = activity(content, "阅读").setdefault("books", [])
-        matches = [book for book in books if normalized(book.get("title", "")) in {normalized(args.title), normalized(canonical)}]
+        matches = find_matches(books)
+        if not matches or not any(book.get("cover") for book in matches):
+            load_cover()
+            matches = find_matches(books)
+        matches.sort(key=lambda book: (bool(book.get("cover")), normalized(book.get("title", "")) == normalized(canonical)), reverse=True)
         if matches:
             book = matches[0]
             for duplicate in matches[1:]:
@@ -231,18 +273,22 @@ def add_book(args):
                     book["cover"] = duplicate["cover"]
                 books.remove(duplicate)
         else:
-            book = {"title": canonical, "author": cover.get("author") or args.author or "", "status": args.status or "", "coverTone": "from-fog via-white to-clay/30", "notes": []}
+            asset = load_cover()
+            book = {"title": canonical, "author": asset.get("author") or args.author or "", "status": args.status or "", "coverTone": "from-fog via-white to-clay/30", "notes": []}
             books.insert(0, book)
-        book["title"] = canonical
+        display_title = (cover or {}).get("title") or book.get("title") or args.title
+        book["title"] = display_title
         book["status"] = args.status or book.get("status", "")
-        if cover.get("cover") and not book.get("cover"):
-            book["cover"] = cover["cover"]
+        if not book.get("cover"):
+            asset = load_cover()
+            if asset.get("cover"):
+                book["cover"] = asset["cover"]
         if note_text and normalized(note_text) not in {normalized(n.get("text", "")) for n in book.get("notes", [])}:
             book.setdefault("notes", []).insert(0, {"type": args.note_type, "text": note_text})
         book["notes"] = unique_text_items(book.get("notes", []))
-        return {"type": "book", "title": canonical, "deduplicated": max(0, len(matches) - 1), "noteAdded": bool(note_text), "coverSource": cover.get("source", "existing"), "hasCover": bool(book.get("cover")), "publicMarker": note_text or canonical}
+        return {"type": "book", "title": display_title, "deduplicated": max(0, len(matches) - 1), "noteAdded": bool(note_text), "coverSource": (cover or {}).get("source", "existing"), "hasCover": bool(book.get("cover")), "publicMarker": note_text or display_title}
 
-    return mutate(change, lambda c: any(normalized(b.get("title", "")) in {normalized(args.title), normalized(canonical)} and (not note_text or any(normalized(n.get("text", "")) == normalized(note_text) for n in b.get("notes", []))) for b in activity(c, "阅读").get("books", [])))
+    return mutate(change, lambda c: any(b in find_matches(activity(c, "阅读").get("books", [])) and (not note_text or any(normalized(n.get("text", "")) == normalized(note_text) for n in b.get("notes", []))) for b in activity(c, "阅读").get("books", [])))
 
 
 def add_activity(args):
