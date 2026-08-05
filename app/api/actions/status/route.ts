@@ -7,14 +7,14 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-  if (!isActionRequest(request)) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
   try {
+    const authenticated = isActionRequest(request);
     return NextResponse.json({
       ok: true,
       policyVersion: actionPolicy.version,
       policyAuthority: actionPolicy.authority,
       policy: actionPolicy,
-      usage: await storageBudgets(),
+      ...(authenticated ? { usage: await storageBudgets() } : {}),
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     return NextResponse.json({ ok: false, message: error instanceof Error ? error.message : "status_failed" }, { status: 500 });
