@@ -8,5 +8,11 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return NextResponse.json({ message: "unauthorized" }, { status: 401 });
-  return NextResponse.json({ ok: true, policy: actionPolicy, usage: await storageBudgets() }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({
+    ok: true,
+    policyVersion: actionPolicy.version,
+    policyAuthority: actionPolicy.authority,
+    policy: actionPolicy,
+    usage: await storageBudgets(),
+  }, { headers: { "Cache-Control": "no-store" } });
 }
