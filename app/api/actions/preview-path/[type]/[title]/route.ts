@@ -10,7 +10,15 @@ export async function GET(
   request: NextRequest,
   context: { params: { type: string; title: string } },
 ) {
-  if (!isActionRequest(request)) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
+  const authorization = request.headers.get("authorization");
+  const authorized = isActionRequest(request);
+  console.info(JSON.stringify({
+    event: "gpt_action_preview_path",
+    hasAuthorization: Boolean(authorization),
+    bearerFormat: authorization?.startsWith("Bearer ") ?? false,
+    authorized,
+  }));
+  if (!authorized) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
 
   const input: ActionRecordInput = {
     type: context.params.type as ActionRecordInput["type"],
