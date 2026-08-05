@@ -73,9 +73,13 @@ function matchesBearer(authorization: string | null, tokens: Array<string | unde
 }
 
 export function isActionRequest(request: NextRequest) {
-  const configured = [process.env.GPT_ACTION_API_KEY, process.env.WORKBUDDY_ACTION_API_KEY].filter(Boolean);
-  // Keep existing deployments working until the two dedicated keys are configured.
-  return matchesBearer(request.headers.get("authorization"), configured.length ? configured : [process.env.PERSONAL_CONTENT_API_TOKEN]);
+  const configured = [
+    process.env.GPT_ACTION_API_KEY,
+    process.env.WORKBUDDY_ACTION_API_KEY,
+    // Migration compatibility for GPTs configured before dedicated Action keys existed.
+    process.env.PERSONAL_CONTENT_API_TOKEN,
+  ];
+  return matchesBearer(request.headers.get("authorization"), configured);
 }
 
 export function internalApiAuthorization(fallback = "") {
