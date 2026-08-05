@@ -11,9 +11,10 @@ export async function GET() {
       schemas: {},
       securitySchemes: { actionApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Configured in GPT Builder as a Bearer API key." } },
     },
+    security: [{ actionApiKey: [] }],
     paths: {
       "/api/actions/preview-path/{type}/{title}": {
-        get: {
+        post: {
           operationId: "previewPersonalRecord",
           summary: "Preview a record before writing",
           description: "Use the user's actual record type and title. Never write content.",

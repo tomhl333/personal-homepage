@@ -6,7 +6,7 @@ import { withActionPolicy } from "@/lib/action-policy";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET(
+async function preview(
   request: NextRequest,
   context: { params: { type: string; title: string } },
 ) {
@@ -32,4 +32,13 @@ export async function GET(
   } catch (error) {
     return NextResponse.json({ ok: false, message: error instanceof Error ? error.message : "preview_failed" }, { status: 400 });
   }
+}
+
+// GPT Builder has demonstrated reliable authenticated POST transport for this
+// Action. Keep path inputs so the model need not construct a JSON body.
+export async function POST(
+  request: NextRequest,
+  context: { params: { type: string; title: string } },
+) {
+  return preview(request, context);
 }
