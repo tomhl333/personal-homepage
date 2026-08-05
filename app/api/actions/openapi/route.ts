@@ -47,7 +47,7 @@ export async function GET() {
     info: { title: "个人主页维护 Action", version: "1.1.3", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
     // GPT Builder requires schemas to be an explicit object when components exists.
-    components: { schemas: {}, securitySchemes: { bearerApiKey: { type: "http", scheme: "bearer", bearerFormat: "API key", description: "Use the dedicated GPT or WorkBuddy Action API key." } } },
+    components: { schemas: {}, securitySchemes: { bearerApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Enter the dedicated Action API key; GPT Builder's Bearer setting sends it as Authorization: Bearer <key>." } } },
     security: [{ bearerApiKey: [] }],
     paths: {
       "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record and detect duplicates or ambiguity before any write", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": jsonObjectResponse("Preview result", { ok: { type: "boolean" }, action: { type: "string" }, requiresChoice: { type: "boolean" }, candidates: { type: "array", items: { type: "object", additionalProperties: true } }, input: inputSchema, revision: { type: "string" }, message: { type: "string" }, ...policyProperties }), "400": jsonObjectResponse("Invalid preview input", errorProperties), "401": jsonObjectResponse("Unauthorized", errorProperties) } } },
