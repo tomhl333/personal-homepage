@@ -168,7 +168,7 @@ function collectManagedBlobUrls(value: unknown, result = new Set<string>()) {
 function duplicateSignature(row: { category: string; pathname: string; compressed_size: number }) {
   const filename = row.pathname.split("/").pop() ?? row.pathname;
   const stableName = filename.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, "");
-  return `${row.category}\u0000${stableName}\u0000${Number(row.compressed_size)}`;
+  return `${row.category}\u0000${stableName}`;
 }
 
 export async function cleanupDuplicateMedia({ dryRun = true }: { dryRun?: boolean } = {}) {
