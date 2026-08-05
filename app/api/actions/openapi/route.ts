@@ -22,7 +22,7 @@ const previewResponse = {
   type: "object",
   required: ["ok", "policyVersion", "action", "candidates", "input", "requiresChoice"],
   properties: {
-    ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] },
+    ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] }, confirmationToken: { type: "string", description: "Opaque token returned by preview. Pass it unchanged to commit after the user confirms." },
     candidates: { type: "array", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, detail: { type: "string" } } } },
     input: { type: "object" }, revision: { type: "number" }, requiresChoice: { type: "boolean" }, message: { type: "string" },
   },
@@ -46,13 +46,13 @@ export async function GET() {
   const commitOperation = {
     operationId: "commitPersonalRecord",
     summary: "Commit a confirmed preview and verify the public page",
-    description: "Call only after the user explicitly confirms the exact preview. Set confirmed to true. Never call when requiresChoice is true.",
+    description: "Call only after the user explicitly confirms the exact preview. Pass confirmationToken unchanged from that preview and set confirmed to true. Never call when requiresChoice is true.",
     security: [{ actionApiKey: [] }],
     // The conversation's explicit "确认" is the write approval. Marking this
     // false avoids a second ChatGPT approval prompt that can prevent the POST
     // from being sent at all on mobile clients.
     "x-openai-isConsequential": false,
-    parameters: [...commonParameters, { name: "confirmed", in: "query", required: true, description: "Must be true after explicit user confirmation.", schema: { type: "boolean", enum: [true] } }, { name: "targetId", in: "query", description: "Required only when the user selected a candidate.", schema: { type: "string" } }],
+    parameters: [{ name: "confirmationToken", in: "query", required: true, description: "Pass unchanged from previewPersonalRecord after explicit user confirmation.", schema: { type: "string" } }, { name: "confirmed", in: "query", required: true, description: "Must be true after explicit user confirmation.", schema: { type: "boolean", enum: [true] } }],
     responses: {
       "200": {
         description: "Write and public-page verification result",
@@ -68,7 +68,7 @@ export async function GET() {
 
   return Response.json({
     openapi: "3.1.0",
-    info: { title: "Personal Homepage Maintenance", version: "2.0.1", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
+    info: { title: "Personal Homepage Maintenance", version: "2.1.0", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
     servers: [{ url: server }],
     components: { schemas: {}, securitySchemes: { actionApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Configure this Action in GPT Builder with API Key and Bearer." } } },
     security: [{ actionApiKey: [] }],
@@ -76,7 +76,7 @@ export async function GET() {
       "/api/actions/mobile/{type}/{title}/preview": {
         post: previewOperation,
       },
-      "/api/actions/mobile/{type}/{title}/commit": {
+      "/api/actions/mobile/commit": {
         post: commitOperation,
       },
       "/api/actions/status": {

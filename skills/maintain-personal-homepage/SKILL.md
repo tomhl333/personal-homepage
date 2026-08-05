@@ -14,7 +14,7 @@ For cloud chat clients that cannot run the Python script, use the same protected
 - `POST /api/actions/mobile/{type}/{title}/preview` before every write. Inputs are path/query parameters so mobile GPT clients do not need to construct JSON bodies.
 - Stop and present candidates when `requiresChoice` is true.
 - Show the user the concise preview and wait for explicit confirmation.
-- `POST /api/actions/mobile/{type}/{title}/commit?confirmed=true` only after confirmation.
+- After confirmation, call `POST /api/actions/mobile/commit?confirmationToken=<preview confirmationToken>&confirmed=true`, passing the preview token unchanged. Never rebuild image URLs or other record fields for the commit call.
 - `GET /api/actions/status` also reports free-tier usage.
 - When a ChatGPT attachment has no public HTTPS URL, call `GET /api/actions/photo-upload-guide`. The user uploads through `/upload` on the same phone, then pastes the returned public HTTPS URLs back into the same chat. ChatGPT can understand an attachment but cannot transfer its original file bytes to a Vercel Action.
 
