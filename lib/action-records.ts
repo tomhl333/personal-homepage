@@ -12,6 +12,7 @@ export type ActionRecordInput = {
   mediaKind?: string;
   status?: string;
   category?: string;
+  city?: string;
   tags?: string[];
   imageUrls?: string[];
   workoutId?: string;
@@ -80,27 +81,71 @@ function cleanInput(input: ActionRecordInput): ActionRecordInput {
     author: input.author?.trim(),
     creator: input.creator?.trim(),
     category,
+    city: input.city?.trim(),
     imageUrls: [...new Set((input.imageUrls ?? []).map((item) => item.trim()).filter((item) => /^https:\/\//i.test(item)))],
     tags: [...new Set((input.tags ?? []).map((item) => item.trim()).filter(Boolean))],
   };
 }
 
+function shanghaiDate() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
+}
+
+function dateFromImageUrls(urls: string[]) {
+  for (const url of urls) {
+    const match = url.match(/\/(\d{4}-\d{2}-\d{2})(?:\/|$)/);
+    if (match) return match[1];
+  }
+  return undefined;
+}
+
+function knownCities(content: SiteContent) {
+  return [...new Set(content.activitySpotlights.flatMap((item) => item.photos.map((photo) => photo.city)).filter(Boolean))] as string[];
+}
+
+function compactActivityTitle(title: string, category?: string, city?: string) {
+  if (category === "练字") {
+    const work = title.match(/《([^》]{1,24})》/u)?.[1];
+    if (work) return `临《${work}》`;
+  }
+  const firstClause = title.split(/[，。；：,.!?！？]/u)[0].trim();
+  const withoutCity = city && firstClause.startsWith(city) ? firstClause.slice(city.length).trim() : firstClause;
+  return (withoutCity || firstClause || title).slice(0, 18);
+}
+
+function normalizeActivityInput(input: ActionRecordInput, content: SiteContent): ActionRecordInput {
+  if (input.type !== "activity") return input;
+  const source = [input.title, input.note].filter(Boolean).join(" ");
+  const city = input.city || knownCities(content).find((item) => source.includes(item));
+  const hasLongDescription = /[，。；：,.!?！？]/u.test(input.title) || input.title.length > 18;
+  return {
+    ...input,
+    city,
+    date: input.date || dateFromImageUrls(input.imageUrls ?? []) || shanghaiDate(),
+    title: hasLongDescription ? compactActivityTitle(input.title, input.category, city) : input.title,
+    note: input.note || (hasLongDescription ? input.title : undefined),
+  };
+}
+
 export async function previewAction(inputValue: ActionRecordInput) {
-  const input = cleanInput(inputValue);
   const { content, revision } = await readSiteContent();
+  const input = normalizeActivityInput(cleanInput(inputValue), content);
   const candidates = candidatesFor(content, input);
   const ambiguous = candidates.length > 1;
   const categoryRequired = input.type === "activity" && !input.category;
+  const cityRequired = input.type === "activity" && input.category === "城市生活" && Boolean(input.imageUrls?.length) && !input.city;
   return {
-    ok: !ambiguous && !categoryRequired,
+    ok: !ambiguous && !categoryRequired && !cityRequired,
     action: candidates.length === 1 ? "update" : "create",
     candidates,
     input,
     revision,
-    requiresChoice: ambiguous || categoryRequired,
+    requiresChoice: ambiguous || categoryRequired || cityRequired,
     message: ambiguous
       ? "匹配到多个可能记录，请选择 candidate.id 后再保存。"
-      : categoryRequired
+      : cityRequired
+        ? "城市生活图片缺少城市。请补充城市后重新预览。"
+        : categoryRequired
         ? "活动记录缺少分类，请补充分类后再保存。"
         : "预览完成。只有用户明确确认后才能调用保存操作。",
   };
@@ -148,7 +193,8 @@ export async function commitAction({
   const input = cleanInput(inputValue);
   const current = await readSiteContent();
   const content = structuredClone(current.content);
-  const existingCandidates = candidatesFor(content, input);
+  const normalizedInput = normalizeActivityInput(input, content);
+  const existingCandidates = candidatesFor(content, normalizedInput);
   if (existingCandidates.length > 1 && !targetId) {
     return { ok: false, status: 409, requiresChoice: true, candidates: existingCandidates, message: "匹配不唯一，未写入。" };
   }
@@ -156,10 +202,11 @@ export async function commitAction({
     return { ok: false, status: 409, requiresChoice: true, candidates: existingCandidates, message: "所选记录已变化，请重新预览。" };
   }
 
-  let marker = input.note || input.title;
-  let result: Record<string, unknown> = { type: input.type, title: input.title };
+  const recordInput = normalizedInput;
+  let marker = recordInput.note || recordInput.title;
+  let result: Record<string, unknown> = { type: recordInput.type, title: recordInput.title };
 
-  if (input.type === "show") {
+  if (recordInput.type === "show") {
     const shows = section(content, "看剧").shows ??= [];
     let show = shows.find((item) => item.title === (targetId ?? existingCandidates[0]?.id));
     if (!show) {
@@ -172,7 +219,7 @@ export async function commitAction({
     }
     show.status = input.status || show.status;
     result = { ...result, action: existingCandidates.length ? "updated" : "created", noteAdded: Boolean(input.note), hasCover: Boolean(show.poster) };
-  } else if (input.type === "book") {
+  } else if (recordInput.type === "book") {
     const books = section(content, "阅读").books ??= [];
     let book = books.find((item) => item.title === (targetId ?? existingCandidates[0]?.id));
     if (!book) {
@@ -186,19 +233,20 @@ export async function commitAction({
     book.status = input.status || book.status;
     marker = input.note || book.title;
     result = { ...result, title: book.title, action: existingCandidates.length ? "updated" : "created", noteAdded: Boolean(input.note), hasCover: Boolean(book.cover) };
-  } else if (input.type === "journal") {
+  } else if (recordInput.type === "journal") {
     const duplicate = content.journalPosts.some((item) => item.date === input.date && related(item.summary || item.body, input.note || input.title));
     if (!duplicate) content.journalPosts.unshift({ date: input.date || new Date().toISOString().slice(0, 10), category: input.category || "生活札记", title: input.title, summary: input.note || "", body: input.note || "", icon: "note" });
     result = { ...result, action: duplicate ? "unchanged" : "created", deduplicated: duplicate };
   } else {
-    if (!input.category) throw new Error("category_required");
-    const category = activityAliases[input.category] ?? input.category;
-    const imageUrls = await localizeImages(origin, authorization, input.imageUrls ?? [], input.title, `/uploads/${encodeURIComponent(category)}`);
+    if (!recordInput.category) throw new Error("category_required");
+    const category = activityAliases[recordInput.category] ?? recordInput.category;
+    const activityDate = recordInput.date || shanghaiDate();
+    const imageUrls = await localizeImages(origin, authorization, recordInput.imageUrls ?? [], recordInput.title, `/uploads/${encodeURIComponent(category)}`);
     if (sports.has(category) && imageUrls.length) {
       const training = await fetch(`${process.env.TRAINING_HOMEPAGE_URL || "https://xunheng-training.vercel.app"}/api/workout-media`, {
         method: "POST",
         headers: { Authorization: authorization, "Content-Type": "application/json" },
-        body: JSON.stringify({ date: input.date, workoutId: input.workoutId, titleHint: `${category} ${input.title} ${input.note ?? ""}`, note: input.note, category: category === "游泳" ? "swim" : category === "网球" ? "tennis" : "strength", images: imageUrls.map((url) => ({ url, label: input.title })) }),
+        body: JSON.stringify({ date: activityDate, workoutId: recordInput.workoutId, titleHint: `${category} ${recordInput.title} ${recordInput.note ?? ""}`, note: recordInput.note, category: category === "游泳" ? "swim" : category === "网球" ? "tennis" : "strength", images: imageUrls.map((url) => ({ url, label: recordInput.title })) }),
       });
       const trainingResult = await training.json();
       if (training.status === 409) return { ok: false, status: 409, requiresChoice: true, ...trainingResult };
@@ -208,16 +256,16 @@ export async function commitAction({
     const target = section(content, category);
     if (category === "练字") {
       const checkins = target.checkins ??= [];
-      const duplicate = checkins.find((item) => item.date === input.date && related(item.label, input.title));
-      const item = duplicate ?? { date: input.date || new Date().toISOString().slice(0, 10), label: input.title, note: input.note, images: [] };
-      item.images = [...(item.images ?? []), ...imageUrls.map((src) => ({ src, label: input.title }))].filter((value, index, all) => all.findIndex((other) => other.src === value.src) === index);
+      const duplicate = checkins.find((item) => item.date === activityDate && related(item.label, recordInput.title));
+      const item = duplicate ?? { date: activityDate, label: recordInput.title, note: recordInput.note, src: undefined, images: [] };
+      item.images = [...(item.images ?? []), ...imageUrls.map((src) => ({ src, label: recordInput.title }))].filter((value, index, all) => all.findIndex((other) => other.src === value.src) === index);
       item.src = item.images[0]?.src;
       if (!duplicate) checkins.unshift(item);
     } else {
       const records = target.records ??= [];
-      const duplicate = records.some((item) => item.date === input.date && related(item.title, input.title));
-      if (!duplicate) records.unshift({ date: input.date || new Date().toISOString().slice(0, 10), title: input.title, summary: input.note || "", tags: input.tags?.length ? input.tags : [category] });
-      target.photos.unshift(...imageUrls.map((src) => ({ date: input.date, label: input.title, note: input.note, src, project: input.title })));
+      const duplicate = records.some((item) => item.date === activityDate && related(item.title, recordInput.title));
+      if (!duplicate) records.unshift({ date: activityDate, title: recordInput.title, summary: recordInput.note || "", tags: recordInput.tags?.length ? recordInput.tags : [category] });
+      target.photos.unshift(...imageUrls.map((src) => ({ date: activityDate, city: recordInput.city, label: recordInput.title, note: recordInput.note, src, project: recordInput.title })));
     }
     result = { ...result, category, imageCount: imageUrls.length, action: "upserted" };
   }

@@ -37,11 +37,14 @@ export async function storeImage({
   category: rawCategory,
   title,
   recordRef,
+  capturedAt,
 }: {
   content: Buffer;
   category: string;
   title: string;
   recordRef?: string;
+  /** Calendar date extracted from the original photo before browser compression. */
+  capturedAt?: string;
 }) {
   const category = cleanCategory(rawCategory);
   await enforcePersonalDatabaseBudget();
@@ -52,7 +55,8 @@ export async function storeImage({
   const compressed = await compressImage(content, category);
   const id = crypto.randomUUID();
   const safeTitle = title.normalize("NFKC").replace(/[^\w\u4e00-\u9fff-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "image";
-  const pathname = `${category}/${new Date().toISOString().slice(0, 10)}/${id}-${safeTitle}.webp`;
+  const assetDate = /^\d{4}-\d{2}-\d{2}$/.test(capturedAt ?? "") ? capturedAt! : new Date().toISOString().slice(0, 10);
+  const pathname = `${category}/${assetDate}/${id}-${safeTitle}.webp`;
   const blob = await put(pathname, compressed.buffer, {
     access: "public",
     addRandomSuffix: false,

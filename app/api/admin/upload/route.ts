@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     data?: string;
     name?: string;
     uploadDir?: string;
+    capturedAt?: string;
   };
 
   if (!body.data || !body.name || !body.uploadDir) {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { buffer } = dataUrlToBuffer(body.data);
-    const stored = await storeImage({ content: buffer, category: body.uploadDir, title: body.name });
+    const stored = await storeImage({ content: buffer, category: body.uploadDir, title: body.name, capturedAt: body.capturedAt });
 
     return NextResponse.json({
       label: body.name.replace(/\.[^.]+$/, ""),

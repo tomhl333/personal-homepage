@@ -17,6 +17,7 @@ export function mobileActionInput(request: NextRequest, type: string, title: str
     mediaKind: query.get("mediaKind") ?? undefined,
     status: query.get("status") ?? undefined,
     category: query.get("category") ?? undefined,
+    city: query.get("city") ?? undefined,
     tags: query.getAll("tag"),
     imageUrls: query.getAll("imageUrl"),
     workoutId: query.get("workoutId") ?? undefined,

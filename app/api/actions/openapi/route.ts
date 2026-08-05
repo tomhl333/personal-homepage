@@ -13,6 +13,7 @@ const commonParameters = [
   { name: "creator", in: "query", schema: { type: "string" } },
   { name: "mediaKind", in: "query", schema: { type: "string", enum: ["电视剧", "电影", "纪录片", "综艺"] } },
   { name: "category", in: "query", description: "Required for activity.", schema: { type: "string", enum: ["练字", "城市生活", "粤语", "网球", "游泳", "健身"] } },
+  { name: "city", in: "query", description: "City for city-life photos when known from the user or image context.", schema: { type: "string" } },
   { name: "tag", in: "query", description: "Repeat for each tag.", schema: { type: "array", items: { type: "string" } }, style: "form", explode: true },
   { name: "imageUrl", in: "query", description: "Repeat for each already-public HTTPS image URL from the mobile upload page. Never invent an attachment URL.", schema: { type: "array", items: { type: "string", format: "uri" } }, style: "form", explode: true },
   { name: "workoutId", in: "query", description: "Use only after a unique workout is selected.", schema: { type: "string" } },

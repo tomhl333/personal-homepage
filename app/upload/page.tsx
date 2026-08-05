@@ -30,6 +30,53 @@ async function fileDataUrl(file: File) {
   });
 }
 
+function exifCaptureDate(view: DataView) {
+  if (view.getUint16(0) !== 0xffd8) return undefined;
+  let offset = 2;
+  while (offset + 4 < view.byteLength) {
+    if (view.getUint8(offset) !== 0xff) break;
+    const marker = view.getUint8(offset + 1);
+    const length = view.getUint16(offset + 2);
+    if (marker === 0xe1 && view.getUint32(offset + 4) === 0x45786966) {
+      const tiff = offset + 10;
+      const little = view.getUint16(tiff) === 0x4949;
+      const u16 = (at: number) => view.getUint16(at, little);
+      const u32 = (at: number) => view.getUint32(at, little);
+      const valueOffset = (at: number) => tiff + u32(at + 8);
+      const findTag = (directory: number, wanted: number) => {
+        const count = u16(directory);
+        for (let index = 0; index < count; index += 1) {
+          const entry = directory + 2 + index * 12;
+          if (u16(entry) === wanted) return entry;
+        }
+        return undefined;
+      };
+      const ifd0 = tiff + u32(tiff + 4);
+      const exifPointer = findTag(ifd0, 0x8769);
+      if (!exifPointer) return undefined;
+      const exifIfd = tiff + u32(exifPointer + 8);
+      const dateEntry = findTag(exifIfd, 0x9003) ?? findTag(exifIfd, 0x9004) ?? findTag(ifd0, 0x0132);
+      if (!dateEntry) return undefined;
+      const count = u32(dateEntry + 4);
+      const start = count <= 4 ? dateEntry + 8 : valueOffset(dateEntry);
+      let text = "";
+      for (let index = 0; index < count && start + index < view.byteLength; index += 1) text += String.fromCharCode(view.getUint8(start + index));
+      const match = text.match(/^(\d{4}):(\d{2}):(\d{2})/);
+      return match ? `${match[1]}-${match[2]}-${match[3]}` : undefined;
+    }
+    offset += 2 + length;
+  }
+  return undefined;
+}
+
+async function captureDate(file: File) {
+  try {
+    const date = exifCaptureDate(new DataView(await file.arrayBuffer()));
+    if (date) return date;
+  } catch { /* The upload date remains the safe fallback for unsupported files. */ }
+  return new Date(file.lastModified).toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
+}
+
 export default function MobileUploadPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -70,7 +117,7 @@ export default function MobileUploadPage() {
         const response = await fetch("/api/admin/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: await fileDataUrl(file), name: title.trim() ? `${title.trim()}-${file.name}` : file.name, uploadDir: uploadDirectories[category] }),
+          body: JSON.stringify({ data: await fileDataUrl(file), name: title.trim() ? `${title.trim()}-${file.name}` : file.name, uploadDir: uploadDirectories[category], capturedAt: await captureDate(file) }),
         });
         const result = await response.json();
         if (!response.ok || !result.src) throw new Error(result.message || "upload_failed");
