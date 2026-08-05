@@ -15,7 +15,11 @@ https://你的域名/admin
 ```text
 ADMIN_PASSWORD=维护台密码
 ADMIN_SESSION_SECRET=用于签名登录 Cookie 的随机长字符串
-PERSONAL_CONTENT_API_TOKEN=供受保护 API 和 Skill 使用的随机密钥
+PERSONAL_CONTENT_API_TOKEN=供本地 Skill、服务端内部调用和后台 API 使用的随机密钥
+GPT_ACTION_API_KEY=仅供 ChatGPT 自定义 GPT Action 使用的随机密钥
+WORKBUDDY_ACTION_API_KEY=仅供 WorkBuddy Skill 使用的随机密钥
+
+GPT 与 WorkBuddy 使用不同的 Action 密钥，撤销其中一把不会影响另一端。配置两把专用密钥后，Action 路由不再接受 `PERSONAL_CONTENT_API_TOKEN`；该令牌仅保留给本地 Skill 和服务端内部调用。
 DATABASE_URL=Neon 数据库连接地址
 BLOB_READ_WRITE_TOKEN=Vercel Blob 读写令牌
 TMDB_API_KEY=可选，用于影视海报查询

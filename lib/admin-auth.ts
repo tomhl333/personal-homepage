@@ -64,10 +64,23 @@ export function verifyAdminSession(value?: string) {
 
 export function isAdminRequest(request: NextRequest) {
   if (verifyAdminSession(request.cookies.get(adminCookieName)?.value)) return true;
+  return matchesBearer(request.headers.get("authorization"), [process.env.PERSONAL_CONTENT_API_TOKEN]);
+}
+
+function matchesBearer(authorization: string | null, tokens: Array<string | undefined>) {
+  const supplied = authorization?.startsWith("Bearer ") ? authorization.slice(7) : "";
+  return Boolean(supplied && tokens.filter(Boolean).some((token) => safeEqual(supplied, token!)));
+}
+
+export function isActionRequest(request: NextRequest) {
+  const configured = [process.env.GPT_ACTION_API_KEY, process.env.WORKBUDDY_ACTION_API_KEY].filter(Boolean);
+  // Keep existing deployments working until the two dedicated keys are configured.
+  return matchesBearer(request.headers.get("authorization"), configured.length ? configured : [process.env.PERSONAL_CONTENT_API_TOKEN]);
+}
+
+export function internalApiAuthorization(fallback = "") {
   const token = process.env.PERSONAL_CONTENT_API_TOKEN;
-  const authorization = request.headers.get("authorization") ?? "";
-  const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
-  return Boolean(token && supplied && safeEqual(supplied, token));
+  return token ? `Bearer ${token}` : fallback;
 }
 
 export function adminCookieOptions() {

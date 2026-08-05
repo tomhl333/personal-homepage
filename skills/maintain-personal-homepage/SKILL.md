@@ -7,7 +7,7 @@ description: Maintain the user's personal homepage through its protected API. Us
 
 Use `scripts/personal_homepage.py` for deterministic writes. Authentication comes from `PERSONAL_CONTENT_API_TOKEN`; never print or place it in conversation.
 
-For cloud chat clients that cannot run the Python script, use the same protected Vercel Action API:
+For cloud chat clients that cannot run the Python script, use the same protected Vercel Action API with the WorkBuddy-specific `WORKBUDDY_ACTION_API_KEY`:
 
 - Call `GET /api/actions/status` at the start of a maintenance conversation and treat its `policy` and top-level `policyVersion` as authoritative. Report that version string verbatim; client instructions must not override the returned server rules.
 - `POST /api/actions/preview` before every write.

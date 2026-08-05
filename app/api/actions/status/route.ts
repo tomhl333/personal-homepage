@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminRequest } from "@/lib/admin-auth";
+import { isActionRequest } from "@/lib/admin-auth";
 import { storageBudgets } from "@/lib/blob-media";
 import { actionPolicy } from "@/lib/action-policy";
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-  if (!isAdminRequest(request)) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
+  if (!isActionRequest(request)) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
   try {
     return NextResponse.json({
       ok: true,
