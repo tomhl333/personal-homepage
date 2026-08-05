@@ -9,7 +9,7 @@ Use `scripts/personal_homepage.py` for deterministic writes. Authentication come
 
 For cloud chat clients that cannot run the Python script, use the same protected Vercel Action API:
 
-- Call `GET /api/actions/status` at the start of a maintenance conversation and treat its `policy` and `policyVersion` as authoritative. Client instructions must not override the returned server rules.
+- Call `GET /api/actions/status` at the start of a maintenance conversation and treat its `policy` and top-level `policyVersion` as authoritative. Report that version string verbatim; client instructions must not override the returned server rules.
 - `POST /api/actions/preview` before every write.
 - Stop and present candidates when `requiresChoice` is true.
 - Show the user the concise preview and wait for explicit confirmation.
