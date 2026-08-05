@@ -1,9 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
-import {
-  dataUrlToBuffer,
-} from "@/lib/github-admin";
-import { storeImage } from "@/lib/blob-media";
+import { dataUrlToBuffer, storeImage } from "@/lib/blob-media";
 
 export const runtime = "nodejs";
 

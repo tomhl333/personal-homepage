@@ -1,49 +1,35 @@
 # 手机维护台配置
 
-这个项目内置了一个线上维护台：
+线上维护台地址：
 
 ```text
 https://你的域名/admin
 ```
 
-维护台通过 Vercel API 写回 GitHub。GitHub 有新 commit 后，Vercel 会自动重新部署网站。
+文字内容保存在 Neon，图片经过自动压缩后保存在 Vercel Blob。维护台不再向 GitHub 写入内容或图片，GitHub 只保存代码、Skill、默认内容结构和必要的界面素材。
 
 ## Vercel 环境变量
 
-在 Vercel Project Settings -> Environment Variables 里添加：
+在 Vercel Project Settings → Environment Variables 中配置：
 
 ```text
-ADMIN_PASSWORD=你自己设置的后台密码
-ADMIN_SESSION_SECRET=一串更长的随机密钥
-GITHUB_TOKEN=你的 GitHub token
-GITHUB_OWNER=你的 GitHub 用户名或组织名
-GITHUB_REPO=personal-homepage
-GITHUB_BRANCH=main
-TMDB_API_KEY=可选，用来更准确地获取影视海报
+ADMIN_PASSWORD=维护台密码
+ADMIN_SESSION_SECRET=用于签名登录 Cookie 的随机长字符串
+PERSONAL_CONTENT_API_TOKEN=供受保护 API 和 Skill 使用的随机密钥
+DATABASE_URL=Neon 数据库连接地址
+BLOB_READ_WRITE_TOKEN=Vercel Blob 读写令牌
+TMDB_API_KEY=可选，用于影视海报查询
 ```
 
-`ADMIN_SESSION_SECRET` 可以随便生成一串长一点的随机字符。它用来签名登录 cookie。
-
-`TMDB_API_KEY` 不是必填，但建议配置。影视海报会优先从 TMDB 获取，找不到或没配置时才退回 iTunes Search。TMDB 对电视剧、电影海报的覆盖通常比 iTunes 更好，尤其是中文译名。
-
-## GitHub Token 权限
-
-建议使用 fine-grained personal access token，只授权这个仓库：
-
-```text
-Repository permissions -> Contents -> Read and write
-```
-
-不要把 token 写进代码，只放在 Vercel 环境变量里。
+不要把任何令牌写进代码、Skill 或 GitHub 仓库。
 
 ## 维护台能力
 
-- 密码登录
-- 复用本地维护台的完整表单和快捷新增体验
-- 维护首页文案、投入模块、长记录、照片专题、小项目、联系方式
-- 维护书籍、影视、练字、粤语、健身、网球、游泳、城市生活、做事札记等细分结构
-- 获取书籍封面和影视海报，并保存到 GitHub 的 `public/uploads/...`
-- 书籍封面优先查 Google Books，再查 Open Library
-- 影视海报优先查 TMDB，再查 iTunes Search
-- 上传图片到 GitHub 的 `public/uploads/...`
-- 保存 `data/site-content.json` 到 GitHub，并触发 Vercel 自动部署
+- 手机端密码登录与内容维护
+- 维护书籍、影视、练字、粤语、健身、网球、游泳和城市生活等栏目
+- 上传多张图片，并自动压缩为 WebP 后保存到 Vercel Blob
+- 查询书籍封面和影视海报，并将远程图片转存到 Vercel Blob
+- 内容写入 Neon 后立即重新读取，减少缓存造成的展示延迟
+- 存储接近免费额度时按保护策略处理较早且未标星的数据
+
+`/uploads/...` 路径仍保留只读兼容，用来确保旧记录可以正常显示；新的上传不会再写入 GitHub。

@@ -12,6 +12,12 @@ const limits: Record<string, { max: number; quality: number }> = {
   default: { max: 1600, quality: 80 },
 };
 
+export function dataUrlToBuffer(dataUrl: string) {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) throw new Error("上传数据格式不正确");
+  return { buffer: Buffer.from(match[2], "base64"), mime: match[1] };
+}
+
 function cleanCategory(value: string) {
   return value.replace(/^\/?uploads\/?/, "").replace(/[^a-z0-9-]/gi, "-").replace(/-+/g, "-") || "misc";
 }
