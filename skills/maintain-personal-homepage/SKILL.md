@@ -7,6 +7,17 @@ description: Maintain the user's personal homepage through its protected API. Us
 
 Use `scripts/personal_homepage.py` for deterministic writes. Authentication comes from `PERSONAL_CONTENT_API_TOKEN`; never print or place it in conversation.
 
+For cloud chat clients that cannot run the Python script, use the same protected Vercel Action API:
+
+- `POST /api/actions/preview` before every write.
+- Stop and present candidates when `requiresChoice` is true.
+- Show the user the concise preview and wait for explicit confirmation.
+- `POST /api/actions/commit` with `confirmed: true` only after confirmation.
+- `GET /api/actions/status` for free-tier usage.
+- The OpenAPI schema is published at `/api/actions/openapi`.
+
+The Action accepts publicly reachable HTTPS image URLs. A photo attached only inside a ChatGPT conversation is not automatically a public URL; never invent one. Ask the user to upload the original through `/admin` until a dedicated upload handoff is available.
+
 ## Workflow
 
 1. Infer category, concise title, summary, date, season, and tags from natural language. Preserve the user's meaning; lightly polish grammar and remove filler.
