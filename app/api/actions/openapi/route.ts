@@ -24,7 +24,7 @@ export async function GET() {
     // GPT Builder validates 3.1 schemas. Authentication stays in the Builder;
     // the server still enforces it for writes.
     openapi: "3.1.1",
-    info: { title: "个人主页维护 Action", version: "1.2.0", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
+    info: { title: "个人主页维护 Action", version: "1.2.1", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
     paths: {
       "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record before writing", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
@@ -32,6 +32,7 @@ export async function GET() {
       "/actions/status.json": {
         get: {
           operationId: "getPersonalStorageStatus",
+          "x-openai-isConsequential": false,
           summary: "Read the authoritative policy version",
           description: "Call before answering. Return policyVersion verbatim.",
           responses: {

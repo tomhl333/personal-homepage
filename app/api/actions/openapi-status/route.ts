@@ -9,7 +9,7 @@ export async function GET() {
     openapi: "3.1.1",
     info: {
       title: "Personal Homepage Status",
-      version: "1.0.0",
+      version: "1.0.1",
       description: "Read the authoritative personal-homepage policy version.",
     },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
@@ -17,6 +17,7 @@ export async function GET() {
       "/actions/status.json": {
         get: {
           operationId: "getPersonalStorageStatus",
+          "x-openai-isConsequential": false,
           summary: "Get policy version",
           description: "Return the policyVersion from the HTTP response exactly.",
           responses: {
