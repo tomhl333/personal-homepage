@@ -2,28 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { actionPolicy } from "@/lib/action-policy";
 
-const jsonObjectResponse = (description: string, properties: Record<string, unknown> = {}) => ({
-  description,
-  content: {
-    "application/json": {
-      schema: {
-        type: "object",
-        properties,
-        additionalProperties: true,
-      },
-    },
-  },
-});
-
-const policyProperties = {
-  policyVersion: { type: "string", description: "Version of the authoritative server policy used for this result." },
-};
-
-const errorProperties = {
-  ok: { type: "boolean", enum: [false] },
-  message: { type: "string" },
-};
-
 const inputSchema = {
   type: "object",
   required: ["type", "title"],
@@ -46,13 +24,10 @@ export async function GET() {
     openapi: "3.1.0",
     info: { title: "个人主页维护 Action", version: "1.1.3", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
-    // GPT Builder owns API-key authentication in its editor UI. It still requires
-    // components.schemas to be an explicit object when components exists.
-    components: { schemas: {} },
     paths: {
-      "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record and detect duplicates or ambiguity before any write", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": jsonObjectResponse("Preview result", { ok: { type: "boolean" }, action: { type: "string" }, requiresChoice: { type: "boolean" }, candidates: { type: "array", items: { type: "object", additionalProperties: true } }, input: inputSchema, revision: { type: "string" }, message: { type: "string" }, ...policyProperties }), "400": jsonObjectResponse("Invalid preview input", errorProperties), "401": jsonObjectResponse("Unauthorized", errorProperties) } } },
-      "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a previously previewed record only after explicit user confirmation", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": jsonObjectResponse("Write and verification result", { ok: { type: "boolean" }, saved: { type: "boolean" }, verified: { type: "boolean" }, publicVisible: { type: "boolean" }, message: { type: "string" }, ...policyProperties }), "400": jsonObjectResponse("Missing input or explicit confirmation", errorProperties), "401": jsonObjectResponse("Unauthorized", errorProperties), "409": jsonObjectResponse("Ambiguous; select a candidate and retry", { ok: { type: "boolean" }, requiresChoice: { type: "boolean" }, candidates: { type: "array", items: { type: "object", additionalProperties: true } }, message: { type: "string" }, ...policyProperties }), "500": jsonObjectResponse("Commit failed", errorProperties) } } },
-      "/api/actions/status": { get: { operationId: "getPersonalStorageStatus", summary: "Call before answering any homepage policy or storage request. Never guess policyVersion.", description: "Authoritative read-only policy status. Return the top-level policyVersion verbatim. Authenticated callers also receive storage usage.", responses: { "200": jsonObjectResponse("Current server policy and optional storage usage", { ok: { type: "boolean", example: true }, policyVersion: { type: "string", example: actionPolicy.version, description: "Exact authoritative policy version. Return this string verbatim." }, policyAuthority: { type: "string", example: actionPolicy.authority }, policy: { type: "object", required: ["version", "authority", "summary", "rules"], properties: { version: { type: "string", example: actionPolicy.version }, authority: { type: "string" }, summary: { type: "string" }, rules: { type: "array", items: { type: "string" } } }, additionalProperties: false }, usage: { type: "object", additionalProperties: true } }), "500": jsonObjectResponse("Status lookup failed", errorProperties) } } },
+      "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record before writing", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
+      "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a confirmed preview", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": { description: "Write and verification result" }, "401": { description: "Unauthorized" }, "409": { description: "Ambiguous; select a candidate" } } } },
+      "/api/actions/status": { get: { operationId: "getPersonalStorageStatus", summary: "Read the authoritative policy version", description: "Call before answering. Return policyVersion verbatim.", responses: { "200": { description: "Policy version result" } } } },
     },
   }, { headers: { "Cache-Control": "public, max-age=300" } });
 }
