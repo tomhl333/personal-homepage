@@ -8,11 +8,12 @@ export async function GET() {
     openapi: "3.1.1",
     info: {
       title: "Personal Homepage Action POST Check",
-      version: "1.0.1",
+      version: "1.0.2",
       description: "Verify the authenticated Action POST transport without changing content.",
     },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
     components: {
+      schemas: {},
       securitySchemes: {
         actionApiKey: {
           type: "apiKey",
