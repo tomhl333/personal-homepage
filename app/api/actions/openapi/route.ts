@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { actionPolicy } from "@/lib/action-policy";
+
 const inputSchema = {
   type: "object",
   required: ["type", "title"],
@@ -20,12 +22,12 @@ const inputSchema = {
 export async function GET() {
   return Response.json({
     openapi: "3.1.0",
-    info: { title: "个人主页维护 Action", version: "1.0.0", description: "Preview and safely maintain the private personal homepage." },
+    info: { title: "个人主页维护 Action", version: "1.1.0", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
     paths: {
       "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record and detect duplicates or ambiguity before any write", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
       "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a previously previewed record only after explicit user confirmation", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": { description: "Write and verification result" }, "409": { description: "Ambiguous; select a candidate and retry" } } } },
-      "/api/actions/status": { get: { operationId: "getPersonalStorageStatus", summary: "Read Neon and Blob free-tier usage", responses: { "200": { description: "Storage usage" } } } },
+      "/api/actions/status": { get: { operationId: "getPersonalStorageStatus", summary: "Read the authoritative maintenance policy and Neon/Blob free-tier usage. Call this at the start of a maintenance conversation.", responses: { "200": { description: "Current server policy and storage usage" } } } },
     },
   }, { headers: { "Cache-Control": "public, max-age=300" } });
 }
