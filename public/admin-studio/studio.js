@@ -1795,7 +1795,7 @@ async function saveRemoteImage(url, title, uploadDir) {
   const result = await response.json();
 
   if (!response.ok || !result.src) {
-    throw new Error(result.error || "远程图片无法下载");
+    throw new Error(result.message || result.error || "远程图片无法下载");
   }
 
   return result;
@@ -1982,12 +1982,15 @@ function isRemoteImage(value) {
 async function saveRequiredRemoteImage(url, title, uploadDir) {
   try {
     const src = (await saveRemoteImage(url, title, uploadDir)).src;
-    if (!src.startsWith("/uploads/")) {
-      throw new Error("返回路径不是本地 /uploads 路径");
+    // Vercel Blob returns a permanent public HTTPS URL. Older GitHub-backed
+    // storage returned /uploads paths, so accept both representations.
+    if (!src.startsWith("/uploads/") && !/^https:\/\//i.test(src)) {
+      throw new Error("图片存储返回了无效地址");
     }
     return src;
   } catch (error) {
-    throw new Error(`${title} 的远程图片保存失败，请上传本地图片或换一个图片地址。`);
+    const detail = error instanceof Error ? error.message : "远程图片无法下载";
+    throw new Error(`${title} 的远程图片保存失败：${detail}。请上传本地图片或换一个图片地址。`);
   }
 }
 

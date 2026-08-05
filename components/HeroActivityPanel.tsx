@@ -791,11 +791,26 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                             }`}
                             key={`${checkin.date}-${checkin.label}`}
                           >
-                            <PhotoPreviewButton
-                              className="min-h-44"
-                              onOpen={setPreviewImage}
-                              photo={checkinToPhoto(checkin)}
-                            />
+                            <div className={`grid gap-2 ${checkin.images && checkin.images.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                              {(checkin.images?.length
+                                ? checkin.images
+                                : checkin.src
+                                  ? [{ src: checkin.src, label: checkin.label }]
+                                  : []
+                              ).map((image, imageIndex) => (
+                                <PhotoPreviewButton
+                                  className="min-h-44"
+                                  key={`${image.src}-${imageIndex}`}
+                                  onOpen={setPreviewImage}
+                                  photo={{
+                                    date: checkin.date,
+                                    label: image.label ?? checkin.label,
+                                    note: checkin.note ?? checkin.content,
+                                    src: image.src,
+                                  }}
+                                />
+                              ))}
+                            </div>
                             {checkin.note ? (
                               <p className={`mt-3 text-xs leading-5 text-ink/58 ${readableTextClass}`}>
                                 {checkin.note}
