@@ -65,6 +65,27 @@ def normalized(value):
     return re.sub(r"[\W_]+", "", (value or "").casefold())
 
 
+def identity_compatible(left, right, minimum=0.66):
+    left_value, right_value = normalized(left), normalized(right)
+    if not left_value or not right_value:
+        return True
+    return (
+        left_value == right_value
+        or left_value in right_value
+        or right_value in left_value
+        or SequenceMatcher(None, left_value, right_value).ratio() >= minimum
+    )
+
+
+def media_kind(value):
+    marker = normalized(value)
+    if any(word in marker for word in ("电影", "movie", "film")):
+        return "movie"
+    if any(word in marker for word in ("电视剧", "剧集", "tvshow", "series")):
+        return "series"
+    return marker
+
+
 def closest_matches(items, requested_titles, title_getter, compatible=lambda _item: True, minimum=0.72):
     requested = [normalized(title) for title in requested_titles if normalized(title)]
     scored = []
@@ -208,9 +229,14 @@ def add_show(args):
             poster = result if status == 200 else {}
         return poster
 
+    def compatible_show(show):
+        existing_kind, requested_kind = media_kind(show.get("kind", "")), media_kind(args.kind)
+        kind_match = not existing_kind or not requested_kind or existing_kind == requested_kind
+        return kind_match and identity_compatible(show.get("creator", ""), args.creator)
+
     def change(content):
         shows = activity(content, "看剧").setdefault("shows", [])
-        matches = closest_matches(shows, [base_title], lambda show: series_identity(show.get("title", ""))[0])
+        matches = closest_matches(shows, [base_title], lambda show: series_identity(show.get("title", ""))[0], compatible_show)
         if matches:
             show = matches[0]
             for duplicate in matches[1:]:
@@ -234,7 +260,7 @@ def add_show(args):
         show["notes"] = unique_text_items(show.get("notes", []))
         return {"type": "show", "title": base_title, "deduplicated": max(0, len(matches) - 1), "noteAdded": bool(note_text), "coverSource": (poster or {}).get("source", "existing"), "hasCover": bool(show.get("poster")), "publicMarker": note_text or base_title}
 
-    return mutate(change, lambda c: any(s in closest_matches(activity(c, "看剧").get("shows", []), [base_title], lambda show: series_identity(show.get("title", ""))[0]) and (not note_text or any(normalized(n.get("text", "")) == normalized(note_text) for n in s.get("notes", []))) for s in activity(c, "看剧").get("shows", [])))
+    return mutate(change, lambda c: any(s in closest_matches(activity(c, "看剧").get("shows", []), [base_title], lambda show: series_identity(show.get("title", ""))[0], compatible_show) and (not note_text or any(normalized(n.get("text", "")) == normalized(note_text) for n in s.get("notes", []))) for s in activity(c, "看剧").get("shows", [])))
 
 
 def add_book(args):
@@ -251,9 +277,8 @@ def add_book(args):
         return cover
 
     def compatible_author(book):
-        existing_author = normalized(book.get("author", ""))
-        requested_author = normalized((cover or {}).get("author") or args.author)
-        return not requested_author or not existing_author or existing_author == requested_author
+        requested_author = (cover or {}).get("author") or args.author
+        return identity_compatible(book.get("author", ""), requested_author)
 
     def find_matches(books):
         return closest_matches(books, [args.title, canonical], lambda book: book.get("title", ""), compatible_author)

@@ -143,6 +143,75 @@ export async function cleanupMedia({ dryRun = true, targetBytes }: { dryRun?: bo
   return { ...usage, dryRun, selected: selected.length, projectedBytes: projected };
 }
 
+function collectManagedBlobUrls(value: unknown, result = new Set<string>()) {
+  if (typeof value === "string") {
+    try {
+      const url = new URL(value);
+      if (url.hostname === "blob.vercel-storage.com" || url.hostname.endsWith(".blob.vercel-storage.com")) {
+        result.add(value);
+      }
+    } catch {
+      // Ignore non-URL content strings.
+    }
+    return result;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectManagedBlobUrls(item, result);
+    return result;
+  }
+  if (value && typeof value === "object") {
+    for (const item of Object.values(value)) collectManagedBlobUrls(item, result);
+  }
+  return result;
+}
+
+function duplicateSignature(row: { category: string; pathname: string; compressed_size: number }) {
+  const filename = row.pathname.split("/").pop() ?? row.pathname;
+  const stableName = filename.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, "");
+  return `${row.category}\u0000${stableName}`;
+}
+
+export async function cleanupDuplicateMedia({ dryRun = true }: { dryRun?: boolean } = {}) {
+  await ensurePersonalSchema();
+  const sql = personalSql();
+  const stored = await readSiteContent();
+  const referencedUrls = collectManagedBlobUrls(stored.content);
+  const rows = await sql`SELECT id, blob_url, pathname, category, compressed_size, starred
+    FROM personal.media_assets WHERE status='ready' ORDER BY uploaded_at ASC` as Array<{
+      id: string;
+      blob_url: string;
+      pathname: string;
+      category: string;
+      compressed_size: number;
+      starred: boolean;
+    }>;
+  const referencedSignatures = new Set(
+    rows.filter((row) => referencedUrls.has(row.blob_url)).map(duplicateSignature),
+  );
+  const duplicates = rows.filter((row) =>
+    !row.starred
+    && row.category !== "training"
+    && !referencedUrls.has(row.blob_url)
+    && referencedSignatures.has(duplicateSignature(row)),
+  );
+  const bytes = duplicates.reduce((total, row) => total + Number(row.compressed_size), 0);
+
+  if (!dryRun && duplicates.length) {
+    const ids = duplicates.map((row) => row.id);
+    await sql`UPDATE personal.media_assets SET status='retiring', archived_at=NOW() WHERE id=ANY(${ids}::uuid[])`;
+    await del(duplicates.map((row) => row.blob_url));
+    await sql`UPDATE personal.media_assets SET status='deleted' WHERE id=ANY(${ids}::uuid[])`;
+  }
+
+  return {
+    dryRun,
+    duplicates: duplicates.length,
+    bytes,
+    referenced: referencedUrls.size,
+    trainingExcluded: rows.filter((row) => row.category === "training").length,
+  };
+}
+
 export async function reconcileBlobInventory() {
   let cursor: string | undefined;
   let blobs = 0;
