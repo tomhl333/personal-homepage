@@ -8,14 +8,25 @@ export async function GET() {
     openapi: "3.1.1",
     info: {
       title: "Personal Homepage Action POST Check",
-      version: "1.0.0",
+      version: "1.0.1",
       description: "Verify the authenticated Action POST transport without changing content.",
     },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
+    components: {
+      securitySchemes: {
+        actionApiKey: {
+          type: "apiKey",
+          in: "header",
+          name: "Authorization",
+          description: "Configured in GPT Builder as a Bearer API key.",
+        },
+      },
+    },
     paths: {
       "/api/actions/ping": {
         post: {
           operationId: "checkPersonalHomepageActionPost",
+          security: [{ actionApiKey: [] }],
           summary: "Check Action POST transport",
           description: "Call this operation. It has no parameters and never changes content.",
           "x-openai-isConsequential": false,
