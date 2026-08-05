@@ -1976,7 +1976,17 @@ async function localizeRemoteImages() {
 }
 
 function isRemoteImage(value) {
-  return typeof value === "string" && /^https?:\/\//i.test(value.trim());
+  if (typeof value !== "string" || !/^https?:\/\//i.test(value.trim())) return false;
+
+  try {
+    const url = new URL(value.trim());
+    const hostname = url.hostname.toLowerCase();
+    const managedBlob = hostname === "blob.vercel-storage.com" || hostname.endsWith(".blob.vercel-storage.com");
+    const sameOrigin = typeof window !== "undefined" && url.origin === window.location.origin;
+    return !managedBlob && !sameOrigin;
+  } catch {
+    return false;
+  }
 }
 
 async function saveRequiredRemoteImage(url, title, uploadDir) {
