@@ -5,7 +5,7 @@ let schemaPromise: Promise<void> | null = null;
 function sql() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error("DATABASE_URL is not configured");
-  return neon(databaseUrl);
+  return neon(databaseUrl, { fetchOptions: { cache: "no-store" } });
 }
 
 export async function ensurePersonalSchema() {

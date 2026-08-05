@@ -118,13 +118,17 @@ def mutate(change, verify):
 def verify_public(marker):
     if not marker:
         return False
-    try:
-        url = BASE + "/api/admin/content?skill_verify=" + str(int(time.time()))
-        req = urllib.request.Request(url, data=b"{}", method="POST", headers={"Cache-Control": "no-cache", "Content-Type": "application/json", "User-Agent": "maintain-personal-homepage-skill/2.0"})
-        with urllib.request.urlopen(req, timeout=30) as response:
-            return marker in response.read().decode("utf-8")
-    except Exception:
-        return False
+    stamp = str(int(time.time() * 1000))
+    targets = [BASE + "/api/content?skill_verify=" + stamp, BASE + "/?skill_verify=" + stamp]
+    for url in targets:
+        try:
+            req = urllib.request.Request(url, headers={"Cache-Control": "no-cache, no-store", "User-Agent": "maintain-personal-homepage-skill/2.0"})
+            with urllib.request.urlopen(req, timeout=30) as response:
+                if marker not in response.read().decode("utf-8"):
+                    return False
+        except Exception:
+            return False
+    return True
 
 
 def upload_image(path, upload_dir):
