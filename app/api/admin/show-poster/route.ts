@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { saveRemoteImageToGitHub } from "@/lib/github-admin";
+import { saveRemoteImageToBlob } from "@/lib/blob-media";
 
 export const runtime = "nodejs";
 
@@ -16,6 +16,16 @@ type TmdbResult = {
   original_title?: string;
   poster_path?: string;
   title?: string;
+};
+
+type DoubanShow = {
+  id?: string;
+  img?: string;
+  pic?: string;
+  sub_title?: string;
+  title?: string;
+  url?: string;
+  year?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -37,6 +47,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const douban = await findDoubanPoster({ title, uploadDir });
+    if (douban.poster) return NextResponse.json(douban);
+
     const tmdb = await findTmdbPoster({ kind, title, uploadDir });
     if (tmdb.poster) {
       return NextResponse.json(tmdb);
@@ -58,6 +71,26 @@ export async function POST(request: NextRequest) {
       message: error instanceof Error ? error.message : "海报查询失败，可以手动上传。",
       poster: "",
     });
+  }
+}
+
+async function findDoubanPoster({ title, uploadDir }: { title: string; uploadDir: string }) {
+  try {
+    const endpoint = new URL("https://movie.douban.com/j/subject_suggest");
+    endpoint.searchParams.set("q", title);
+    const response = await fetch(endpoint, {
+      headers: { Referer: "https://movie.douban.com/", "User-Agent": "Mozilla/5.0 personal-homepage-cover/2.0" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return { poster: "" };
+    const items = await response.json() as DoubanShow[];
+    const match = items.find((item) => item.title?.trim() === title.trim() && (item.img || item.pic)) ?? items.find((item) => item.img || item.pic);
+    const remotePoster = match?.img || match?.pic;
+    if (!match || !remotePoster) return { poster: "" };
+    const poster = await saveRemoteImageToBlob({ title: match.title ?? title, uploadDir, url: remotePoster });
+    return { creator: "", poster, remotePoster, source: "豆瓣影视", sourceUrl: match.url, title: match.title ?? title, year: match.year, subtitle: match.sub_title };
+  } catch {
+    return { poster: "" };
   }
 }
 
@@ -105,7 +138,7 @@ async function findTmdbPoster({
   const remotePoster = `https://image.tmdb.org/t/p/w780${match.poster_path}`;
   const resolvedTitle =
     match.title ?? match.name ?? match.original_title ?? match.original_name ?? title;
-  const poster = await saveRemoteImageToGitHub({
+  const poster = await saveRemoteImageToBlob({
     title: resolvedTitle,
     uploadDir,
     url: remotePoster,
@@ -156,7 +189,7 @@ async function findItunesPoster({
       /100x100bb\.(jpg|png|webp)$/i,
       "1000x1500bb.$1",
     );
-    const poster = await saveRemoteImageToGitHub({
+    const poster = await saveRemoteImageToBlob({
       title: match.collectionName ?? title,
       uploadDir,
       url: remotePoster,

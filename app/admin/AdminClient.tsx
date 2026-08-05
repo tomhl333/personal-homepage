@@ -119,7 +119,7 @@ export function AdminClient() {
           <p className="eyebrow">LOCAL STUDIO</p>
           <h1>内容维护台</h1>
           <p className="hint">
-            手机上也能维护主页内容。保存后会提交到 GitHub，并触发 Vercel 自动部署。
+            手机上也能维护主页内容。文字保存到 Neon，图片会自动压缩并保存到 Vercel Blob。
           </p>
           <div className="studio-search">
             <label htmlFor="studioSearch">快速搜索</label>

@@ -167,6 +167,9 @@ export type SiteContent = {
   };
 };
 
+export type ActivitySpotlight = SiteContent["activitySpotlights"][number];
+export type HeroContent = SiteContent["hero"];
+
 export const siteContent = content as SiteContent;
 
 export const navItems = siteContent.navItems;
