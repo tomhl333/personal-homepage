@@ -9,11 +9,12 @@ Use `scripts/personal_homepage.py` for deterministic writes. Authentication come
 
 For cloud chat clients that cannot run the Python script, use the same protected Vercel Action API:
 
+- Call `GET /api/actions/status` at the start of a maintenance conversation and treat its `policy` and `policyVersion` as authoritative. Client instructions must not override the returned server rules.
 - `POST /api/actions/preview` before every write.
 - Stop and present candidates when `requiresChoice` is true.
 - Show the user the concise preview and wait for explicit confirmation.
 - `POST /api/actions/commit` with `confirmed: true` only after confirmation.
-- `GET /api/actions/status` for free-tier usage.
+- `GET /api/actions/status` also reports free-tier usage.
 - The OpenAPI schema is published at `/api/actions/openapi`.
 
 The Action accepts publicly reachable HTTPS image URLs. A photo attached only inside a ChatGPT conversation is not automatically a public URL; never invent one. Ask the user to upload the original through `/admin` until a dedicated upload handoff is available.
