@@ -20,9 +20,9 @@ export async function readSiteContent(): Promise<{ content: SiteContent; revisio
   }
 }
 
-export async function writeSiteContent(content: SiteContent, expectedRevision?: number) {
+export async function writeSiteContent(content: SiteContent, expectedRevision?: number, options: { bypassBudget?: boolean } = {}) {
   await ensurePersonalSchema();
-  await enforcePersonalDatabaseBudget();
+  if (!options.bypassBudget) await enforcePersonalDatabaseBudget();
   const sql = personalSql();
   if (expectedRevision !== undefined) {
     const rows = await sql`UPDATE personal.site_content
