@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { saveRemoteImageToGitHub } from "@/lib/github-admin";
+import { saveRemoteImageToBlob } from "@/lib/blob-media";
 
 export const runtime = "nodejs";
 
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const src = await saveRemoteImageToGitHub({
+    const src = await saveRemoteImageToBlob({
       title: body.title?.trim() || "remote-image",
       uploadDir: body.uploadDir || "/uploads",
       url: body.url,

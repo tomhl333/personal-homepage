@@ -63,7 +63,11 @@ export function verifyAdminSession(value?: string) {
 }
 
 export function isAdminRequest(request: NextRequest) {
-  return verifyAdminSession(request.cookies.get(adminCookieName)?.value);
+  if (verifyAdminSession(request.cookies.get(adminCookieName)?.value)) return true;
+  const token = process.env.PERSONAL_CONTENT_API_TOKEN;
+  const authorization = request.headers.get("authorization") ?? "";
+  const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+  return Boolean(token && supplied && safeEqual(supplied, token));
 }
 
 export function adminCookieOptions() {

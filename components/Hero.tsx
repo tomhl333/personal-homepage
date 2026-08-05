@@ -1,8 +1,9 @@
-import { hero, heroTags } from "@/data/site";
 import { ContactLanyard } from "@/components/ContactLanyard";
 import { HeroActivityPanel } from "@/components/HeroActivityPanel";
+import type { SiteContent } from "@/data/site";
 
-export function Hero() {
+export function Hero({ content }: { content: SiteContent }) {
+  const { hero, heroTags, activitySpotlights } = content;
   return (
     <section className="relative isolate px-5 pb-10 pt-5 sm:px-8 lg:min-h-screen lg:px-12">
       <div className="scroll-film" aria-hidden="true">
@@ -34,7 +35,7 @@ export function Hero() {
           </div>
         </div>
 
-        <HeroActivityPanel />
+        <HeroActivityPanel activitySpotlights={activitySpotlights} />
       </div>
     </section>
   );

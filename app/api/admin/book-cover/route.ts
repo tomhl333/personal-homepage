@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { saveRemoteImageToGitHub } from "@/lib/github-admin";
+import { saveRemoteImageToBlob } from "@/lib/blob-media";
 
 export const runtime = "nodejs";
 
@@ -27,6 +27,15 @@ type OpenLibraryDoc = {
   title?: string;
 };
 
+type DoubanBook = {
+  author_name?: string;
+  id?: string;
+  pic?: string;
+  title?: string;
+  url?: string;
+  year?: string;
+};
+
 export async function POST(request: NextRequest) {
   if (!isAdminRequest(request)) {
     return NextResponse.json({ message: "未登录" }, { status: 401 });
@@ -46,6 +55,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const douban = await findDoubanBookCover({ author, title, uploadDir });
+    if (douban.cover) return NextResponse.json(douban);
+
     const google = await findGoogleBookCover({ author, title, uploadDir });
     if (google.cover) {
       return NextResponse.json(google);
@@ -65,6 +77,34 @@ export async function POST(request: NextRequest) {
       cover: "",
       message: error instanceof Error ? error.message : "封面查询失败，可以手动上传。",
     });
+  }
+}
+
+async function findDoubanBookCover({ author, title, uploadDir }: { author: string; title: string; uploadDir: string }) {
+  try {
+    let items: DoubanBook[] = [];
+    for (const query of [...new Set([[title, author].filter(Boolean).join(" "), title])]) {
+      const endpoint = new URL("https://book.douban.com/j/subject_suggest");
+      endpoint.searchParams.set("q", query);
+      const response = await fetch(endpoint, {
+        headers: {
+          Accept: "application/json,text/plain,*/*",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.7",
+          Referer: "https://book.douban.com/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/127.0 Safari/537.36",
+        },
+        signal: AbortSignal.timeout(6000),
+      });
+      if (!response.ok) continue;
+      items = await response.json() as DoubanBook[];
+      if (items.some((item) => item.pic)) break;
+    }
+    const match = items.find((item) => item.title?.trim() === title.trim() && item.pic) ?? items.find((item) => item.pic);
+    if (!match?.pic) return { cover: "" };
+    const cover = await saveRemoteImageToBlob({ title: match.title ?? title, uploadDir, url: match.pic });
+    return { author: match.author_name ?? author, cover, remoteCover: match.pic, source: "豆瓣读书", sourceUrl: match.url, title: match.title ?? title, year: match.year };
+  } catch {
+    return { cover: "" };
   }
 }
 
@@ -106,7 +146,7 @@ async function findGoogleBookCover({
     return { cover: "" };
   }
 
-  const cover = await saveRemoteImageToGitHub({
+  const cover = await saveRemoteImageToBlob({
     title: match?.volumeInfo?.title ?? title,
     uploadDir,
     url: remoteCover,
@@ -156,7 +196,7 @@ async function findOpenLibraryCover({
     }
 
     const remoteCover = `https://covers.openlibrary.org/b/id/${match.cover_i}-L.jpg`;
-    const cover = await saveRemoteImageToGitHub({
+    const cover = await saveRemoteImageToBlob({
       title: `${title}-${match.cover_i}`,
       uploadDir,
       url: remoteCover,

@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { activitySpotlights } from "@/data/site";
 import { ImageLightbox, type LightboxImage } from "@/components/ImageLightbox";
 import { SectionHeading } from "@/components/SectionHeading";
 import { resolveMediaPath } from "@/lib/media";
 import type { CSSProperties } from "react";
-import type { PhotoItem } from "@/data/site";
+import type { ActivitySpotlight, PhotoItem } from "@/data/site";
 
 type MomentTopic = {
   category: string;
@@ -26,8 +25,8 @@ const topicLayouts = [
   "lg:col-span-4",
 ];
 
-export function Gallery() {
-  const momentTopics = buildMomentTopics();
+export function Gallery({ activitySpotlights }: { activitySpotlights: ActivitySpotlight[] }) {
+  const momentTopics = buildMomentTopics(activitySpotlights);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<LightboxImage | null>(null);
   const active = activeIndex === null ? null : momentTopics[activeIndex];
@@ -234,7 +233,7 @@ export function Gallery() {
   );
 }
 
-function buildMomentTopics(): MomentTopic[] {
+function buildMomentTopics(activitySpotlights: ActivitySpotlight[]): MomentTopic[] {
   return activitySpotlights
     .map((item, index) => {
       const photos = sortMomentPhotos(collectMomentPhotos(item));
@@ -254,7 +253,7 @@ function buildMomentTopics(): MomentTopic[] {
 }
 
 function collectMomentPhotos(
-  item: (typeof activitySpotlights)[number],
+  item: ActivitySpotlight,
 ): PhotoItem[] {
   const bookCovers =
     item.books

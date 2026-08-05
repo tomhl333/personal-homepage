@@ -2,9 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
   dataUrlToBuffer,
-  normalizeUploadPath,
-  writeGitHubBinaryFile,
 } from "@/lib/github-admin";
+import { storeImage } from "@/lib/blob-media";
 
 export const runtime = "nodejs";
 
@@ -25,18 +24,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const { buffer } = dataUrlToBuffer(body.data);
-    const { repoPath, src } = normalizeUploadPath(body.uploadDir, body.name);
-
-    await writeGitHubBinaryFile({
-      content: buffer,
-      message: `Upload ${src} from mobile admin`,
-      path: repoPath,
-    });
+    const stored = await storeImage({ content: buffer, category: body.uploadDir, title: body.name });
 
     return NextResponse.json({
       label: body.name.replace(/\.[^.]+$/, ""),
       ok: true,
-      src,
+      src: stored.url,
+      compressedSize: stored.compressedSize,
+      originalSize: stored.originalSize,
     });
   } catch (error) {
     return NextResponse.json(

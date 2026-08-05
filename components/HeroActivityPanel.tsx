@@ -2,12 +2,11 @@
 
 import { useEffect, useState, type CSSProperties, type TouchEvent } from "react";
 import { ImageLightbox, type LightboxImage } from "@/components/ImageLightbox";
-import { activitySpotlights } from "@/data/site";
 import { LineIcon } from "@/components/LineIcon";
 import { resolveMediaPath } from "@/lib/media";
-import type { PhotoItem } from "@/data/site";
+import type { ActivitySpotlight, PhotoItem } from "@/data/site";
 
-export function HeroActivityPanel() {
+export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: ActivitySpotlight[] }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [activeBookIndex, setActiveBookIndex] = useState(0);
   const [coverTouchStart, setCoverTouchStart] = useState<number | null>(null);
@@ -1180,7 +1179,7 @@ function checkinToPhoto(checkin: {
   };
 }
 
-function getActivityImageSources(item: (typeof activitySpotlights)[number]) {
+function getActivityImageSources(item: ActivitySpotlight) {
   return [
     ...(item.photos ?? []).map((photo) => photo.src),
     ...(item.checkins ?? []).map((checkin) => checkin.src),
