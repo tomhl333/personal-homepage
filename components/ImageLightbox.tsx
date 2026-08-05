@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { resolveMediaPath } from "@/lib/media";
 
@@ -18,9 +17,11 @@ type ImageLightboxProps = {
 
 export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     setIsLoaded(false);
+    setLoadFailed(false);
   }, [image?.src]);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
         className="relative max-h-full max-w-5xl"
         onClick={(event) => event.stopPropagation()}
       >
-        {!isLoaded ? (
+        {!isLoaded && !loadFailed ? (
           <div className="absolute inset-0 z-10 flex min-h-72 items-center justify-center rounded-[1.4rem] bg-paper/10 text-sm font-semibold text-white/78 backdrop-blur-sm">
             正在打开图片...
           </div>
@@ -65,18 +66,28 @@ export function ImageLightbox({ image, onClose }: ImageLightboxProps) {
         >
           关闭
         </button>
-        <Image
+        {/* The thumbnail already proves the Blob URL is readable. Use the original URL here;
+            Next's optimizer can reject remote Blob hosts and leave the modal loading forever. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           alt={image.label}
           className={`max-h-[82vh] max-w-[92vw] rounded-[1.4rem] object-contain shadow-2xl transition duration-300 ${
             isLoaded ? "opacity-100" : "opacity-0"
           }`}
           height={1200}
+          loading="eager"
+          onError={() => setLoadFailed(true)}
           onLoad={() => setIsLoaded(true)}
-          quality={82}
-          sizes="92vw"
           src={resolveMediaPath(image.src)!}
           width={1600}
         />
+        {loadFailed ? (
+          <div className="flex min-h-72 max-w-xl flex-col items-center justify-center gap-4 rounded-[1.4rem] bg-paper px-8 text-center text-ink">
+            <p className="font-semibold">大图加载失败</p>
+            <p className="text-sm leading-6 text-ink/60">可以直接打开原图；如果原图也无法访问，请在后台重新上传。</p>
+            <a className="rounded-full bg-moss px-4 py-2 text-sm font-semibold text-white" href={resolveMediaPath(image.src)!} rel="noreferrer" target="_blank">打开原图</a>
+          </div>
+        ) : null}
         <figcaption className="mx-auto mt-3 max-w-3xl rounded-2xl bg-paper/92 px-4 py-3 text-center text-ink shadow-soft backdrop-blur">
           <p className="text-sm font-semibold">{image.label}</p>
           {image.date ? (

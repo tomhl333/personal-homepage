@@ -1,0 +1,4 @@
+interface:
+  display_name: "维护个人生活主页"
+  short_description: "智能归档阅读、影音、练字、生活与训练图片，自动去重并验证前端展示"
+  default_prompt: "使用 $maintain-personal-homepage 根据自然语言和图片更新我的个人主页；自动归类、去重，并在前端可见后才报告成功。"

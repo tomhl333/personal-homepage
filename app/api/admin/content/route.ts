@@ -4,6 +4,7 @@ import { readSiteContent, writeSiteContent } from "@/lib/site-content-store";
 import type { SiteContent } from "@/data/site";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) {
@@ -11,10 +12,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    return NextResponse.json(await readSiteContent());
+    return NextResponse.json(await readSiteContent(), { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } });
   } catch (error) {
     return NextResponse.json({ message: error instanceof Error ? error.message : "读取失败" }, { status: 500 });
   }
+}
+
+export async function POST(request: NextRequest) {
+  return GET(request);
 }
 
 export async function PUT(request: NextRequest) {

@@ -84,6 +84,10 @@ export type SiteContent = {
       duration?: string;
       note?: string;
       src?: string;
+      images?: Array<{
+        src: string;
+        label?: string;
+      }>;
     }>;
     essays?: Array<{
       date: string;
