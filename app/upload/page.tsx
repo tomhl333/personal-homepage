@@ -39,6 +39,7 @@ export default function MobileUploadPage() {
   const [urls, setUrls] = useState<string[]>([]);
   const [message, setMessage] = useState("正在检查登录状态...");
   const [busy, setBusy] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   useEffect(() => {
     void fetch("/api/admin/content").then((response) => {
@@ -62,6 +63,7 @@ export default function MobileUploadPage() {
     if (!files.length) return setMessage("请先选择至少一张照片。");
     setBusy(true);
     setUrls([]);
+    setCopyState("idle");
     try {
       const uploaded: string[] = [];
       for (const file of files) {
@@ -83,6 +85,31 @@ export default function MobileUploadPage() {
     }
   }
 
+  async function copyUploadedUrls() {
+    const text = urls.join("\n");
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        textarea.remove();
+        if (!copied) throw new Error("clipboard_unavailable");
+      }
+      setCopyState("copied");
+      setMessage("链接已复制。返回 ChatGPT 后直接粘贴即可，图片尚未写入个人主页。");
+    } catch {
+      setCopyState("failed");
+      setMessage("未能自动复制链接。请长按上方链接并选择复制，再返回 ChatGPT。");
+    }
+  }
+
   return <main className="mx-auto min-h-screen max-w-xl px-5 py-8 text-ink">
     <p className="text-xs font-semibold tracking-[0.16em] text-clay">PERSONAL HOMEPAGE</p>
     <h1 className="mt-2 font-serif text-3xl font-semibold">图片上传</h1>
@@ -96,6 +123,6 @@ export default function MobileUploadPage() {
       <button className="bg-ink px-4 py-3 text-paper disabled:opacity-50" disabled={busy} onClick={upload} type="button">{busy ? "上传中..." : "上传并生成链接"}</button>
     </section>}
     <p className="mt-5 text-sm leading-6 text-ink/70">{message}</p>
-    {urls.length > 0 && <section className="mt-5 border border-ink/15 bg-white p-4"><p className="text-sm font-semibold">公开图片链接</p>{urls.map((url) => <p className="mt-3 break-all text-sm" key={url}><a className="underline" href={url} rel="noreferrer" target="_blank">{url}</a></p>)}<button className="mt-4 border border-ink/30 px-3 py-2 text-sm" onClick={() => void navigator.clipboard.writeText(urls.join("\n"))} type="button">复制全部链接</button></section>}
+    {urls.length > 0 && <section className="mt-5 border border-ink/15 bg-white p-4"><p className="text-sm font-semibold">公开图片链接</p>{urls.map((url) => <p className="mt-3 break-all text-sm" key={url}><a className="underline" href={url} rel="noreferrer" target="_blank">{url}</a></p>)}<button aria-live="polite" className="mt-4 border border-ink/30 px-3 py-2 text-sm" onClick={() => void copyUploadedUrls()} type="button">{copyState === "copied" ? "已复制链接" : copyState === "failed" ? "请长按上方链接复制" : "复制全部链接"}</button></section>}
   </main>;
 }

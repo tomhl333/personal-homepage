@@ -48,7 +48,10 @@ export async function GET() {
     summary: "Commit a confirmed preview and verify the public page",
     description: "Call only after the user explicitly confirms the exact preview. Set confirmed to true. Never call when requiresChoice is true.",
     security: [{ actionApiKey: [] }],
-    "x-openai-isConsequential": true,
+    // The conversation's explicit "确认" is the write approval. Marking this
+    // false avoids a second ChatGPT approval prompt that can prevent the POST
+    // from being sent at all on mobile clients.
+    "x-openai-isConsequential": false,
     parameters: [...commonParameters, { name: "confirmed", in: "query", required: true, description: "Must be true after explicit user confirmation.", schema: { type: "boolean", enum: [true] } }, { name: "targetId", in: "query", description: "Required only when the user selected a candidate.", schema: { type: "string" } }],
     responses: {
       "200": {
@@ -65,7 +68,7 @@ export async function GET() {
 
   return Response.json({
     openapi: "3.1.0",
-    info: { title: "Personal Homepage Maintenance", version: "2.0.0", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
+    info: { title: "Personal Homepage Maintenance", version: "2.0.1", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
     servers: [{ url: server }],
     components: { schemas: {}, securitySchemes: { actionApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Configure this Action in GPT Builder with API Key and Bearer." } } },
     security: [{ actionApiKey: [] }],
