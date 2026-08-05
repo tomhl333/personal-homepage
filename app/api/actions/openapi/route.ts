@@ -24,15 +24,27 @@ export async function GET() {
     // GPT Builder validates 3.1 schemas. Authentication stays in the Builder;
     // the server still enforces it for writes.
     openapi: "3.1.1",
-    info: { title: "个人主页维护 Action", version: "1.2.1", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
+    info: { title: "个人主页维护 Action", version: "1.3.0", description: `Preview and safely maintain the private personal homepage. Server policy ${actionPolicy.version} is authoritative.` },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
+    components: {
+      schemas: {},
+      securitySchemes: {
+        actionApiKey: {
+          type: "apiKey",
+          in: "header",
+          name: "Authorization",
+          description: "Configured in GPT Builder as a Bearer API key.",
+        },
+      },
+    },
     paths: {
-      "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record before writing", requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
-      "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a confirmed preview", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": { description: "Write and verification result" }, "401": { description: "Unauthorized" }, "409": { description: "Ambiguous; select a candidate" } } } },
+      "/api/actions/preview": { post: { operationId: "previewPersonalRecord", summary: "Preview a record before writing", security: [{ actionApiKey: [] }], "x-openai-isConsequential": false, requestBody: { required: true, content: { "application/json": { schema: inputSchema } } }, responses: { "200": { description: "Preview result" }, "401": { description: "Unauthorized" } } } },
+      "/api/actions/commit": { post: { operationId: "commitPersonalRecord", summary: "Write a confirmed preview", security: [{ actionApiKey: [] }], "x-openai-isConsequential": true, requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["confirmed", "input"], properties: { confirmed: { type: "boolean", enum: [true] }, targetId: { type: "string" }, input: inputSchema } } } } }, responses: { "200": { description: "Write and verification result" }, "401": { description: "Unauthorized" }, "409": { description: "Ambiguous; select a candidate" } } } },
       "/actions/status.json": {
         get: {
           operationId: "getPersonalStorageStatus",
           "x-openai-isConsequential": false,
+          security: [{ actionApiKey: [] }],
           summary: "Read the authoritative policy version",
           description: "Call before answering. Return policyVersion verbatim.",
           responses: {
