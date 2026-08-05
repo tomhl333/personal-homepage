@@ -24,7 +24,7 @@ The Action accepts publicly reachable HTTPS image URLs. A photo attached only in
 
 For image records, resolve the date in this order: user-provided date, original EXIF capture date, then upload date. City-life images require a concrete city; ask when it is unavailable. Keep titles concise and move longer wording to the note. After a user correction, run a fresh preview and never reuse the old confirmation token.
 
-1. Infer category, concise title, summary, date, season, and tags from natural language. Preserve the user's meaning; lightly polish grammar and remove filler.
+1. Infer category, concise title, summary, date, season, and tags from natural language. Preserve the user's meaning; lightly polish grammar and remove filler. Preview on the initial create/update request or after a user correction; a standalone confirmation must commit the latest preview and must not trigger another preview.
 2. For a series, use one canonical series record and one poster. Put season-specific thoughts in notes whose `type` is the season. Never create one cover per season.
 3. Route every reaction to a named book, film, or series into that work's `notes`. Use `add-book --note` or `add-show --note`; never create a standalone journal post for a reaction that names or clearly refers to a work. Resolve pronouns such as “这本书”“这一季” from the current conversation. Ask only when the referenced work is genuinely ambiguous.
 4. For photos, call `add-activity` with every image as a repeated `--image`. Classify against all existing areas, including `练字`, `城市生活`, `粤语`, `网球`, `游泳`, and `健身`, using both the user's words and visible image content. If confidence is low, ask rather than guess.
