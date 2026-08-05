@@ -118,11 +118,12 @@ function normalizeActivityInput(input: ActionRecordInput, content: SiteContent):
   const source = [input.title, input.note].filter(Boolean).join(" ");
   const city = input.city || knownCities(content).find((item) => source.includes(item));
   const hasLongDescription = /[，。；：,.!?！？]/u.test(input.title) || input.title.length > 18;
+  const handwritingWork = input.category === "练字" ? input.title.match(/《([^》]{1,24})》/u)?.[1] : undefined;
   return {
     ...input,
     city,
     date: input.date || dateFromImageUrls(input.imageUrls ?? []) || shanghaiDate(),
-    title: hasLongDescription ? compactActivityTitle(input.title, input.category, city) : input.title,
+    title: handwritingWork ? `临《${handwritingWork}》` : hasLongDescription ? compactActivityTitle(input.title, input.category, city) : input.title,
     note: input.note || (hasLongDescription ? input.title : undefined),
   };
 }
@@ -182,16 +183,21 @@ export async function commitAction({
   input: inputValue,
   origin,
   targetId,
+  expectedRevision,
 }: {
   authorization: string;
   confirmed: boolean;
   input: ActionRecordInput;
   origin: string;
   targetId?: string;
+  expectedRevision?: number;
 }) {
   if (!confirmed) throw new Error("explicit_confirmation_required");
   const input = cleanInput(inputValue);
   const current = await readSiteContent();
+  if (expectedRevision !== undefined && expectedRevision !== current.revision) {
+    return { ok: false, status: 409, requiresChoice: true, message: "预览已过期，内容发生变化，请重新预览。" };
+  }
   const content = structuredClone(current.content);
   const normalizedInput = normalizeActivityInput(input, content);
   const existingCandidates = candidatesFor(content, normalizedInput);

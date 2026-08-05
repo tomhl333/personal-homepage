@@ -55,7 +55,9 @@ export async function storeImage({
   const compressed = await compressImage(content, category);
   const id = crypto.randomUUID();
   const safeTitle = title.normalize("NFKC").replace(/[^\w\u4e00-\u9fff-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "image";
-  const assetDate = /^\d{4}-\d{2}-\d{2}$/.test(capturedAt ?? "") ? capturedAt! : new Date().toISOString().slice(0, 10);
+  const assetDate = /^\d{4}-\d{2}-\d{2}$/.test(capturedAt ?? "")
+    ? capturedAt!
+    : new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
   const pathname = `${category}/${assetDate}/${id}-${safeTitle}.webp`;
   const blob = await put(pathname, compressed.buffer, {
     access: "public",

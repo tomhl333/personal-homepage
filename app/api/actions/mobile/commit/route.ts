@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       confirmed: request.nextUrl.searchParams.get("confirmed") === "true",
       input: confirmation.input,
       origin: request.nextUrl.origin,
+      expectedRevision: confirmation.revision,
     });
     return NextResponse.json(withActionPolicy(result), {
       status: Number(result.status ?? 200),

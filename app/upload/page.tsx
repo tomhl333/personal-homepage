@@ -74,7 +74,7 @@ async function captureDate(file: File) {
     const date = exifCaptureDate(new DataView(await file.arrayBuffer()));
     if (date) return date;
   } catch { /* The upload date remains the safe fallback for unsupported files. */ }
-  return new Date(file.lastModified).toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
+  return undefined;
 }
 
 export default function MobileUploadPage() {
