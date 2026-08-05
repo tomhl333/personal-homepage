@@ -20,9 +20,9 @@ const commonParameters = [
 
 const previewResponse = {
   type: "object",
-  required: ["ok", "policyVersion", "action", "candidates", "input", "requiresChoice"],
+  required: ["ok", "policyVersion", "action", "candidates", "input", "requiresChoice", "confirmationToken"],
   properties: {
-    ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] }, confirmationToken: { type: "string", description: "Opaque token returned by preview. Pass it unchanged to commit after the user confirms." },
+    ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] }, confirmationToken: { type: "string", description: "Always returned by preview. Pass it unchanged to commit only after the user confirms and requiresChoice is false." },
     candidates: { type: "array", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, detail: { type: "string" } } } },
     input: { type: "object" }, revision: { type: "number" }, requiresChoice: { type: "boolean" }, message: { type: "string" },
   },
@@ -68,7 +68,7 @@ export async function GET() {
 
   return Response.json({
     openapi: "3.1.0",
-    info: { title: "Personal Homepage Maintenance", version: "2.1.0", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
+    info: { title: "Personal Homepage Maintenance", version: "2.1.1", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
     servers: [{ url: server }],
     components: { schemas: {}, securitySchemes: { actionApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Configure this Action in GPT Builder with API Key and Bearer." } } },
     security: [{ actionApiKey: [] }],

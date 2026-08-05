@@ -14,7 +14,9 @@ export async function POST(request: NextRequest, context: { params: { type: stri
   if (!authorized) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
   try {
     const preview = await previewAction(mobileActionInput(request, context.params.type, context.params.title));
-    const confirmationToken = preview.requiresChoice ? undefined : createActionConfirmation(preview.input, preview.revision);
+    // Always return a token so the Action client keeps it across the explicit
+    // confirmation turn. Commit still independently rejects unresolved choices.
+    const confirmationToken = createActionConfirmation(preview.input, preview.revision);
     return NextResponse.json(withActionPolicy({ ...preview, confirmationToken }), {
       headers: { "Cache-Control": "no-store" },
     });
