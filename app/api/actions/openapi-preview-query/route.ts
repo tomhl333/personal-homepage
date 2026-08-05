@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   return Response.json({
     openapi: "3.1.1",
-    info: { title: "Personal Homepage Preview", version: "1.0.0", description: "Preview before writing. Uses flat parameters and never writes content." },
+    info: { title: "Personal Homepage Preview", version: "1.0.1", description: "Preview before writing. Uses flat parameters and never writes content." },
     servers: [{ url: "https://personal-homepage-nine-ashen.vercel.app" }],
     components: {
       schemas: {},
@@ -20,8 +20,8 @@ export async function GET() {
           security: [{ actionApiKey: [] }],
           "x-openai-isConsequential": false,
           parameters: [
-            { name: "type", in: "query", required: false, schema: { type: "string", enum: ["book", "show", "activity", "journal"] } },
-            { name: "title", in: "query", required: false, schema: { type: "string" } },
+            { name: "type", in: "query", required: true, schema: { type: "string", enum: ["book", "show", "activity", "journal"] } },
+            { name: "title", in: "query", required: true, schema: { type: "string" } },
             { name: "note", in: "query", required: false, schema: { type: "string" } },
             { name: "status", in: "query", required: false, schema: { type: "string" } },
           ],
