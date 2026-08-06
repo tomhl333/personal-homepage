@@ -55,3 +55,9 @@ python scripts/personal_homepage.py status
 - Do not claim a cover source unless the returned result names it.
 
 Read `references/content-model.md` only when changing operations or debugging placement.
+
+## Training plan Action
+
+For requests such as today's training plan, call the personal-homepage `previewTrainingPlan` Action. It delegates to the existing Xunheng planner, which uses training history, Apple Health recovery data, sleep/HRV, recent load, equipment, time, and optional target focus. Required inputs are `equipmentMode` (`dumbbell`, `free_weights`, or `gym`), `sessionMinutes` (30/45/60/75/90), and `subjectiveState` (`tired`, `normal`, or `good`); use `targetFocus=auto` unless the user explicitly chooses chest, back, shoulders, legs, or arms. Ask for missing inputs instead of guessing.
+
+The preview is read-only. Show the returned movements, sets, reps, weight when present, RPE, readiness, substitutions, time estimate, and write blockers. After the user explicitly confirms the exact plan, call `commitTrainingPlan` with `confirmed=true`; pass `confirmationToken` unchanged when available, but if the client did not retain it, still call the commit Action without the token so the server can recover the latest preview for that API key. Never re-preview after confirmation. Report training-plan completion only when the real response has `ok=true`, `saved=true`, `verified=true`, and plan status `succeeded`. A written plan is not a completed workout.

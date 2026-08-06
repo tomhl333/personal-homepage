@@ -22,6 +22,13 @@ const commonParameters = [
   { name: "workoutId", in: "query", description: "Use only after a unique workout is selected.", schema: { type: "string" } },
 ];
 
+const trainingPlanParameters = [
+  { name: "equipmentMode", in: "query", required: true, description: "Available equipment. Ask only when the user did not specify it.", schema: { type: "string", enum: ["dumbbell", "free_weights", "gym"] } },
+  { name: "sessionMinutes", in: "query", required: true, description: "Available training time in minutes.", schema: { type: "integer", enum: [30, 45, 60, 75, 90] } },
+  { name: "subjectiveState", in: "query", required: true, description: "Today's subjective recovery state.", schema: { type: "string", enum: ["tired", "normal", "good"] } },
+  { name: "targetFocus", in: "query", required: false, description: "Optional focus. Use auto unless the user explicitly requests chest, back, shoulders, legs, or arms.", schema: { type: "string", enum: ["auto", "chest", "back", "shoulders", "legs", "arms"], default: "auto" } },
+];
+
 const previewResponse = {
   type: "object",
   required: ["ok", "policyVersion", "action", "candidates", "input", "requiresChoice", "confirmationToken"],
@@ -69,6 +76,33 @@ export async function GET() {
       "409": { description: "Choice required; nothing was written" },
     },
   };
+  const trainingPreviewOperation = {
+    operationId: "previewTrainingPlan",
+    summary: "Generate a Xunheng training plan without writing it",
+    description: "Use for requests such as today's workout plan. Ask for missing equipment, sessionMinutes, or subjectiveState before calling. This analyzes the user's real Xunheng and recovery data, then returns a plan without writing to Xunji.",
+    security: [{ actionApiKey: [] }],
+    "x-openai-isConsequential": false,
+    parameters: trainingPlanParameters,
+    responses: {
+      "200": { description: "Authoritative Xunheng plan preview", content: { "application/json": { schema: { type: "object", required: ["ok", "plan", "confirmationToken"], properties: { ok: { type: "boolean" }, confirmationToken: { type: "string" }, plan: { type: "object" }, policyVersion: { type: "string" }, message: { type: "string" } } } } } },
+      "400": { description: "Invalid input or training service is unavailable" },
+    },
+  };
+  const trainingCommitOperation = {
+    operationId: "commitTrainingPlan",
+    summary: "Write a confirmed Xunheng training plan to Xunji",
+    description: "Call only after the user explicitly confirms the exact generated plan. Pass confirmationToken unchanged when available and set confirmed=true. If the token is unavailable, call with confirmed=true so the server can recover the latest valid training-plan preview for this Action key.",
+    security: [{ actionApiKey: [] }],
+    "x-openai-isConsequential": false,
+    parameters: [
+      { name: "confirmationToken", in: "query", required: false, schema: { type: "string" } },
+      { name: "confirmed", in: "query", required: true, schema: { type: "boolean", enum: [true] } },
+    ],
+    responses: {
+      "200": { description: "Xunji write result", content: { "application/json": { schema: { type: "object", properties: { ok: { type: "boolean" }, saved: { type: "boolean" }, verified: { type: "boolean" }, publicVisible: { type: "boolean" }, plan: { type: "object" }, policyVersion: { type: "string" }, message: { type: "string" } } } } } },
+      "409": { description: "Confirmation expired, plan changed, duplicate plan, or write conflict" },
+    },
+  };
 
   return Response.json({
     openapi: "3.1.0",
@@ -82,6 +116,12 @@ export async function GET() {
       },
       "/api/actions/mobile/commit": {
         post: commitOperation,
+      },
+      "/api/actions/training-plan/preview": {
+        post: trainingPreviewOperation,
+      },
+      "/api/actions/training-plan/commit": {
+        post: trainingCommitOperation,
       },
       "/api/actions/status": {
         get: {

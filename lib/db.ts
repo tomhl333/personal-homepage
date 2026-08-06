@@ -45,6 +45,14 @@ export async function ensurePersonalSchema() {
         expires_at TIMESTAMPTZ NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )`;
+      await query`CREATE TABLE IF NOT EXISTS personal.training_plan_confirmations (
+        api_key_hash TEXT PRIMARY KEY,
+        confirmation_token TEXT NOT NULL,
+        input JSONB NOT NULL,
+        plan_id TEXT NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )`;
     })().catch((error) => {
       schemaPromise = null;
       throw error;
