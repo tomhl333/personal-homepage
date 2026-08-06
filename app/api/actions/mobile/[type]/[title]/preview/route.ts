@@ -4,6 +4,7 @@ import { createActionConfirmation } from "@/lib/action-confirmation";
 import { mobileActionInput, actionAuthLog } from "@/lib/action-mobile";
 import { previewAction } from "@/lib/action-records";
 import { withActionPolicy } from "@/lib/action-policy";
+import { saveActionConfirmation } from "@/lib/action-confirmation-store";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,6 +18,13 @@ export async function POST(request: NextRequest, context: { params: { type: stri
     // Always return a token so the Action client keeps it across the explicit
     // confirmation turn. Commit still independently rejects unresolved choices.
     const confirmationToken = createActionConfirmation(preview.input, preview.revision);
+    await saveActionConfirmation({
+      authorization: request.headers.get("authorization") ?? "",
+      token: confirmationToken,
+      input: preview.input,
+      revision: preview.revision,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+    });
     return NextResponse.json(withActionPolicy({ ...preview, confirmationToken }), {
       headers: { "Cache-Control": "no-store" },
     });

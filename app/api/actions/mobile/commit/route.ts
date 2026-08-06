@@ -4,6 +4,7 @@ import { verifyActionConfirmation } from "@/lib/action-confirmation";
 import { actionAuthLog } from "@/lib/action-mobile";
 import { commitAction } from "@/lib/action-records";
 import { withActionPolicy } from "@/lib/action-policy";
+import { loadActionConfirmation } from "@/lib/action-confirmation-store";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,10 +14,14 @@ export async function POST(request: NextRequest) {
   actionAuthLog(request, "gpt_action_mobile_commit", authorized);
   if (!authorized) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
   try {
+    const authorization = request.headers.get("authorization") ?? "";
     const token = request.nextUrl.searchParams.get("confirmationToken") ?? "";
-    const confirmation = verifyActionConfirmation(token);
+    const confirmation = token
+      ? verifyActionConfirmation(token)
+      : await loadActionConfirmation(authorization);
+    if (!confirmation) throw new Error("confirmation_required");
     const result = await commitAction({
-      authorization: internalApiAuthorization(request.headers.get("authorization") ?? ""),
+      authorization: internalApiAuthorization(authorization),
       confirmed: request.nextUrl.searchParams.get("confirmed") === "true",
       input: confirmation.input,
       origin: request.nextUrl.origin,

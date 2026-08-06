@@ -37,6 +37,14 @@ export async function ensurePersonalSchema() {
       )`;
       await query`CREATE INDEX IF NOT EXISTS media_status_uploaded_idx
         ON personal.media_assets(status, uploaded_at)`;
+      await query`CREATE TABLE IF NOT EXISTS personal.action_confirmations (
+        api_key_hash TEXT PRIMARY KEY,
+        confirmation_token TEXT NOT NULL,
+        input JSONB NOT NULL,
+        revision INTEGER NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )`;
     })().catch((error) => {
       schemaPromise = null;
       throw error;

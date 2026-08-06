@@ -77,6 +77,8 @@ function cleanInput(input: ActionRecordInput): ActionRecordInput {
   return {
     ...input,
     title,
+    // The public book/show models do not have a reading or viewing date field.
+    date: input.type === "book" || input.type === "show" ? undefined : input.date,
     note: input.note?.trim(),
     author: input.author?.trim(),
     creator: input.creator?.trim(),

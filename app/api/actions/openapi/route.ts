@@ -53,7 +53,7 @@ export async function GET() {
     // false avoids a second ChatGPT approval prompt that can prevent the POST
     // from being sent at all on mobile clients.
     "x-openai-isConsequential": false,
-    parameters: [{ name: "confirmationToken", in: "query", required: true, description: "Pass unchanged from previewPersonalRecord after explicit user confirmation.", schema: { type: "string" } }, { name: "confirmed", in: "query", required: true, description: "Must be true after explicit user confirmation.", schema: { type: "boolean", enum: [true] } }],
+    parameters: [{ name: "confirmationToken", in: "query", required: false, description: "Pass unchanged from previewPersonalRecord when available. The server also retains the latest preview for this authenticated Action for mobile clients that cannot retain the token.", schema: { type: "string" } }, { name: "confirmed", in: "query", required: true, description: "Must be true after explicit user confirmation.", schema: { type: "boolean", enum: [true] } }],
     responses: {
       "200": {
         description: "Write and public-page verification result",
