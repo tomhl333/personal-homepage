@@ -58,7 +58,7 @@ def training_request(path, method="GET", payload=None):
 
 
 def activity(content, title):
-    return next(item for item in content["activitySpotlights"] if item["title"] == title)
+    return next(item for item in content["activitySpotlights"] if item["title"] == title or (title == "纸笔" and item["title"] == "练字") or (title == "语言学习" and item["title"] == "粤语"))
 
 
 def normalized(value):
@@ -180,9 +180,9 @@ def upload_image(path, upload_dir):
 
 def infer_category(text, requested):
     if requested != "auto":
-        return requested
+        return "纸笔" if requested == "练字" else requested
     groups = {
-        "练字": ("练字", "书法", "临帖", "临写", "字帖", "楷书", "行书", "硬笔", "毛笔", "抄写"),
+        "纸笔": ("练字", "书法", "临帖", "临写", "字帖", "楷书", "行书", "硬笔", "毛笔", "抄写", "画画", "绘画", "素描", "水彩", "彩铅", "速写"),
         "网球": ("网球", "发球", "正手", "反手", "截击", "球场"),
         "游泳": ("游泳", "泳池", "自由泳", "蛙泳", "蝶泳", "仰泳", "划水"),
         "健身": ("健身", "力量", "哑铃", "杠铃", "深蹲", "卧推", "硬拉", "核心", "训练"),
@@ -318,7 +318,7 @@ def add_book(args):
 
 def add_activity(args):
     category = infer_category(" ".join([args.text, args.title or "", *args.image]), args.category)
-    title = args.title or compact_title(args.text, "练字记录" if category == "练字" else "城市片段")
+    title = args.title or compact_title(args.text, "纸笔记录" if category == "纸笔" else "城市片段")
     if category in {"网球", "游泳", "健身"}:
         uploads = [upload_image(path, "/uploads/training") for path in args.image]
         status_code, attached = training_request("/api/workout-media", "POST", {
@@ -336,17 +336,19 @@ def add_activity(args):
         marker = uploads[0]["src"] if uploads else ""
         public_visible = verify_url_contains(TRAINING_BASE, marker)
         return {"ok": public_visible, "saved": True, "verified": True, "publicVisible": public_visible, "type": "training-media", "category": category, "title": title, "imageCount": len(uploads), "workout": attached.get("workout"), "pending": bool(attached.get("pending")), "message": ("运动图片已独立保存并等待后续训练匹配" if attached.get("pending") and public_visible else "训练图片已挂载且前端可见" if public_visible else "图片已保存，但训衡前端尚未显示；不要向用户报告完成")}
-    upload_dir = "/uploads/handwriting" if category == "练字" else f"/uploads/{urllib.parse.quote(category)}"
+    upload_dir = "/uploads/paper" if category == "纸笔" else f"/uploads/{urllib.parse.quote(category)}"
     uploads = [upload_image(path, upload_dir) for path in args.image]
     record_date = args.date
 
     def change(content):
         section = activity(content, category)
-        if category == "练字":
+        if category == "纸笔":
             checkins = section.setdefault("checkins", [])
             identity = normalized(record_date + title + args.text)
             existing = next((x for x in checkins if normalized(x.get("date", "") + x.get("label", "") + x.get("note", "")) == identity), None)
-            item = existing or {"date": record_date, "label": title, "content": args.content or "", "duration": args.duration or "", "note": args.text, "images": []}
+            paper_type = args.paper_type or ("画画" if any(word in args.text for word in ("画", "绘", "素描", "水彩", "彩铅", "速写")) else "练字" if any(word in args.text for word in ("字", "书法", "临帖", "临写")) else "纸笔创作")
+            item = existing or {"date": record_date, "label": title, "type": paper_type, "content": args.content or "", "duration": args.duration or "", "note": args.text, "images": []}
+            item["type"] = paper_type
             item["images"] = unique_items(item.get("images", []) + [{"src": u["src"], "label": u.get("label", title)} for u in uploads], lambda x: x.get("src", ""))
             if item["images"]:
                 item["src"] = item["images"][0]["src"]
@@ -365,7 +367,7 @@ def add_activity(args):
             photos[:] = unique_items([{"date": record_date, "label": title, "note": args.text, "src": u["src"], "project": title} for u in uploads] + photos, lambda x: x.get("src", ""))
         return {"type": "activity", "category": category, "title": title, "imageCount": len(uploads), "publicMarker": title}
 
-    return mutate(change, lambda c: any(x.get("title") == category and (any(y.get("label") == title for y in x.get("checkins", [])) if category == "练字" else any(y.get("title") == title for y in x.get("records", []) + x.get("learningLogs", []))) for x in c.get("activitySpotlights", [])))
+    return mutate(change, lambda c: any((x.get("title") == category or (category == "纸笔" and x.get("title") == "练字")) and (any(y.get("label") == title for y in x.get("checkins", [])) if category == "纸笔" else any(y.get("title") == title for y in x.get("records", []) + x.get("learningLogs", []))) for x in c.get("activitySpotlights", [])))
 
 
 def verify_url_contains(base, marker):
@@ -391,7 +393,7 @@ def main():
     book = sub.add_parser("add-book")
     book.add_argument("title"); book.add_argument("--author", default=""); book.add_argument("--status", default="在读"); book.add_argument("--note", default=""); book.add_argument("--note-type", default="读后感"); book.set_defaults(run=add_book)
     entry = sub.add_parser("add-activity")
-    entry.add_argument("text"); entry.add_argument("--image", action="append", default=[]); entry.add_argument("--category", choices=["auto", "练字", "城市生活", "粤语", "网球", "游泳", "健身"], default="auto"); entry.add_argument("--title", default=""); entry.add_argument("--date", default=date.today().isoformat()); entry.add_argument("--content", default=""); entry.add_argument("--duration", default=""); entry.add_argument("--tag", action="append", default=[]); entry.add_argument("--workout-id", default=""); entry.set_defaults(run=add_activity)
+    entry.add_argument("text"); entry.add_argument("--image", action="append", default=[]); entry.add_argument("--category", choices=["auto", "纸笔", "练字", "城市生活", "粤语", "网球", "游泳", "健身"], default="auto"); entry.add_argument("--paper-type", choices=["练字", "画画", "纸笔创作"], default=""); entry.add_argument("--title", default=""); entry.add_argument("--date", default=date.today().isoformat()); entry.add_argument("--content", default=""); entry.add_argument("--duration", default=""); entry.add_argument("--tag", action="append", default=[]); entry.add_argument("--workout-id", default=""); entry.set_defaults(run=add_activity)
     check = sub.add_parser("status"); check.set_defaults(run=status)
     args = parser.parse_args()
     result = args.run(args)

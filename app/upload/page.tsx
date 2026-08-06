@@ -3,9 +3,9 @@
 import { FormEvent, useEffect, useState } from "react";
 
 const uploadDirectories: Record<string, string> = {
-  handwriting: "/uploads/handwriting",
+  paper: "/uploads/paper",
   city: "/uploads/city-life",
-  cantonese: "/uploads/cantonese",
+  language: "/uploads/language-learning",
   tennis: "/uploads/tennis",
   swimming: "/uploads/swimming",
   fitness: "/uploads/fitness",
@@ -165,7 +165,7 @@ export default function MobileUploadPage() {
       <button className="bg-ink px-4 py-3 text-paper disabled:opacity-50" disabled={busy} type="submit">登录</button>
     </form> : <section className="mt-6 space-y-4">
       <label className="block text-sm">图片说明（可选）<input className="mt-1 w-full border border-ink/20 bg-white px-3 py-3" onChange={(event) => setTitle(event.target.value)} placeholder="例如：8 月 5 日河边散步" value={title} /></label>
-      <label className="block text-sm">分类<select className="mt-1 w-full border border-ink/20 bg-white px-3 py-3" onChange={(event) => setCategory(event.target.value)} value={category}><option value="other">其他</option><option value="handwriting">练字</option><option value="city">城市生活</option><option value="cantonese">粤语</option><option value="tennis">网球</option><option value="swimming">游泳</option><option value="fitness">健身</option></select></label>
+      <label className="block text-sm">分类<select className="mt-1 w-full border border-ink/20 bg-white px-3 py-3" onChange={(event) => setCategory(event.target.value)} value={category}><option value="other">其他</option><option value="paper">纸笔（练字、画画）</option><option value="city">城市生活</option><option value="language">语言学习（粤语、西班牙语）</option><option value="tennis">网球</option><option value="swimming">游泳</option><option value="fitness">健身</option></select></label>
       <label className="block text-sm">选择照片<input accept="image/*" className="mt-1 block w-full" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} type="file" /></label>
       <button className="bg-ink px-4 py-3 text-paper disabled:opacity-50" disabled={busy} onClick={upload} type="button">{busy ? "上传中..." : "上传并生成链接"}</button>
     </section>}

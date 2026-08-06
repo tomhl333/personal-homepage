@@ -80,6 +80,7 @@ export type SiteContent = {
     checkins?: Array<{
       date: string;
       label: string;
+      type?: "练字" | "画画" | "纸笔创作";
       content?: string;
       duration?: string;
       note?: string;
@@ -110,6 +111,7 @@ export type SiteContent = {
     shows?: Array<{
       title: string;
       creator: string;
+      platform?: string;
       kind: string;
       status: string;
       poster?: string;

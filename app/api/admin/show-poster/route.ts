@@ -11,6 +11,7 @@ type ITunesResult = {
 };
 
 type TmdbResult = {
+  id?: number;
   name?: string;
   original_name?: string;
   original_title?: string;
@@ -48,16 +49,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const douban = await findDoubanPoster({ title, uploadDir });
-    if (douban.poster) return NextResponse.json(douban);
+    const platform = await findTmdbPlatformForTitle({ kind, title });
+    if (douban.poster) return NextResponse.json({ ...douban, platform });
 
     const tmdb = await findTmdbPoster({ kind, title, uploadDir });
     if (tmdb.poster) {
-      return NextResponse.json(tmdb);
+      return NextResponse.json({ ...tmdb, platform: tmdb.platform || platform });
     }
 
     const itunes = await findItunesPoster({ kind, title, uploadDir });
     if (itunes.poster) {
-      return NextResponse.json(itunes);
+      return NextResponse.json({ ...itunes, platform });
     }
 
     return NextResponse.json({
@@ -143,6 +145,7 @@ async function findTmdbPoster({
     uploadDir,
     url: remotePoster,
   });
+  const platform = match.id ? await findTmdbPlatform({ id: match.id, searchType, token }) : "";
 
   return {
     creator: "",
@@ -150,7 +153,41 @@ async function findTmdbPoster({
     remotePoster,
     source: "TMDB",
     title: resolvedTitle,
+    platform,
   };
+}
+
+async function findTmdbPlatformForTitle({ kind, title }: { kind: string; title: string }) {
+  const token = process.env.TMDB_API_KEY;
+  if (!token) return "";
+  try {
+    const searchType = isMovie(kind) ? "movie" : "tv";
+    const search = new URL(`https://api.themoviedb.org/3/search/${searchType}`);
+    search.searchParams.set("query", title);
+    search.searchParams.set("language", "zh-CN");
+    const response = await fetch(search, { headers: { Accept: "application/json", Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return "";
+    const data = await response.json() as { results?: TmdbResult[] };
+    const match = data.results?.[0];
+    return match?.id ? findTmdbPlatform({ id: match.id, searchType, token }) : "";
+  } catch {
+    return "";
+  }
+}
+
+async function findTmdbPlatform({ id, searchType, token }: { id: number; searchType: "movie" | "tv"; token: string }) {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/${searchType}/${id}/watch/providers`, {
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}`, "User-Agent": "personal-homepage-admin/1.0" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return "";
+    const data = await response.json() as { results?: Record<string, { flatrate?: Array<{ provider_name?: string }>; buy?: Array<{ provider_name?: string }>; rent?: Array<{ provider_name?: string }> }> };
+    const providers = data.results?.CN ?? data.results?.HK ?? data.results?.US;
+    return providers?.flatrate?.[0]?.provider_name ?? providers?.buy?.[0]?.provider_name ?? providers?.rent?.[0]?.provider_name ?? "";
+  } catch {
+    return "";
+  }
 }
 
 async function findItunesPoster({

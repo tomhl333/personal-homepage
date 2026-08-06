@@ -396,6 +396,11 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                                   <span className="mt-1 block text-xs text-ink/45">
                                     {show.creator}
                                   </span>
+                                  {show.platform ? (
+                                    <span className="mt-1 block text-xs text-ink/45">
+                                      {show.platform}
+                                    </span>
+                                  ) : null}
                                 </button>
                               ))}
                           {active.shows.length > 1 ? (
@@ -742,14 +747,14 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                   <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
                     <div className="rounded-[1.5rem] border border-ink/10 bg-white/45 p-5">
                       <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                        本月打卡
+                        本月记录
                       </p>
                       <h4 className="mt-3 font-serif text-3xl font-semibold text-ink">
-                        慢慢写稳
+                        {active.checkins[0]?.type ?? "纸笔慢慢来"}
                       </h4>
                       <div className="mt-5 grid grid-cols-3 gap-3">
                         <div className="rounded-2xl bg-paper/70 p-4">
-                          <p className="text-xs text-ink/45">打卡</p>
+                          <p className="text-xs text-ink/45">记录</p>
                           <p className="mt-2 text-2xl font-semibold text-ink">
                             {active.checkins.length}
                           </p>
@@ -781,7 +786,7 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
 
                     <div>
                       <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                        纸页打卡墙
+                        纸笔记录墙
                       </p>
                       <div className="mt-4 grid gap-4 sm:grid-cols-2">
                         {active.checkins.map((checkin, index) => (
@@ -1079,9 +1084,10 @@ function groupPhotosByMonth<T extends { month?: string; date?: string }>(
 function formatShowMeta(show: {
   kind?: string;
   creator?: string;
+  platform?: string;
   meta?: string;
 }) {
-  return [show.kind, show.creator, show.meta]
+  return [show.kind, show.creator, show.platform, show.meta]
     .map((item) => item?.trim())
     .filter(Boolean)
     .join(" · ");

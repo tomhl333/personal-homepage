@@ -7,6 +7,7 @@ import { databaseBudget, enforcePersonalDatabaseBudget } from "@/lib/storage-bud
 
 const limits: Record<string, { max: number; quality: number }> = {
   handwriting: { max: 2048, quality: 86 },
+  paper: { max: 2048, quality: 86 },
   books: { max: 900, quality: 82 },
   shows: { max: 1000, quality: 82 },
   default: { max: 1600, quality: 80 },

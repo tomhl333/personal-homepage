@@ -9,10 +9,13 @@ export type ActionRecordInput = {
   season?: string;
   author?: string;
   creator?: string;
+  platform?: string;
   mediaKind?: string;
   status?: string;
   category?: string;
   city?: string;
+  paperType?: "练字" | "画画" | "纸笔创作";
+  language?: "粤语" | "西班牙语" | "其他语言";
   tags?: string[];
   imageUrls?: string[];
   workoutId?: string;
@@ -21,9 +24,9 @@ export type ActionRecordInput = {
 type Candidate = { id: string; title: string; detail?: string };
 
 const activityAliases: Record<string, string> = {
-  handwriting: "练字", "练字": "练字",
+  handwriting: "纸笔", paper: "纸笔", "练字": "纸笔", "纸笔": "纸笔",
   city: "城市生活", "城市生活": "城市生活",
-  cantonese: "粤语", "粤语": "粤语",
+  cantonese: "语言学习", spanish: "语言学习", language: "语言学习", "粤语": "语言学习", "西班牙语": "语言学习", "语言学习": "语言学习",
   tennis: "网球", "网球": "网球",
   swimming: "游泳", swim: "游泳", "游泳": "游泳",
   fitness: "健身", strength: "健身", "健身": "健身",
@@ -50,7 +53,7 @@ function related(left: string, right: string) {
 }
 
 function section(content: SiteContent, title: string) {
-  const found = content.activitySpotlights.find((item) => item.title === title);
+  const found = content.activitySpotlights.find((item) => item.title === title || (title === "纸笔" && item.title === "练字") || (title === "语言学习" && item.title === "粤语"));
   if (!found) throw new Error(`section_not_found:${title}`);
   return found;
 }
@@ -82,6 +85,7 @@ function cleanInput(input: ActionRecordInput): ActionRecordInput {
     note: input.note?.trim(),
     author: input.author?.trim(),
     creator: input.creator?.trim(),
+    platform: input.platform?.trim(),
     category,
     city: input.city?.trim(),
     imageUrls: [...new Set((input.imageUrls ?? []).map((item) => item.trim()).filter((item) => /^https:\/\//i.test(item)))],
@@ -106,7 +110,7 @@ function knownCities(content: SiteContent) {
 }
 
 function compactActivityTitle(title: string, category?: string, city?: string) {
-  if (category === "练字") {
+  if (category === "纸笔") {
     const work = title.match(/《([^》]{1,24})》/u)?.[1];
     if (work) return `临《${work}》`;
   }
@@ -120,10 +124,18 @@ function normalizeActivityInput(input: ActionRecordInput, content: SiteContent):
   const source = [input.title, input.note].filter(Boolean).join(" ");
   const city = input.city || knownCities(content).find((item) => source.includes(item));
   const hasLongDescription = /[，。；：,.!?！？]/u.test(input.title) || input.title.length > 18;
-  const handwritingWork = input.category === "练字" ? input.title.match(/《([^》]{1,24})》/u)?.[1] : undefined;
+  const handwritingWork = input.category === "纸笔" ? input.title.match(/《([^》]{1,24})》/u)?.[1] : undefined;
+  const paperType = input.category === "纸笔"
+    ? input.paperType ?? (/[画绘]|素描|水彩|彩铅|速写/u.test(source) ? "画画" : /书法|临[写帖]|硬笔|毛笔|字帖|练字/u.test(source) ? "练字" : "纸笔创作")
+    : undefined;
+  const language = input.category === "语言学习"
+    ? input.language ?? (/西班牙|español|espanol|hola|gracias|buenos días|buenos dias/iu.test(source) ? "西班牙语" : /粤语|粤拼|jyutping|廣東話|广东话/iu.test(source) ? "粤语" : "其他语言")
+    : undefined;
   return {
     ...input,
     city,
+    paperType,
+    language,
     date: input.date || dateFromImageUrls(input.imageUrls ?? []) || shanghaiDate(),
     title: handwritingWork ? `临《${handwritingWork}》` : hasLongDescription ? compactActivityTitle(input.title, input.category, city) : input.title,
     note: input.note || (hasLongDescription ? input.title : undefined),
@@ -219,13 +231,14 @@ export async function commitAction({
     let show = shows.find((item) => item.title === (targetId ?? existingCandidates[0]?.id));
     if (!show) {
       const asset = await internalJson(origin, "/api/admin/show-poster", authorization, { title: input.title, kind: input.mediaKind ?? "电视剧", uploadDir: "/uploads/shows" });
-      show = { title: input.title, creator: input.creator ?? asset.result.creator ?? "", kind: input.mediaKind ?? "电视剧", status: input.status ?? "看过", poster: asset.result.poster, posterTone: "from-fog via-paper to-moss/55", meta: asset.result.year ?? "", characters: [], notes: [] };
+      show = { title: input.title, creator: input.creator ?? asset.result.creator ?? "", platform: input.platform ?? asset.result.platform ?? "", kind: input.mediaKind ?? "电视剧", status: input.status ?? "看过", poster: asset.result.poster, posterTone: "from-fog via-paper to-moss/55", meta: asset.result.year ?? "", characters: [], notes: [] };
       shows.unshift(show);
     }
     if (input.note && !show.notes.some((item) => related(item.text, input.note!))) {
       show.notes.unshift({ type: input.season || "观后札记", text: input.note });
     }
     show.status = input.status || show.status;
+    show.platform = input.platform || show.platform;
     result = { ...result, action: existingCandidates.length ? "updated" : "created", noteAdded: Boolean(input.note), hasCover: Boolean(show.poster) };
   } else if (recordInput.type === "book") {
     const books = section(content, "阅读").books ??= [];
@@ -262,10 +275,16 @@ export async function commitAction({
       return { ok: true, verified: true, publicVisible: true, type: "training-media", ...trainingResult };
     }
     const target = section(content, category);
-    if (category === "练字") {
+    if (category === "语言学习") {
+      const logs = target.learningLogs ??= [];
+      const duplicate = logs.some((item) => item.date === activityDate && related(item.title, recordInput.title));
+      if (!duplicate) logs.unshift({ date: activityDate, type: recordInput.language ?? "其他语言", title: recordInput.title, summary: recordInput.note ?? "", tags: [recordInput.language ?? "其他语言"] });
+      result = { ...result, category, language: recordInput.language, action: duplicate ? "unchanged" : "upserted" };
+    } else if (category === "纸笔") {
       const checkins = target.checkins ??= [];
       const duplicate = checkins.find((item) => item.date === activityDate && related(item.label, recordInput.title));
-      const item = duplicate ?? { date: activityDate, label: recordInput.title, note: recordInput.note, src: undefined, images: [] };
+      const item = duplicate ?? { date: activityDate, label: recordInput.title, type: recordInput.paperType, note: recordInput.note, src: undefined, images: [] };
+      item.type = recordInput.paperType ?? item.type;
       item.images = [...(item.images ?? []), ...imageUrls.map((src) => ({ src, label: recordInput.title }))].filter((value, index, all) => all.findIndex((other) => other.src === value.src) === index);
       item.src = item.images[0]?.src;
       if (!duplicate) checkins.unshift(item);
@@ -275,7 +294,7 @@ export async function commitAction({
       if (!duplicate) records.unshift({ date: activityDate, title: recordInput.title, summary: recordInput.note || "", tags: recordInput.tags?.length ? recordInput.tags : [category] });
       target.photos.unshift(...imageUrls.map((src) => ({ date: activityDate, city: recordInput.city, label: recordInput.title, note: recordInput.note, src, project: recordInput.title })));
     }
-    result = { ...result, category, imageCount: imageUrls.length, action: "upserted" };
+    if (category !== "语言学习") result = { ...result, category, imageCount: imageUrls.length, action: "upserted" };
   }
 
   const saved = await writeSiteContent(content, current.revision);

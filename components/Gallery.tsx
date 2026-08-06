@@ -384,7 +384,7 @@ function CoverPreviewGrid({
 }
 
 function topicTone(title: string) {
-  if (title.includes("网球") || title.includes("练字")) {
+  if (title.includes("网球") || title.includes("练字") || title.includes("纸笔")) {
     return "from-moss/75 via-sage/60 to-paper";
   }
   if (title.includes("游泳") || title.includes("城市")) {

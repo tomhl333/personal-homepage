@@ -54,9 +54,9 @@
       "tone": "bg-clay/10 text-clay"
     },
     {
-      "title": "粤语",
+      "title": "语言学习",
       "subtitle": "Day 12",
-      "detail": "每天学一点发音、词汇和场景对话。",
+      "detail": "学习粤语、西班牙语和真实场景表达。",
       "icon": "language",
       "className": "sm:col-span-2",
       "tone": "bg-sage/20 text-moss"
@@ -433,12 +433,12 @@
       ]
     },
     {
-      "title": "粤语",
+      "title": "语言学习",
       "status": "Day 12",
-      "summary": "每天学一点发音、词汇和场景对话。",
+      "summary": "记录粤语、西班牙语和其他语言的声音、词汇与表达。",
       "icon": "language",
       "tone": "bg-sage/20 text-moss",
-      "uploadDir": "/uploads/cantonese",
+      "uploadDir": "/uploads/language-learning",
       "notes": [
         "继续熟悉粤拼",
         "声调需要多听多跟",
@@ -1187,12 +1187,12 @@
       ]
     },
     {
-      "title": "练字",
-      "status": "慢慢写稳",
-      "summary": "把字写慢一点，也把心里的节奏放慢一点。",
+      "title": "纸笔",
+      "status": "纸笔慢慢来",
+      "summary": "写字、画画，也把心里的节奏放慢一点。",
       "icon": "note",
       "tone": "bg-paper text-ink/70",
-      "uploadDir": "/uploads/handwriting",
+      "uploadDir": "/uploads/paper",
       "notes": [
         "每天写几行",
         "先把结构和间距写稳",
@@ -1869,8 +1869,8 @@
       "tone": "bg-clay/10 text-clay"
     },
     {
-      "title": "粤语",
-      "english": "Cantonese",
+      "title": "语言学习",
+      "english": "Languages",
       "detail": "Day 12",
       "icon": "language",
       "tone": "bg-sage/20 text-moss"
@@ -1916,12 +1916,12 @@
       "description": "关注体能、力量和身体状态，希望让自己保持更好的精力和体态。"
     },
     {
-      "title": "粤语",
-      "english": "Cantonese",
+      "title": "语言学习",
+      "english": "Languages",
       "icon": "language",
       "tone": "bg-sage/20 text-moss",
       "className": "lg:col-span-2",
-      "description": "每天学一点粤语，记录词汇、粤拼声调、发音重点和场景对话。"
+      "description": "学习粤语、西班牙语和其他语言，记录词汇、发音重点与真实场景表达。"
     },
     {
       "title": "看剧",
