@@ -31,3 +31,18 @@ test("existing empty media records retry cover discovery",async()=>{
   assert.match(records,/if\(!show\.poster\)/);
   assert.match(records,/if\(!book\.cover\)/);
 });
+
+test("preview tells the GPT when a cover can be repaired automatically",async()=>{
+  const [records,schema,policy]=await Promise.all([read("lib/action-records.ts"),read("app/api/actions/openapi/route.ts"),read("lib/action-policy.ts")]);
+  assert.match(records,/coverLookup/);
+  assert.match(records,/willRepairOnCommit/);
+  assert.match(records,/无需用户提供图片 URL/);
+  assert.match(schema,/never ask the user for an image URL/);
+  assert.match(policy,/coverLookup\.available/);
+});
+
+test("an unrelated revision change does not expire a unique media update",async()=>{
+  const records=await read("lib/action-records.ts");
+  assert.match(records,/const stableExistingMedia = \(normalizedInput\.type === "show" \|\| normalizedInput\.type === "book"\) && existingCandidates\.length === 1/);
+  assert.match(records,/if \(revisionChanged && !stableExistingMedia\)/);
+});
