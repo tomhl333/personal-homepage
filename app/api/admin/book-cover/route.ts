@@ -55,15 +55,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const douban = await findDoubanBookCover({ author, title, uploadDir });
+    const douban = await findDoubanBookCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
     if (douban.cover) return NextResponse.json(douban);
 
-    const google = await findGoogleBookCover({ author, title, uploadDir });
+    const google = await findGoogleBookCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
     if (google.cover) {
       return NextResponse.json(google);
     }
 
-    const openLibrary = await findOpenLibraryCover({ author, title, uploadDir });
+    const openLibrary = await findOpenLibraryCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
     if (openLibrary.cover) {
       return NextResponse.json(openLibrary);
     }
