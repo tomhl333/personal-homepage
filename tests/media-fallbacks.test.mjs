@@ -19,11 +19,21 @@ test("poster and cover lookup continue after a failed source",async()=>{
   assert.match(show,/TMDB/);
   assert.match(show,/iTunes Search/);
   assert.match(book,/豆瓣读书/);
+  assert.match(book,/微信读书/);
   assert.match(book,/Google Books/);
   assert.match(book,/Open Library/);
   assert.match(show,/\.catch\(\(\) => \(\{ poster: "" \}\)\)/);
   assert.match(book,/\.catch\(\(\) => \(\{ cover: "" \}\)\)/);
   assert.match(blob,/metadata\.width < 180 \|\| metadata\.height < 180/);
+});
+
+test("WeRead is a first-class fallback for Chinese book covers",async()=>{
+  const [lookup,book]=await Promise.all([read("lib/media-title-lookup.ts"),read("app/api/admin/book-cover/route.ts")]);
+  assert.match(lookup,/https:\/\/weread\.qq\.com\/web\/search\/books/);
+  assert.match(lookup,/wr_bookList_item_title/);
+  assert.match(lookup,/source: "微信读书"/);
+  assert.match(book,/findWeReadBookCover/);
+  assert.match(book,/saveRemoteImageToBlob/);
 });
 
 test("existing empty media records retry cover discovery",async()=>{

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { saveRemoteImageToBlob } from "@/lib/blob-media";
+import { findWeReadBookSuggestion } from "@/lib/media-title-lookup";
 
 export const runtime = "nodejs";
 
@@ -58,6 +59,9 @@ export async function POST(request: NextRequest) {
     const douban = await findDoubanBookCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
     if (douban.cover) return NextResponse.json(douban);
 
+    const weRead = await findWeReadBookCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
+    if (weRead.cover) return NextResponse.json(weRead);
+
     const google = await findGoogleBookCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
     if (google.cover) {
       return NextResponse.json(google);
@@ -70,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       cover: "",
-      message: "Google Books 和 Open Library 都没有找到封面，可以手动粘贴封面 URL。",
+      message: "豆瓣读书、微信读书、Google Books 和 Open Library 都没有找到封面，可以手动粘贴封面 URL。",
     });
   } catch (error) {
     return NextResponse.json({
@@ -78,6 +82,20 @@ export async function POST(request: NextRequest) {
       message: error instanceof Error ? error.message : "封面查询失败，可以手动上传。",
     });
   }
+}
+
+async function findWeReadBookCover({ author, title, uploadDir }: { author: string; title: string; uploadDir: string }) {
+  const match = await findWeReadBookSuggestion(title, author);
+  if (!match?.imageUrl) return { cover: "" };
+  const cover = await saveRemoteImageToBlob({ title: match.title, uploadDir, url: match.imageUrl });
+  return {
+    author: match.creator ?? author,
+    cover,
+    remoteCover: match.imageUrl,
+    source: match.source,
+    sourceUrl: match.sourceUrl,
+    title: match.title,
+  };
 }
 
 async function findDoubanBookCover({ author, title, uploadDir }: { author: string; title: string; uploadDir: string }) {
