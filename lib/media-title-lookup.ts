@@ -21,6 +21,37 @@ function decodeHtml(value: string) {
   return value.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&colon;/g,":");
 }
 
+export async function findWeReadBookSuggestion(title: string, author = ""): Promise<MediaSuggestion | null> {
+  try {
+    const search = new URL("https://weread.qq.com/web/search/books");
+    search.searchParams.set("keyword", [title, author].filter(Boolean).join(" "));
+    const response = await fetch(search, {
+      headers: {
+        "Accept-Language": "zh-CN,zh;q=0.9",
+        "User-Agent": "Mozilla/5.0 personal-homepage-cover/3.0",
+      },
+      signal: AbortSignal.timeout(7000),
+    });
+    if (!response.ok) return null;
+    const html = await response.text();
+    const cards = [...html.matchAll(/<li class="wr_bookList_item">[\s\S]*?<a href="\/web\/reader\/([^"?]+)"[\s\S]*?<img src="([^"]+)"[^>]*>[\s\S]*?<p class="wr_bookList_item_title">([^<]+)<\/p>[\s\S]*?<p class="wr_bookList_item_author">[\s\S]*?>([^<]+)<\/a>[\s\S]*?<\/li>/g)];
+    for (const card of cards) {
+      const candidateTitle = decodeHtml(card[3]).trim();
+      const candidateAuthor = decodeHtml(card[4]).trim();
+      if (!plausible(title, candidateTitle)) continue;
+      if (author && candidateAuthor && !plausible(author, candidateAuthor)) continue;
+      return {
+        title: candidateTitle,
+        creator: candidateAuthor || author,
+        imageUrl: decodeHtml(card[2]).replace(/^http:/, "https:"),
+        source: "微信读书",
+        sourceUrl: `https://weread.qq.com/web/bookDetail/${card[1]}`,
+      };
+    }
+    return null;
+  } catch { return null; }
+}
+
 export async function findAppleTvSuggestion(title: string): Promise<MediaSuggestion | null> {
   try {
     const search = new URL("https://tv.apple.com/us/search");
@@ -48,15 +79,18 @@ export async function findBookTitleSuggestion(title: string, author = ""): Promi
     const response=await fetch(query,{headers:{"User-Agent":"personal-homepage-admin/1.0"},signal:AbortSignal.timeout(7000)});
     if(!response.ok) return null;
     const data=await response.json() as {items?:Array<{volumeInfo?:{title?:string;authors?:string[];imageLinks?:Record<string,string>}}>};
+    let titleOnlySuggestion: MediaSuggestion | null = null;
     for(const item of data.items??[]){
       const info=item.volumeInfo, candidate=info?.title??"";
       if(!plausible(title,candidate)) continue;
       const images=info?.imageLinks??{};
       const imageUrl=images.extraLarge??images.large??images.medium??images.thumbnail??images.small??images.smallThumbnail;
-      return {title:candidate,creator:info?.authors?.[0]??author,imageUrl:imageUrl?.replace(/^http:/,"https:").replace(/&edge=curl/g,""),source:"Google Books"};
+      const suggestion = {title:candidate,creator:info?.authors?.[0]??author,imageUrl:imageUrl?.replace(/^http:/,"https:").replace(/&edge=curl/g,""),source:"Google Books"};
+      if (imageUrl) return suggestion;
+      titleOnlySuggestion ??= suggestion;
     }
-    return null;
-  } catch { return null; }
+    return await findWeReadBookSuggestion(title, author) ?? titleOnlySuggestion;
+  } catch { return findWeReadBookSuggestion(title, author); }
 }
 
 export function differsFromRequested(requested: string, suggested: string) {
