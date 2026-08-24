@@ -86,7 +86,12 @@ export async function saveRemoteImageToBlob({ title, uploadDir, url }: { title: 
   } });
   const type = response.headers.get("content-type") ?? "";
   if (!response.ok || !type.startsWith("image/")) throw new Error("远程图片无法下载");
-  const stored = await storeImage({ content: Buffer.from(await response.arrayBuffer()), category: uploadDir, title });
+  const content=Buffer.from(await response.arrayBuffer());
+  const metadata=await sharp(content,{failOn:"none"}).metadata();
+  if (!metadata.width || !metadata.height || metadata.width < 180 || metadata.height < 180) {
+    throw new Error("远程图片是无效占位图");
+  }
+  const stored = await storeImage({ content, category: uploadDir, title });
   return stored.url;
 }
 

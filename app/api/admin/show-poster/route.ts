@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { saveRemoteImageToBlob } from "@/lib/blob-media";
+import { findAppleTvSuggestion } from "@/lib/media-title-lookup";
 
 export const runtime = "nodejs";
 
@@ -48,16 +49,24 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const douban = await findDoubanPoster({ title, uploadDir });
+    const douban = await findDoubanPoster({ title, uploadDir }).catch(() => ({ poster: "" }));
     const platform = await findTmdbPlatformForTitle({ kind, title });
     if (douban.poster) return NextResponse.json({ ...douban, platform });
 
-    const tmdb = await findTmdbPoster({ kind, title, uploadDir });
+    const tmdb = await findTmdbPoster({ kind, title, uploadDir }).catch(() => ({ poster: "" }));
     if (tmdb.poster) {
-      return NextResponse.json({ ...tmdb, platform: tmdb.platform || platform });
+      return NextResponse.json({ ...tmdb, platform: ("platform" in tmdb ? tmdb.platform : "") || platform });
     }
 
-    const itunes = await findItunesPoster({ kind, title, uploadDir });
+    const apple=await findAppleTvSuggestion(title);
+    if(apple?.imageUrl){
+      try{
+        const poster=await saveRemoteImageToBlob({title:apple.title,uploadDir,url:apple.imageUrl});
+        return NextResponse.json({poster,remotePoster:apple.imageUrl,source:apple.source,sourceUrl:apple.sourceUrl,title:apple.title,platform:"Apple TV+"});
+      }catch{/* Reject placeholders and continue to the next source. */}
+    }
+
+    const itunes = await findItunesPoster({ kind, title, uploadDir }).catch(() => ({ poster: "" }));
     if (itunes.poster) {
       return NextResponse.json({ ...itunes, platform });
     }

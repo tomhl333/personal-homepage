@@ -1,5 +1,6 @@
 import type { SiteContent } from "@/data/site";
 import { readSiteContent, writeSiteContent } from "@/lib/site-content-store";
+import { differsFromRequested, findAppleTvSuggestion, findBookTitleSuggestion } from "@/lib/media-title-lookup";
 
 export type ActionRecordInput = {
   type: "show" | "book" | "activity" | "journal";
@@ -145,18 +146,24 @@ function normalizeActivityInput(input: ActionRecordInput, content: SiteContent):
 export async function previewAction(inputValue: ActionRecordInput) {
   const { content, revision } = await readSiteContent();
   const input = normalizeActivityInput(cleanInput(inputValue), content);
+  const suggestion=input.type==="show"
+    ? await findAppleTvSuggestion(input.title)
+    : input.type==="book"?await findBookTitleSuggestion(input.title,input.author):null;
+  const titleCorrection=Boolean(suggestion&&differsFromRequested(input.title,suggestion.title));
   const candidates = candidatesFor(content, input);
   const ambiguous = candidates.length > 1;
   const categoryRequired = input.type === "activity" && !input.category;
   const cityRequired = input.type === "activity" && input.category === "城市生活" && Boolean(input.imageUrls?.length) && !input.city;
   return {
-    ok: !ambiguous && !categoryRequired && !cityRequired,
+    ok: !ambiguous && !categoryRequired && !cityRequired && !titleCorrection,
     action: candidates.length === 1 ? "update" : "create",
-    candidates,
+    candidates:titleCorrection?[{id:suggestion!.title,title:suggestion!.title,detail:`${suggestion!.source} 建议的规范名称`}]:candidates,
     input,
     revision,
-    requiresChoice: ambiguous || categoryRequired || cityRequired,
-    message: ambiguous
+    requiresChoice: ambiguous || categoryRequired || cityRequired || titleCorrection,
+    message: titleCorrection
+      ? `外部资料显示规范名称可能是「${suggestion!.title}」。请确认是否使用该名称；确认后请用规范名称重新预览。`
+      : ambiguous
       ? "匹配到多个可能记录，请选择 candidate.id 后再保存。"
       : cityRequired
         ? "城市生活图片缺少城市。请补充城市后重新预览。"
@@ -234,6 +241,11 @@ export async function commitAction({
       show = { title: input.title, creator: input.creator ?? asset.result.creator ?? "", platform: input.platform ?? asset.result.platform ?? "", kind: input.mediaKind ?? "电视剧", status: input.status ?? "看过", poster: asset.result.poster, posterTone: "from-fog via-paper to-moss/55", meta: asset.result.year ?? "", characters: [], notes: [] };
       shows.unshift(show);
     }
+    if(!show.poster){
+      const asset=await internalJson(origin,"/api/admin/show-poster",authorization,{title:show.title,kind:show.kind||input.mediaKind||"电视剧",uploadDir:"/uploads/shows"});
+      if(asset.result.poster) show.poster=asset.result.poster;
+      if(!show.platform&&asset.result.platform) show.platform=asset.result.platform;
+    }
     if (input.note && !show.notes.some((item) => related(item.text, input.note!))) {
       show.notes.unshift({ type: input.season || "观后札记", text: input.note });
     }
@@ -247,6 +259,10 @@ export async function commitAction({
       const asset = await internalJson(origin, "/api/admin/book-cover", authorization, { title: input.title, author: input.author ?? "", uploadDir: "/uploads/books" });
       book = { title: asset.result.title ?? input.title, author: asset.result.author ?? input.author ?? "", status: input.status ?? "在读", cover: asset.result.cover, coverTone: "from-fog via-white to-clay/30", notes: [] };
       books.unshift(book);
+    }
+    if(!book.cover){
+      const asset=await internalJson(origin,"/api/admin/book-cover",authorization,{title:book.title,author:book.author||input.author||"",uploadDir:"/uploads/books"});
+      if(asset.result.cover) book.cover=asset.result.cover;
     }
     if (input.note && !book.notes.some((item) => related(item.text, input.note!))) {
       book.notes.unshift({ type: "读后感", text: input.note });
