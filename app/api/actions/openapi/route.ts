@@ -36,6 +36,7 @@ const previewResponse = {
     ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] }, confirmationToken: { type: "string", description: "Always returned by preview. Pass it unchanged to commit only after the user confirms and requiresChoice is false." },
     candidates: { type: "array", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, detail: { type: "string" } } } },
     input: { type: "object" }, revision: { type: "number" }, requiresChoice: { type: "boolean" }, message: { type: "string" },
+    coverLookup: { type: "object", description: "Automatic poster or book-cover lookup result. When available is true, never ask the user for an image URL; commit will preserve or fill the cover.", properties: { available: { type: "boolean" }, existing: { type: "boolean" }, source: { type: "string" }, suggestedTitle: { type: "string" }, willRepairOnCommit: { type: "boolean" } } },
   },
 };
 

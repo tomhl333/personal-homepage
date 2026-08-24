@@ -151,6 +151,20 @@ export async function previewAction(inputValue: ActionRecordInput) {
     : input.type==="book"?await findBookTitleSuggestion(input.title,input.author):null;
   const titleCorrection=Boolean(suggestion&&differsFromRequested(input.title,suggestion.title));
   const candidates = candidatesFor(content, input);
+  const existingImage = candidates.length === 1
+    ? input.type === "show"
+      ? (section(content, "看剧").shows ?? []).find((item) => item.title === candidates[0].id)?.poster
+      : input.type === "book"
+        ? (section(content, "阅读").books ?? []).find((item) => item.title === candidates[0].id)?.cover
+        : undefined
+    : undefined;
+  const coverLookup = input.type === "show" || input.type === "book" ? {
+    available: Boolean(existingImage || suggestion?.imageUrl),
+    existing: Boolean(existingImage),
+    source: existingImage ? "现有记录" : suggestion?.source ?? "",
+    suggestedTitle: suggestion?.title ?? input.title,
+    willRepairOnCommit: Boolean(!existingImage && suggestion?.imageUrl),
+  } : undefined;
   const ambiguous = candidates.length > 1;
   const categoryRequired = input.type === "activity" && !input.category;
   const cityRequired = input.type === "activity" && input.category === "城市生活" && Boolean(input.imageUrls?.length) && !input.city;
@@ -160,6 +174,7 @@ export async function previewAction(inputValue: ActionRecordInput) {
     candidates:titleCorrection?[{id:suggestion!.title,title:suggestion!.title,detail:`${suggestion!.source} 建议的规范名称`}]:candidates,
     input,
     revision,
+    coverLookup,
     requiresChoice: ambiguous || categoryRequired || cityRequired || titleCorrection,
     message: titleCorrection
       ? `外部资料显示规范名称可能是「${suggestion!.title}」。请确认是否使用该名称；确认后请用规范名称重新预览。`
@@ -169,7 +184,11 @@ export async function previewAction(inputValue: ActionRecordInput) {
         ? "城市生活图片缺少城市。请补充城市后重新预览。"
         : categoryRequired
         ? "活动记录缺少分类，请补充分类后再保存。"
-        : "预览完成。只有用户明确确认后才能调用保存操作。",
+        : coverLookup?.willRepairOnCommit
+          ? `预览完成。已从 ${coverLookup.source} 找到封面，确认保存时会自动补齐，无需用户提供图片 URL。`
+          : coverLookup && !coverLookup.available
+            ? "预览完成，但自动来源暂未找到封面；可以先确认保存文字记录，无需强制提供图片 URL。"
+            : "预览完成。只有用户明确确认后才能调用保存操作。",
   };
 }
 
@@ -216,12 +235,14 @@ export async function commitAction({
   if (!confirmed) throw new Error("explicit_confirmation_required");
   const input = cleanInput(inputValue);
   const current = await readSiteContent();
-  if (expectedRevision !== undefined && expectedRevision !== current.revision) {
-    return { ok: false, status: 409, requiresChoice: true, message: "预览已过期，内容发生变化，请重新预览。" };
-  }
   const content = structuredClone(current.content);
   const normalizedInput = normalizeActivityInput(input, content);
   const existingCandidates = candidatesFor(content, normalizedInput);
+  const revisionChanged = expectedRevision !== undefined && expectedRevision !== current.revision;
+  const stableExistingMedia = (normalizedInput.type === "show" || normalizedInput.type === "book") && existingCandidates.length === 1;
+  if (revisionChanged && !stableExistingMedia) {
+    return { ok: false, status: 409, requiresChoice: true, message: "预览已过期，目标记录可能发生变化，请重新预览。" };
+  }
   if (existingCandidates.length > 1 && !targetId) {
     return { ok: false, status: 409, requiresChoice: true, candidates: existingCandidates, message: "匹配不唯一，未写入。" };
   }
