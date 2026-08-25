@@ -56,3 +56,17 @@ test("an unrelated revision change does not expire a unique media update",async(
   assert.match(records,/const stableExistingMedia = \(normalizedInput\.type === "show" \|\| normalizedInput\.type === "book"\) && existingCandidates\.length === 1/);
   assert.match(records,/if \(revisionChanged && !stableExistingMedia\)/);
 });
+
+test("multiline records use normalized public verification",async()=>{
+  const records=await read("lib/action-records.ts");
+  assert.match(records,/normalizedForVerification/);
+  assert.doesNotMatch(records,/\(await response\.text\(\)\)\.includes\(marker\)/);
+});
+
+test("language learning uses a single readable record column",async()=>{
+  const panel=await read("components/HeroActivityPanel.tsx");
+  assert.doesNotMatch(panel,/>\s*词句卡片\s*</);
+  assert.match(panel,/formatLearningSummary\(log\.summary\)/);
+  assert.match(panel,/max-w-5xl/);
+  assert.match(panel,/leading-8/);
+});

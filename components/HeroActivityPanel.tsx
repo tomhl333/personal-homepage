@@ -6,6 +6,17 @@ import { LineIcon } from "@/components/LineIcon";
 import { resolveMediaPath } from "@/lib/media";
 import type { ActivitySpotlight, PhotoItem } from "@/data/site";
 
+function formatLearningSummary(value: string) {
+  return value
+    .replace(/\s*(重点词汇[：:])\s*/gu, "$1\n")
+    .replace(/\s*(重点句型[：:])\s*/gu, "\n\n$1\n")
+    .replace(/([。！？）)])\s*(?=[\p{Script=Han}]{1,10}\s+[a-z]+\d)/giu, "$1\n")
+    .replace(/\s+(?=\d+[.、]\s*[「“"])/gu, "\n")
+    .replace(/\s*(例[：:])\s*/gu, "\n$1")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: ActivitySpotlight[] }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [activeBookIndex, setActiveBookIndex] = useState(0);
@@ -496,51 +507,25 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                   </div>
                 </div>
               ) : active.phrases || active.learningLogs ? (
-                <div className="grid min-h-0 flex-1 gap-5 p-5 sm:p-7 lg:grid-cols-2">
-                  <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                    <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      词句卡片
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {(active.phrases ?? []).map((phrase) => (
-                        <article
-                          className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
-                          key={phrase.text}
-                        >
-                          <h4 className="font-serif text-2xl font-semibold text-ink">
-                            {phrase.text}
-                          </h4>
-                          {phrase.jyutping ? (
-                            <p className="mt-1 text-xs font-semibold tracking-[0.12em] text-clay">
-                              {phrase.jyutping}
-                            </p>
-                          ) : null}
-                          <p className={`mt-3 text-sm leading-6 text-ink/68 ${readableTextClass}`}>
-                            {phrase.meaning}
-                          </p>
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            <span className="rounded-full bg-sage/35 px-2 py-1 text-[0.68rem] font-semibold text-moss">
-                              {phrase.scene}
-                            </span>
-                          </div>
-                          {phrase.note ? (
-                            <p className={`mt-3 border-t border-ink/10 pt-3 text-xs leading-5 text-ink/50 ${readableTextClass}`}>
-                              {phrase.note}
-                            </p>
-                          ) : null}
-                        </article>
-                      ))}
+                <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
+                  <div className="mx-auto w-full max-w-5xl">
+                    <div className="flex items-end justify-between gap-4 border-b border-ink/10 pb-4">
+                      <div>
+                        <p className="text-xs font-semibold tracking-[0.2em] text-clay">
+                          LANGUAGE NOTES
+                        </p>
+                        <h3 className="mt-1 font-serif text-2xl font-semibold text-ink sm:text-3xl">
+                          学习记录
+                        </h3>
+                      </div>
+                      <p className="text-xs text-ink/40">
+                        {(active.learningLogs ?? []).length} 篇
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="min-h-0 overflow-y-auto rounded-[1.35rem] border border-ink/10 bg-white/45 p-4">
-                    <p className="text-xs font-semibold tracking-[0.2em] text-ink/40">
-                      学习记录
-                    </p>
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-5 space-y-5">
                       {(active.learningLogs ?? []).map((log) => (
                         <article
-                          className="rounded-2xl border border-ink/10 bg-paper/70 p-4"
+                          className="rounded-[1.5rem] border border-ink/10 bg-white/55 p-5 shadow-[0_18px_50px_rgba(35,48,40,0.06)] sm:p-7"
                           key={`${log.date}-${log.title}`}
                         >
                           <div className="flex items-center justify-between gap-3">
@@ -551,14 +536,14 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                               {log.date}
                             </span>
                           </div>
-                          <h4 className="mt-3 font-serif text-xl font-semibold text-ink">
+                          <h4 className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
                             {log.title}
                           </h4>
-                          <p className={`mt-2 text-sm leading-6 text-ink/62 ${readableTextClass}`}>
-                            {log.summary}
+                          <p className={`mt-4 text-[0.95rem] leading-8 text-ink/68 sm:text-base ${readableTextClass}`}>
+                            {formatLearningSummary(log.summary)}
                           </p>
                           {log.tags ? (
-                            <div className="mt-3 flex flex-wrap gap-1.5">
+                            <div className="mt-5 flex flex-wrap gap-2 border-t border-ink/10 pt-4">
                               {log.tags.map((tag) => (
                                 <span
                                   className="rounded-full bg-paper px-2 py-1 text-[0.68rem] font-semibold text-ink/50"
