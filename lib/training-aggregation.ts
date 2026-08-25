@@ -8,7 +8,44 @@ type AppleWorkout = {
 type XunjiWorkout = {
   id: string; training_date: string; title: string; duration_seconds?: number;
   movement_count: number; completed_set_count: number; volume_kg: number;
+  start_ms?: number; end_ms?: number; raw_json?: string | JsonRecord;
 };
+
+type JsonRecord = Record<string, unknown>;
+
+function object(value: unknown): JsonRecord {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
+}
+
+function completionFlags(value: unknown, flags: boolean[] = []): boolean[] {
+  if (Array.isArray(value)) {
+    for (const item of value) completionFlags(item, flags);
+  } else if (value && typeof value === "object") {
+    const current = value as JsonRecord;
+    if (typeof current.done === "boolean") flags.push(current.done);
+    for (const child of Object.values(current)) completionFlags(child, flags);
+  }
+  return flags;
+}
+
+function isRealXunjiWorkout(row: XunjiWorkout, now = Date.now()) {
+  const startMs = Number(row.start_ms ?? 0);
+  const endMs = Number(row.end_ms ?? 0);
+  if (!(startMs > 0) || startMs > now || !(endMs >= startMs) || endMs > now) return false;
+  if (Number(row.completed_set_count ?? 0) > 0) return true;
+
+  let raw: JsonRecord = {};
+  try {
+    raw = typeof row.raw_json === "string" ? object(JSON.parse(row.raw_json)) : object(row.raw_json);
+  } catch { /* no completion evidence */ }
+  const flags = completionFlags(raw.movements);
+  if (flags.includes(true)) return true;
+  const note = object(raw.note);
+  if (note.source === "xunheng" || /计划导入可行性验证|导入测试/.test(row.title)) return false;
+  // Timed courses often have no conventional sets (and may retain false flags
+  // in their movement template). A real elapsed session is completion evidence.
+  return endMs - startMs >= 60_000;
+}
 
 function minutes(seconds?: number) {
   return seconds ? Math.max(1, Math.round(seconds / 60)) : 0;
@@ -34,14 +71,14 @@ export async function mergeTrainingIntoContent(content: SiteContent): Promise<Si
         FROM public.apple_health_workouts
         WHERE start_at::timestamptz >= NOW() - INTERVAL '3 years'
         ORDER BY start_at DESC LIMIT 500`,
-      sql`SELECT id,training_date,title,duration_seconds,movement_count,completed_set_count,volume_kg
+      sql`SELECT id,training_date,title,start_ms,end_ms,duration_seconds,movement_count,completed_set_count,volume_kg,raw_json
         FROM public.xunji_workouts
         WHERE training_date::date >= CURRENT_DATE - INTERVAL '3 years'
         ORDER BY training_date DESC,start_ms DESC LIMIT 300`,
     ]);
     const next = structuredClone(content);
     const apple = appleRows as AppleWorkout[];
-    const xunji = xunjiRows as XunjiWorkout[];
+    const xunji = (xunjiRows as XunjiWorkout[]).filter((row) => isRealXunjiWorkout(row));
     const month = new Date().toISOString().slice(0, 7);
 
     for (const title of ["网球", "游泳"] as const) {
@@ -62,14 +99,20 @@ export async function mergeTrainingIntoContent(content: SiteContent): Promise<Si
 
     const fitness = next.activitySpotlights.find((entry) => entry.title === "健身");
     if (fitness) {
-      fitness.workouts = xunji.slice(0, 80).map((row) => ({
-        date: row.training_date,
-        title: row.title,
-        parts: [`${row.movement_count} 个动作`, `${row.completed_set_count} 组`],
-        duration: row.duration_seconds ? `${minutes(row.duration_seconds)} 分钟` : "已完成",
-        intensity: row.volume_kg ? `${Math.round(row.volume_kg)} kg 总容量` : "训衡同步",
-        summary: `完成 ${row.completed_set_count} 组训练${row.volume_kg ? `，总容量 ${Math.round(row.volume_kg)} kg` : ""}。`,
-      }));
+      fitness.workouts = xunji.slice(0, 80).map((row) => {
+        const durationMinutes = minutes(row.duration_seconds);
+        const timedOnly = row.completed_set_count === 0 && durationMinutes > 0;
+        return {
+          date: row.training_date,
+          title: row.title,
+          parts: [`${row.movement_count} 个动作`, ...(row.completed_set_count > 0 ? [`${row.completed_set_count} 组`] : [])],
+          duration: durationMinutes ? `${durationMinutes} 分钟` : "已完成",
+          intensity: row.volume_kg ? `${Math.round(row.volume_kg)} kg 总容量` : "训衡同步",
+          summary: timedOnly
+            ? `完成 ${durationMinutes} 分钟训练。`
+            : `完成 ${row.completed_set_count} 组训练${row.volume_kg ? `，总容量 ${Math.round(row.volume_kg)} kg` : ""}。`,
+        };
+      });
       const currentMonth = xunji.filter((row) => row.training_date.startsWith(month));
       fitness.status = currentMonth.length ? `本月 ${currentMonth.length} 次 · 训衡同步` : "训衡同步 · 本月暂无";
       fitness.notes = ["训练计划与完成记录由训衡维护", ...fitness.notes.filter((note) => note !== "训练计划与完成记录由训衡维护")];
