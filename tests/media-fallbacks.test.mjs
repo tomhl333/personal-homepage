@@ -69,4 +69,6 @@ test("language learning uses a single readable record column",async()=>{
   assert.match(panel,/formatLearningSummary\(log\.summary\)/);
   assert.match(panel,/max-w-5xl/);
   assert.match(panel,/leading-8/);
+  assert.match(panel,/rounded-2xl border border-ink\/10 bg-paper\/70 p-5 sm:p-7/);
+  assert.doesNotMatch(panel,/border-moss\/10 bg-gradient-to-br from-sage/);
 });

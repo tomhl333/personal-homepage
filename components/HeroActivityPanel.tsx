@@ -525,7 +525,7 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                     <div className="mt-5 space-y-5">
                       {(active.learningLogs ?? []).map((log) => (
                         <article
-                          className="rounded-[1.5rem] border border-moss/10 bg-gradient-to-br from-sage/25 via-paper/80 to-clay/10 p-5 shadow-[0_18px_50px_rgba(35,48,40,0.05)] sm:p-7"
+                          className="rounded-2xl border border-ink/10 bg-paper/70 p-5 sm:p-7"
                           key={`${log.date}-${log.title}`}
                         >
                           <div className="flex items-center justify-between gap-3">
