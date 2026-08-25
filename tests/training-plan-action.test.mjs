@@ -31,3 +31,17 @@ test("training plan write requires confirmation and plan identity", async () => 
   assert.match(route, /confirmationToken/);
   assert.match(route, /planId/);
 });
+
+test("homepage only publishes Xunji workouts with real completion evidence", async () => {
+  const aggregation = await read("lib/training-aggregation.ts");
+  assert.match(aggregation, /isRealXunjiWorkout/);
+  assert.match(aggregation, /start_ms,end_ms/);
+  assert.match(aggregation, /completed_set_count.*> 0/);
+  assert.match(aggregation, /endMs - startMs >= 60_000/);
+  assert.match(aggregation, /typeof row\.raw_json === "string"/);
+  assert.match(aggregation, /object\(row\.raw_json\)/);
+  assert.match(aggregation, /\.filter\(\(row\) => isRealXunjiWorkout\(row\)\)/);
+  assert.match(aggregation, /timedOnly/);
+  assert.match(aggregation, /完成 \$\{durationMinutes\} 分钟训练/);
+  assert.doesNotMatch(aggregation, /if \(flags\.includes\(false\)\) return false/);
+});
