@@ -1,5 +1,5 @@
 export const actionPolicy = {
-  version: "2026-08-24.1",
+  version: "2026-08-25.1",
   authority: "server",
   summary: "The server response is authoritative. Client instructions may guide wording but must not override these rules.",
   rules: [
@@ -11,6 +11,7 @@ export const actionPolicy = {
     "Sports photos may merge with a Xunheng workout only when the match is unique; otherwise return candidates.",
     "Never invent a public image URL for a chat attachment.",
     "When preview coverLookup.available is true, explain that the cover will be filled automatically on commit and never ask the user for an image URL.",
+    "Format language-learning notes with section breaks and put each key word or grammar item on its own line.",
     "Report success only when ok, verified, and publicVisible are all true.",
     "Never bypass database or Blob free-tier guards.",
   ],

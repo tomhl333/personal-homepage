@@ -39,6 +39,14 @@ function normalized(value = "") {
   return value.normalize("NFKC").toLocaleLowerCase().replace(/[\s\p{P}\p{S}_]+/gu, "");
 }
 
+function normalizedForVerification(value = "") {
+  return value
+    .normalize("NFKC")
+    .replace(/\\(?:n|r|t)/g, "")
+    .replace(/\\(["\\/])/g, "$1")
+    .replace(/\s+/gu, "");
+}
+
 function seriesTitle(value: string) {
   return value
     .replace(/第\s*[一二三四五六七八九十百\d]+\s*季/giu, "")
@@ -337,11 +345,12 @@ export async function commitAction({
   const saved = await writeSiteContent(content, current.revision);
   const checked = await readSiteContent();
   const serialized = JSON.stringify(checked.content);
-  const verified = serialized.includes(marker);
+  const verificationMarker = normalizedForVerification(marker);
+  const verified = Boolean(verificationMarker) && normalizedForVerification(serialized).includes(verificationMarker);
   let publicVisible = false;
   try {
     const response = await fetch(`${origin}/api/content?action_verify=${Date.now()}`, { cache: "no-store" });
-    publicVisible = response.ok && (await response.text()).includes(marker);
+    publicVisible = response.ok && normalizedForVerification(await response.text()).includes(verificationMarker);
   } catch { /* A saved record is not reported as complete without public verification. */ }
   return { ok: verified && publicVisible, saved: true, verified, publicVisible, revision: saved.revision, ...result, message: verified && publicVisible ? "已保存并确认前端可见。" : "数据已写入，但公开页面复核未通过，不能报告完成。" };
 }
