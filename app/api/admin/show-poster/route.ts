@@ -20,6 +20,16 @@ type TmdbResult = {
   title?: string;
 };
 
+type ImdbSuggestion = {
+  i?: { height?: number; imageUrl?: string; width?: number };
+  id?: string;
+  l?: string;
+  q?: string;
+  qid?: string;
+  s?: string;
+  y?: number;
+};
+
 type DoubanShow = {
   id?: string;
   img?: string;
@@ -58,6 +68,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ...tmdb, platform: ("platform" in tmdb ? tmdb.platform : "") || platform });
     }
 
+    const imdb = await findImdbPoster({ kind, title, uploadDir }).catch(() => ({ poster: "" }));
+    if (imdb.poster) {
+      return NextResponse.json({ ...imdb, platform });
+    }
+
     const apple=await findAppleTvSuggestion(title);
     if(apple?.imageUrl){
       try{
@@ -73,8 +88,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: process.env.TMDB_API_KEY
-        ? "TMDB 和 iTunes 都没有找到海报，可以手动粘贴 URL 或上传图片。"
-        : "没有配置 TMDB_API_KEY，iTunes 也没有找到海报。建议配置 TMDB_API_KEY，或手动粘贴 URL。",
+        ? "豆瓣影视、TMDB、IMDb、Apple TV 和 iTunes 都没有找到海报，可以手动粘贴 URL 或上传图片。"
+        : "豆瓣影视、IMDb、Apple TV 和 iTunes 都没有找到海报；配置 TMDB_API_KEY 后还可启用 TMDB。",
       poster: "",
     });
   } catch (error) {
@@ -126,12 +141,11 @@ async function findTmdbPoster({
   search.searchParams.set("language", "zh-CN");
   search.searchParams.set("page", "1");
 
+  const headers = tmdbRequestHeaders(search, token);
+
   const response = await fetch(search, {
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-      "User-Agent": "personal-homepage-admin/1.0",
-    },
+    headers,
+    signal: AbortSignal.timeout(5000),
   });
 
   if (!response.ok) {
@@ -174,7 +188,7 @@ async function findTmdbPlatformForTitle({ kind, title }: { kind: string; title: 
     const search = new URL(`https://api.themoviedb.org/3/search/${searchType}`);
     search.searchParams.set("query", title);
     search.searchParams.set("language", "zh-CN");
-    const response = await fetch(search, { headers: { Accept: "application/json", Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(5000) });
+    const response = await fetch(search, { headers: tmdbRequestHeaders(search, token), signal: AbortSignal.timeout(5000) });
     if (!response.ok) return "";
     const data = await response.json() as { results?: TmdbResult[] };
     const match = data.results?.[0];
@@ -186,8 +200,9 @@ async function findTmdbPlatformForTitle({ kind, title }: { kind: string; title: 
 
 async function findTmdbPlatform({ id, searchType, token }: { id: number; searchType: "movie" | "tv"; token: string }) {
   try {
-    const response = await fetch(`https://api.themoviedb.org/3/${searchType}/${id}/watch/providers`, {
-      headers: { Accept: "application/json", Authorization: `Bearer ${token}`, "User-Agent": "personal-homepage-admin/1.0" },
+    const endpoint = new URL(`https://api.themoviedb.org/3/${searchType}/${id}/watch/providers`);
+    const response = await fetch(endpoint, {
+      headers: tmdbRequestHeaders(endpoint, token),
       signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) return "";
@@ -197,6 +212,57 @@ async function findTmdbPlatform({ id, searchType, token }: { id: number; searchT
   } catch {
     return "";
   }
+}
+
+function tmdbRequestHeaders(endpoint: URL, token: string) {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "User-Agent": "personal-homepage-admin/1.0",
+  };
+  // TMDB exposes both a short v3 API key and a JWT-shaped v4 read token.
+  // Only the latter is valid as a Bearer token.
+  if (token.startsWith("eyJ")) headers.Authorization = `Bearer ${token}`;
+  else endpoint.searchParams.set("api_key", token);
+  return headers;
+}
+
+async function findImdbPoster({
+  kind,
+  title,
+  uploadDir,
+}: {
+  kind: string;
+  title: string;
+  uploadDir: string;
+}) {
+  const endpoint = new URL(`https://v3.sg.media-imdb.com/suggestion/x/${encodeURIComponent(title)}.json`);
+  const response = await fetch(endpoint, {
+    headers: { Accept: "application/json", "User-Agent": "personal-homepage-admin/1.0" },
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!response.ok) return { poster: "" };
+
+  const data = await response.json() as { d?: ImdbSuggestion[] };
+  const candidates = (data.d ?? []).filter((item) => item.i?.imageUrl);
+  const expectedType = isMovie(kind) ? "movie" : "tvSeries";
+  const match = candidates.find((item) => item.qid === expectedType)
+    ?? candidates.find((item) => isMovie(kind) ? item.q === "feature" : item.qid === "tvMiniSeries")
+    ?? candidates[0];
+  const remotePoster = match?.i?.imageUrl;
+  if (!match?.id || !remotePoster) return { poster: "" };
+
+  const poster = await saveRemoteImageToBlob({ title, uploadDir, url: remotePoster });
+  return {
+    creator: match.s ?? "",
+    poster,
+    remotePoster,
+    source: "IMDb",
+    sourceUrl: `https://www.imdb.com/title/${match.id}/`,
+    // Keep the user's confirmed Chinese title instead of replacing it with IMDb's English display title.
+    title,
+    originalTitle: match.l,
+    year: match.y,
+  };
 }
 
 async function findItunesPoster({

@@ -17,6 +17,8 @@ test("poster and cover lookup continue after a failed source",async()=>{
   assert.match(show,/findAppleTvSuggestion/);
   assert.match(show,/豆瓣影视/);
   assert.match(show,/TMDB/);
+  assert.match(show,/IMDb/);
+  assert.match(show,/v3\.sg\.media-imdb\.com\/suggestion/);
   assert.match(show,/iTunes Search/);
   assert.match(book,/豆瓣读书/);
   assert.match(book,/微信读书/);
@@ -25,6 +27,12 @@ test("poster and cover lookup continue after a failed source",async()=>{
   assert.match(show,/\.catch\(\(\) => \(\{ poster: "" \}\)\)/);
   assert.match(book,/\.catch\(\(\) => \(\{ cover: "" \}\)\)/);
   assert.match(blob,/metadata\.width < 180 \|\| metadata\.height < 180/);
+});
+
+test("TMDB accepts both v3 API keys and v4 read tokens",async()=>{
+  const show=await read("app/api/admin/show-poster/route.ts");
+  assert.match(show,/token\.startsWith\("eyJ"\)/);
+  assert.match(show,/endpoint\.searchParams\.set\("api_key", token\)/);
 });
 
 test("WeRead is a first-class fallback for Chinese book covers",async()=>{
