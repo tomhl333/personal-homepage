@@ -24,6 +24,12 @@ export type ActionRecordInput = {
 
 type Candidate = { id: string; title: string; detail?: string };
 
+type WorkoutCandidateResponse = {
+  id?: unknown;
+  title?: unknown;
+  time?: unknown;
+};
+
 const activityAliases: Record<string, string> = {
   handwriting: "纸笔", paper: "纸笔", "练字": "纸笔", "纸笔": "纸笔",
   city: "城市生活", "城市生活": "城市生活",
@@ -106,6 +112,26 @@ function shanghaiDate() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
 }
 
+async function workoutCandidatesFor(date: string): Promise<Candidate[]> {
+  const token = process.env.PERSONAL_CONTENT_API_TOKEN;
+  if (!token) throw new Error("training_lookup_auth_missing");
+  const baseUrl = (process.env.TRAINING_HOMEPAGE_URL || "https://xunheng-training.vercel.app").replace(/\/$/, "");
+  const endpoint = new URL("/api/workout-media", baseUrl);
+  endpoint.searchParams.set("date", date);
+  const response = await fetch(endpoint, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
+  });
+  const result = await response.json().catch(() => ({})) as { candidates?: WorkoutCandidateResponse[]; message?: string };
+  if (!response.ok) throw new Error(result.message || `training_lookup_http_${response.status}`);
+  return (result.candidates ?? []).flatMap((item) => {
+    if (typeof item.id !== "string" || typeof item.title !== "string") return [];
+    const detail = typeof item.time === "string" || typeof item.time === "number" ? String(item.time) : undefined;
+    return [{ id: item.id, title: item.title, detail }];
+  });
+}
+
 function dateFromImageUrls(urls: string[]) {
   for (const url of urls) {
     const match = url.match(/\/(\d{4}-\d{2}-\d{2})(?:\/|$)/);
@@ -158,7 +184,13 @@ export async function previewAction(inputValue: ActionRecordInput) {
     ? await findImdbShowSuggestion(input.title, input.mediaKind) ?? await findAppleTvSuggestion(input.title)
     : input.type==="book"?await findBookTitleSuggestion(input.title,input.author):null;
   const titleCorrection=Boolean(suggestion&&differsFromRequested(input.title,suggestion.title));
-  const candidates = candidatesFor(content, input);
+  const contentCandidates = candidatesFor(content, input);
+  const sportsActivity = input.type === "activity" && Boolean(input.category && sports.has(input.category));
+  const workoutCandidates = sportsActivity ? await workoutCandidatesFor(input.date || shanghaiDate()) : [];
+  const requestedWorkout = input.workoutId ? workoutCandidates.find((item) => item.id === input.workoutId) : undefined;
+  if (!input.workoutId && workoutCandidates.length === 1) input.workoutId = workoutCandidates[0].id;
+  const workoutChoiceRequired = sportsActivity && (workoutCandidates.length > 1 && !requestedWorkout || Boolean(input.workoutId && !workoutCandidates.some((item) => item.id === input.workoutId)));
+  const candidates = sportsActivity ? workoutCandidates : contentCandidates;
   const existingImage = candidates.length === 1
     ? input.type === "show"
       ? (section(content, "看剧").shows ?? []).find((item) => item.title === candidates[0].id)?.poster
@@ -173,25 +205,31 @@ export async function previewAction(inputValue: ActionRecordInput) {
     suggestedTitle: suggestion?.title ?? input.title,
     willRepairOnCommit: Boolean(!existingImage && suggestion?.imageUrl),
   } : undefined;
-  const ambiguous = candidates.length > 1;
+  const ambiguous = !sportsActivity && candidates.length > 1;
   const categoryRequired = input.type === "activity" && !input.category;
   const cityRequired = input.type === "activity" && input.category === "城市生活" && Boolean(input.imageUrls?.length) && !input.city;
   return {
-    ok: !ambiguous && !categoryRequired && !cityRequired && !titleCorrection,
+    ok: !ambiguous && !workoutChoiceRequired && !categoryRequired && !cityRequired && !titleCorrection,
     action: candidates.length === 1 ? "update" : "create",
     candidates:titleCorrection?[{id:suggestion!.title,title:suggestion!.title,detail:`${suggestion!.source} 建议的规范名称`}]:candidates,
     input,
     revision,
     coverLookup,
-    requiresChoice: ambiguous || categoryRequired || cityRequired || titleCorrection,
+    requiresChoice: ambiguous || workoutChoiceRequired || categoryRequired || cityRequired || titleCorrection,
     message: titleCorrection
       ? `外部资料显示规范名称可能是「${suggestion!.title}」。请确认是否使用该名称；确认后请用规范名称重新预览。`
+      : workoutChoiceRequired
+      ? "同一天存在多个训练记录，请选择 candidate.id 作为 workoutId 后重新预览。"
       : ambiguous
       ? "匹配到多个可能记录，请选择 candidate.id 后再保存。"
       : cityRequired
         ? "城市生活图片缺少城市。请补充城市后重新预览。"
         : categoryRequired
         ? "活动记录缺少分类，请补充分类后再保存。"
+        : sportsActivity && workoutCandidates.length === 0
+          ? "预览完成，但当天尚未查到可关联的训练记录；确认保存后图片会进入待关联队列。"
+        : sportsActivity && input.workoutId
+          ? `预览完成，已关联训练「${workoutCandidates.find((item) => item.id === input.workoutId)?.title ?? input.workoutId}」。只有用户明确确认后才能保存。`
         : coverLookup?.willRepairOnCommit
           ? `预览完成。已从 ${coverLookup.source} 找到封面，确认保存时会自动补齐，无需用户提供图片 URL。`
           : coverLookup && !coverLookup.available

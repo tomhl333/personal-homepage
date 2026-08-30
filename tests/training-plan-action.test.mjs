@@ -45,3 +45,19 @@ test("homepage only publishes Xunji workouts with real completion evidence", asy
   assert.match(aggregation, /完成 \$\{durationMinutes\} 分钟训练/);
   assert.doesNotMatch(aggregation, /if \(flags\.includes\(false\)\) return false/);
 });
+
+test("sports preview queries real same-day workout candidates", async () => {
+  const [records, openapi, policy] = await Promise.all([
+    read("lib/action-records.ts"),
+    read("app/api/actions/openapi/route.ts"),
+    read("lib/action-policy.ts"),
+  ]);
+  assert.match(records, /async function workoutCandidatesFor/);
+  assert.match(records, /\/api\/workout-media/);
+  assert.match(records, /workoutCandidates\.length === 1/);
+  assert.match(records, /input\.workoutId = workoutCandidates\[0\]\.id/);
+  assert.match(records, /workoutChoiceRequired/);
+  assert.match(records, /ok: !ambiguous && !workoutChoiceRequired/);
+  assert.match(openapi, /same-day workout candidates/);
+  assert.match(policy, /candidate\.id back as workoutId/);
+});

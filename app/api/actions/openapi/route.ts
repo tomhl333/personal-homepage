@@ -34,7 +34,7 @@ const previewResponse = {
   required: ["ok", "policyVersion", "action", "candidates", "input", "requiresChoice", "confirmationToken"],
   properties: {
     ok: { type: "boolean" }, policyVersion: { type: "string", example: actionPolicy.version }, action: { type: "string", enum: ["create", "update"] }, confirmationToken: { type: "string", description: "Always returned by preview. Pass it unchanged to commit only after the user confirms and requiresChoice is false." },
-    candidates: { type: "array", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, detail: { type: "string" } } } },
+    candidates: { type: "array", description: "For sports activities, these are real same-day workout candidates. When exactly one exists, input.workoutId is filled automatically. When multiple exist, choose candidate.id and preview again with it as workoutId.", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, detail: { type: "string" } } } },
     input: { type: "object" }, revision: { type: "number" }, requiresChoice: { type: "boolean" }, message: { type: "string" },
     coverLookup: { type: "object", description: "Automatic poster or book-cover lookup result. When available is true, never ask the user for an image URL; commit will preserve or fill the cover.", properties: { available: { type: "boolean" }, existing: { type: "boolean" }, source: { type: "string" }, suggestedTitle: { type: "string" }, willRepairOnCommit: { type: "boolean" } } },
   },
@@ -107,7 +107,7 @@ export async function GET() {
 
   return Response.json({
     openapi: "3.1.0",
-    info: { title: "Personal Homepage Maintenance", version: "2.1.3", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
+    info: { title: "Personal Homepage Maintenance", version: "2.1.4", description: `Maintain a private personal homepage using server policy ${actionPolicy.version}. Always preview, wait for explicit confirmation, then commit.` },
     servers: [{ url: server }],
     components: { schemas: {}, securitySchemes: { actionApiKey: { type: "apiKey", in: "header", name: "Authorization", description: "Configure this Action in GPT Builder with API Key and Bearer." } } },
     security: [{ actionApiKey: [] }],
