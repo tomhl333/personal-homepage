@@ -6,6 +6,16 @@ type MediaSuggestion = {
   sourceUrl?: string;
 };
 
+type ImdbSuggestion = {
+  i?: { height?: number; imageUrl?: string; width?: number };
+  id?: string;
+  l?: string;
+  q?: string;
+  qid?: string;
+  s?: string;
+  y?: number;
+};
+
 const plain = (value = "") => value.normalize("NFKC").toLocaleLowerCase().replace(/[\s\p{P}\p{S}_]+/gu, "");
 const tokens = (value: string) => value.toLocaleLowerCase().match(/[\p{L}\p{N}]{2,}/gu) ?? [];
 
@@ -67,6 +77,36 @@ export async function findAppleTvSuggestion(title: string): Promise<MediaSuggest
       return { title:candidateTitle, imageUrl:variants.at(-1), source:"Apple TV", sourceUrl:decodeHtml(card[2]) };
     }
     return null;
+  } catch { return null; }
+}
+
+export async function findImdbShowSuggestion(title: string, kind = "电影"): Promise<MediaSuggestion | null> {
+  try {
+    const endpoint = new URL(`https://v3.sg.media-imdb.com/suggestion/x/${encodeURIComponent(title)}.json`);
+    const response = await fetch(endpoint, {
+      headers: { Accept: "application/json", "User-Agent": "personal-homepage-admin/1.0" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return null;
+
+    const data = await response.json() as { d?: ImdbSuggestion[] };
+    const candidates = (data.d ?? []).filter((item) => item.i?.imageUrl && item.id?.startsWith("tt"));
+    const movie = kind === "电影" || /movie|film/i.test(kind);
+    const expectedType = movie ? "movie" : "tvSeries";
+    const match = candidates.find((item) => item.qid === expectedType)
+      ?? candidates.find((item) => movie ? item.q === "feature" : item.qid === "tvMiniSeries")
+      ?? candidates[0];
+    if (!match?.id || !match.i?.imageUrl) return null;
+
+    return {
+      // IMDb often displays an English title for Chinese films. Keep the confirmed
+      // user title so a valid poster match does not trigger a false rename prompt.
+      title,
+      creator: match.s,
+      imageUrl: match.i.imageUrl,
+      source: "IMDb",
+      sourceUrl: `https://www.imdb.com/title/${match.id}/`,
+    };
   } catch { return null; }
 }
 

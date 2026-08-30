@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { saveRemoteImageToBlob } from "@/lib/blob-media";
-import { findAppleTvSuggestion } from "@/lib/media-title-lookup";
+import { findAppleTvSuggestion, findImdbShowSuggestion } from "@/lib/media-title-lookup";
 
 export const runtime = "nodejs";
 
@@ -18,16 +18,6 @@ type TmdbResult = {
   original_title?: string;
   poster_path?: string;
   title?: string;
-};
-
-type ImdbSuggestion = {
-  i?: { height?: number; imageUrl?: string; width?: number };
-  id?: string;
-  l?: string;
-  q?: string;
-  qid?: string;
-  s?: string;
-  y?: number;
 };
 
 type DoubanShow = {
@@ -235,33 +225,18 @@ async function findImdbPoster({
   title: string;
   uploadDir: string;
 }) {
-  const endpoint = new URL(`https://v3.sg.media-imdb.com/suggestion/x/${encodeURIComponent(title)}.json`);
-  const response = await fetch(endpoint, {
-    headers: { Accept: "application/json", "User-Agent": "personal-homepage-admin/1.0" },
-    signal: AbortSignal.timeout(5000),
-  });
-  if (!response.ok) return { poster: "" };
-
-  const data = await response.json() as { d?: ImdbSuggestion[] };
-  const candidates = (data.d ?? []).filter((item) => item.i?.imageUrl);
-  const expectedType = isMovie(kind) ? "movie" : "tvSeries";
-  const match = candidates.find((item) => item.qid === expectedType)
-    ?? candidates.find((item) => isMovie(kind) ? item.q === "feature" : item.qid === "tvMiniSeries")
-    ?? candidates[0];
-  const remotePoster = match?.i?.imageUrl;
-  if (!match?.id || !remotePoster) return { poster: "" };
+  const match = await findImdbShowSuggestion(title, kind);
+  const remotePoster = match?.imageUrl;
+  if (!match || !remotePoster) return { poster: "" };
 
   const poster = await saveRemoteImageToBlob({ title, uploadDir, url: remotePoster });
   return {
-    creator: match.s ?? "",
+    creator: match.creator ?? "",
     poster,
     remotePoster,
     source: "IMDb",
-    sourceUrl: `https://www.imdb.com/title/${match.id}/`,
-    // Keep the user's confirmed Chinese title instead of replacing it with IMDb's English display title.
+    sourceUrl: match.sourceUrl,
     title,
-    originalTitle: match.l,
-    year: match.y,
   };
 }
 

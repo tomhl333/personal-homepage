@@ -1,6 +1,6 @@
 import type { SiteContent } from "@/data/site";
 import { readSiteContent, writeSiteContent } from "@/lib/site-content-store";
-import { differsFromRequested, findAppleTvSuggestion, findBookTitleSuggestion } from "@/lib/media-title-lookup";
+import { differsFromRequested, findAppleTvSuggestion, findBookTitleSuggestion, findImdbShowSuggestion } from "@/lib/media-title-lookup";
 
 export type ActionRecordInput = {
   type: "show" | "book" | "activity" | "journal";
@@ -155,7 +155,7 @@ export async function previewAction(inputValue: ActionRecordInput) {
   const { content, revision } = await readSiteContent();
   const input = normalizeActivityInput(cleanInput(inputValue), content);
   const suggestion=input.type==="show"
-    ? await findAppleTvSuggestion(input.title)
+    ? await findImdbShowSuggestion(input.title, input.mediaKind) ?? await findAppleTvSuggestion(input.title)
     : input.type==="book"?await findBookTitleSuggestion(input.title,input.author):null;
   const titleCorrection=Boolean(suggestion&&differsFromRequested(input.title,suggestion.title));
   const candidates = candidatesFor(content, input);

@@ -13,12 +13,12 @@ test("media lookup asks for canonical title confirmation",async()=>{
 });
 
 test("poster and cover lookup continue after a failed source",async()=>{
-  const [show,book,blob]=await Promise.all([read("app/api/admin/show-poster/route.ts"),read("app/api/admin/book-cover/route.ts"),read("lib/blob-media.ts")]);
+  const [show,book,blob,lookup]=await Promise.all([read("app/api/admin/show-poster/route.ts"),read("app/api/admin/book-cover/route.ts"),read("lib/blob-media.ts"),read("lib/media-title-lookup.ts")]);
   assert.match(show,/findAppleTvSuggestion/);
   assert.match(show,/豆瓣影视/);
   assert.match(show,/TMDB/);
   assert.match(show,/IMDb/);
-  assert.match(show,/v3\.sg\.media-imdb\.com\/suggestion/);
+  assert.match(lookup,/v3\.sg\.media-imdb\.com\/suggestion/);
   assert.match(show,/iTunes Search/);
   assert.match(book,/豆瓣读书/);
   assert.match(book,/微信读书/);
@@ -27,6 +27,14 @@ test("poster and cover lookup continue after a failed source",async()=>{
   assert.match(show,/\.catch\(\(\) => \(\{ poster: "" \}\)\)/);
   assert.match(book,/\.catch\(\(\) => \(\{ cover: "" \}\)\)/);
   assert.match(blob,/metadata\.width < 180 \|\| metadata\.height < 180/);
+});
+
+test("show preview and commit share the IMDb fallback",async()=>{
+  const [lookup,records,show]=await Promise.all([read("lib/media-title-lookup.ts"),read("lib/action-records.ts"),read("app/api/admin/show-poster/route.ts")]);
+  assert.match(lookup,/export async function findImdbShowSuggestion/);
+  assert.match(lookup,/v3\.sg\.media-imdb\.com\/suggestion/);
+  assert.match(records,/findImdbShowSuggestion\(input\.title, input\.mediaKind\)/);
+  assert.match(show,/findImdbShowSuggestion\(title, kind\)/);
 });
 
 test("TMDB accepts both v3 API keys and v4 read tokens",async()=>{
