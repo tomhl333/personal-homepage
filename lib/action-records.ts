@@ -112,12 +112,13 @@ function shanghaiDate() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
 }
 
-async function workoutCandidatesFor(date: string): Promise<Candidate[]> {
+async function workoutCandidatesFor(date: string, category: string): Promise<Candidate[]> {
   const token = process.env.PERSONAL_CONTENT_API_TOKEN;
   if (!token) throw new Error("training_lookup_auth_missing");
   const baseUrl = (process.env.TRAINING_HOMEPAGE_URL || "https://xunheng-training.vercel.app").replace(/\/$/, "");
   const endpoint = new URL("/api/workout-media", baseUrl);
   endpoint.searchParams.set("date", date);
+  endpoint.searchParams.set("category", category === "游泳" ? "swim" : category === "网球" ? "tennis" : "strength");
   const response = await fetch(endpoint, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     cache: "no-store",
@@ -186,7 +187,7 @@ export async function previewAction(inputValue: ActionRecordInput) {
   const titleCorrection=Boolean(suggestion&&differsFromRequested(input.title,suggestion.title));
   const contentCandidates = candidatesFor(content, input);
   const sportsActivity = input.type === "activity" && Boolean(input.category && sports.has(input.category));
-  const workoutCandidates = sportsActivity ? await workoutCandidatesFor(input.date || shanghaiDate()) : [];
+  const workoutCandidates = sportsActivity ? await workoutCandidatesFor(input.date || shanghaiDate(), input.category!) : [];
   const requestedWorkout = input.workoutId ? workoutCandidates.find((item) => item.id === input.workoutId) : undefined;
   if (!input.workoutId && workoutCandidates.length === 1) input.workoutId = workoutCandidates[0].id;
   const workoutChoiceRequired = sportsActivity && (workoutCandidates.length > 1 && !requestedWorkout || Boolean(input.workoutId && !workoutCandidates.some((item) => item.id === input.workoutId)));
