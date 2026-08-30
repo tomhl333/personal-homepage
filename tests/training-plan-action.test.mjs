@@ -54,6 +54,8 @@ test("sports preview queries real same-day workout candidates", async () => {
   ]);
   assert.match(records, /async function workoutCandidatesFor/);
   assert.match(records, /\/api\/workout-media/);
+  assert.match(records, /searchParams\.set\("category"/);
+  assert.match(records, /category === "网球" \? "tennis"/);
   assert.match(records, /workoutCandidates\.length === 1/);
   assert.match(records, /input\.workoutId = workoutCandidates\[0\]\.id/);
   assert.match(records, /workoutChoiceRequired/);
