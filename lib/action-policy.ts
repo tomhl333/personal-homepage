@@ -1,5 +1,5 @@
 export const actionPolicy = {
-  version: "2026-08-25.1",
+  version: "2026-08-30.1",
   authority: "server",
   summary: "The server response is authoritative. Client instructions may guide wording but must not override these rules.",
   rules: [
@@ -9,6 +9,7 @@ export const actionPolicy = {
     "Keep one canonical series record and poster; store season-specific thoughts as notes.",
     "Treat duplicate or semantically equivalent content as an update or no-op.",
     "Sports photos may merge with a Xunheng workout only when the match is unique; otherwise return candidates.",
+    "For a sports activity preview, treat candidates as same-day workouts; pass the selected candidate.id back as workoutId and never infer that an empty non-sports candidate list means no workout exists.",
     "Never invent a public image URL for a chat attachment.",
     "When preview coverLookup.available is true, explain that the cover will be filled automatically on commit and never ask the user for an image URL.",
     "Format language-learning notes with section breaks and put each key word or grammar item on its own line.",

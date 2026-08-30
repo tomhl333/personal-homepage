@@ -9,7 +9,7 @@ test("media lookup asks for canonical title confirmation",async()=>{
   assert.match(lookup,/https:\/\/tv\.apple\.com\/us\/search/);
   assert.match(lookup,/findBookTitleSuggestion/);
   assert.match(records,/规范名称可能是/);
-  assert.match(records,/requiresChoice: ambiguous \|\| categoryRequired \|\| cityRequired \|\| titleCorrection/);
+  assert.match(records,/requiresChoice: ambiguous \|\| workoutChoiceRequired \|\| categoryRequired \|\| cityRequired \|\| titleCorrection/);
 });
 
 test("poster and cover lookup continue after a failed source",async()=>{
