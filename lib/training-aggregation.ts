@@ -10,6 +10,9 @@ type XunjiWorkout = {
   movement_count: number; completed_set_count: number; volume_kg: number;
   start_ms?: number; end_ms?: number; raw_json?: string | JsonRecord;
 };
+type WorkoutMedia = {
+  workout_id: string; url: string; label?: string; note?: string;
+};
 
 type JsonRecord = Record<string, unknown>;
 
@@ -76,6 +79,10 @@ export async function mergeTrainingIntoContent(content: SiteContent): Promise<Si
         WHERE training_date::date >= CURRENT_DATE - INTERVAL '3 years'
         ORDER BY training_date DESC,start_ms DESC LIMIT 300`,
     ]);
+    let mediaRows: WorkoutMedia[] = [];
+    try {
+      mediaRows = await sql`SELECT workout_id,url,label,note FROM public.workout_media ORDER BY created_at DESC LIMIT 500` as WorkoutMedia[];
+    } catch { /* Training history remains available before the optional media table exists. */ }
     const next = structuredClone(content);
     const apple = appleRows as AppleWorkout[];
     const xunji = (xunjiRows as XunjiWorkout[]).filter((row) => isRealXunjiWorkout(row));
@@ -91,6 +98,20 @@ export async function mergeTrainingIntoContent(content: SiteContent): Promise<Si
       }));
       const manual = (item.records ?? []).filter((record) => !record.tags.includes("训衡同步"));
       item.records = dedupeRecords([...synced, ...manual]);
+      const workoutsById = new Map(rows.map((row) => [`apple:${row.id}`, row]));
+      const trainingPhotos = mediaRows.flatMap((media) => {
+        const workout = workoutsById.get(media.workout_id);
+        if (!workout) return [];
+        return [{
+          date: day(workout.start_at),
+          label: media.label || workout.name,
+          note: media.note,
+          project: workout.name,
+          src: media.url,
+          tags: [title, "训练记录"],
+        }];
+      });
+      item.photos = dedupePhotos([...trainingPhotos, ...item.photos]);
       const currentMonth = rows.filter((row) => row.start_at.startsWith(month));
       item.status = currentMonth.length ? `本月 ${currentMonth.length} 次 · 训衡同步` : "训衡同步 · 本月暂无";
       if (rows[0]) item.summary = `${rows[0].name} · ${metricSummary(rows[0])}`;
@@ -113,6 +134,20 @@ export async function mergeTrainingIntoContent(content: SiteContent): Promise<Si
             : `完成 ${row.completed_set_count} 组训练${row.volume_kg ? `，总容量 ${Math.round(row.volume_kg)} kg` : ""}。`,
         };
       });
+      const workoutsById = new Map(xunji.map((row) => [`xunji:${row.id}`, row]));
+      const trainingPhotos = mediaRows.flatMap((media) => {
+        const workout = workoutsById.get(media.workout_id);
+        if (!workout) return [];
+        return [{
+          date: workout.training_date,
+          label: media.label || workout.title,
+          note: media.note,
+          project: workout.title,
+          src: media.url,
+          tags: ["健身", "训练记录"],
+        }];
+      });
+      fitness.photos = dedupePhotos([...trainingPhotos, ...fitness.photos]);
       const currentMonth = xunji.filter((row) => row.training_date.startsWith(month));
       fitness.status = currentMonth.length ? `本月 ${currentMonth.length} 次 · 训衡同步` : "训衡同步 · 本月暂无";
       fitness.notes = ["训练计划与完成记录由训衡维护", ...fitness.notes.filter((note) => note !== "训练计划与完成记录由训衡维护")];
@@ -122,6 +157,16 @@ export async function mergeTrainingIntoContent(content: SiteContent): Promise<Si
   } catch {
     return content;
   }
+}
+
+function dedupePhotos<T extends { date?: string; label?: string; src?: string }>(photos: T[]) {
+  const seen = new Set<string>();
+  return photos.filter((photo) => {
+    const key = photo.src || `placeholder:${photo.date ?? ""}:${photo.label ?? ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 }
 
 function dedupeRecords<T extends { date: string; title: string }>(records: T[]) {

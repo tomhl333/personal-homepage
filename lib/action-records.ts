@@ -356,7 +356,23 @@ export async function commitAction({
       const trainingResult = await training.json();
       if (training.status === 409) return { ok: false, status: 409, requiresChoice: true, ...trainingResult };
       if (!training.ok) throw new Error(trainingResult.message ?? "training_media_save_failed");
-      return { ok: true, verified: true, publicVisible: true, type: "training-media", ...trainingResult };
+      const serializedTraining = JSON.stringify(trainingResult);
+      const verified = imageUrls.every((url) => serializedTraining.includes(url));
+      let publicVisible = false;
+      try {
+        const response = await fetch(`${origin}/api/content?action_verify=${Date.now()}`, { cache: "no-store" });
+        const publicContent = response.ok ? await response.text() : "";
+        publicVisible = response.ok && imageUrls.every((url) => publicContent.includes(url));
+      } catch { /* Never report public visibility without a successful homepage check. */ }
+      return {
+        ...trainingResult,
+        ok: verified && publicVisible,
+        saved: true,
+        verified,
+        publicVisible,
+        type: "training-media",
+        message: verified && publicVisible ? "训练照片已关联，并确认在个人主页公开数据中可见。" : "训练照片已保存，但个人主页公开复核尚未通过。",
+      };
     }
     const target = section(content, category);
     if (category === "语言学习") {

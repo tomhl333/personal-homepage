@@ -63,3 +63,18 @@ test("sports preview queries real same-day workout candidates", async () => {
   assert.match(openapi, /same-day workout candidates/);
   assert.match(policy, /candidate\.id back as workoutId/);
 });
+
+test("homepage publishes linked training photos and verifies them after save", async () => {
+  const [aggregation, records] = await Promise.all([
+    read("lib/training-aggregation.ts"),
+    read("lib/action-records.ts"),
+  ]);
+  assert.match(aggregation, /FROM public\.workout_media/);
+  assert.match(aggregation, /workoutsById\.get\(media\.workout_id\)/);
+  assert.match(aggregation, /item\.photos = dedupePhotos/);
+  assert.match(aggregation, /fitness\.photos = dedupePhotos/);
+  assert.match(aggregation, /note: media\.note/);
+  assert.match(records, /\/api\/content\?action_verify=/);
+  assert.match(records, /imageUrls\.every\(\(url\) => publicContent\.includes\(url\)\)/);
+  assert.doesNotMatch(records, /return \{ ok: true, verified: true, publicVisible: true, type: "training-media"/);
+});
