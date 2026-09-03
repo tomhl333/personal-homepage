@@ -1072,9 +1072,9 @@ function formatShowMeta(show: {
   platform?: string;
   meta?: string;
 }) {
-  return [show.kind, show.creator, show.platform, show.meta]
+  return [...new Set([show.kind, show.platform, show.creator, show.meta]
     .map((item) => item?.trim())
-    .filter(Boolean)
+    .filter((item): item is string => Boolean(item)))]
     .join(" · ");
 }
 
