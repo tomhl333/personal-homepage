@@ -227,7 +227,7 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                     >
                       {active.books.map((book, index) => (
                         <button
-                          className={`group absolute left-1/2 top-0 w-36 text-center sm:static sm:w-auto sm:text-left ${coverTouchStart === null ? "transition-[opacity,transform] duration-500 ease-out" : "transition-none"} ${coverFlowClass(index - activeBookIndex)}`}
+                          className={`group absolute left-1/2 top-0 w-36 text-center sm:static sm:h-fit sm:w-auto sm:self-start sm:text-left ${coverTouchStart === null ? "transition-[opacity,transform] duration-500 ease-out" : "transition-none"} ${coverFlowClass(index - activeBookIndex)}`}
                           key={book.title}
                           onClick={() => setActiveBookIndex(index)}
                           type="button"
@@ -358,7 +358,7 @@ export function HeroActivityPanel({ activitySpotlights }: { activitySpotlights: 
                         >
                               {active.shows.map((show, index) => (
                                 <button
-                                  className={`group absolute left-1/2 top-0 w-40 text-center sm:static sm:w-auto sm:text-left ${coverTouchStart === null ? "transition-[opacity,transform] duration-500 ease-out" : "transition-none"} ${coverFlowClass(index - activeBookIndex)}`}
+                                  className={`group absolute left-1/2 top-0 w-40 text-center sm:static sm:h-fit sm:w-auto sm:self-start sm:text-left ${coverTouchStart === null ? "transition-[opacity,transform] duration-500 ease-out" : "transition-none"} ${coverFlowClass(index - activeBookIndex)}`}
                                   key={show.title}
                                   onClick={() => setActiveBookIndex(index)}
                                   type="button"

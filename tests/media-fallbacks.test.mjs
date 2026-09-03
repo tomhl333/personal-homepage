@@ -58,6 +58,14 @@ test("existing empty media records retry cover discovery",async()=>{
   assert.match(records,/if\(!book\.cover\)/);
 });
 
+test("book and show covers keep a shared top alignment",async()=>{
+  const panel=await read("components/HeroActivityPanel.tsx");
+  const alignedCards=panel.match(/sm:h-fit sm:w-auto sm:self-start sm:text-left/g)??[];
+  assert.equal(alignedCards.length,2);
+  assert.match(panel,/aspect-\[3\/4\]/);
+  assert.match(panel,/aspect-\[2\/3\]/);
+});
+
 test("preview tells the GPT when a cover can be repaired automatically",async()=>{
   const [records,schema,policy]=await Promise.all([read("lib/action-records.ts"),read("app/api/actions/openapi/route.ts"),read("lib/action-policy.ts")]);
   assert.match(records,/coverLookup/);
