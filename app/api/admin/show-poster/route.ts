@@ -12,12 +12,22 @@ type ITunesResult = {
 };
 
 type TmdbResult = {
+  first_air_date?: string;
+  genre_ids?: number[];
   id?: number;
+  media_type?: "movie" | "tv";
   name?: string;
   original_name?: string;
   original_title?: string;
   poster_path?: string;
+  release_date?: string;
   title?: string;
+};
+
+type ShowMetadata = {
+  kind: "电视剧" | "电影" | "纪录片" | "综艺" | "";
+  platform: string;
+  year: string;
 };
 
 type DoubanShow = {
@@ -37,6 +47,7 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as {
     kind?: string;
+    metadataOnly?: boolean;
     title?: string;
     uploadDir?: string;
   };
@@ -49,31 +60,33 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const metadata = await findTmdbMetadataForTitle({ kind, title });
+    if (body.metadataOnly) return NextResponse.json(metadata);
+    const resolvedKind = kind || metadata.kind;
     const douban = await findDoubanPoster({ title, uploadDir }).catch(() => ({ poster: "" }));
-    const platform = await findTmdbPlatformForTitle({ kind, title });
-    if (douban.poster) return NextResponse.json({ ...douban, platform });
+    if (douban.poster) return NextResponse.json({ ...douban, ...metadata, year: ("year" in douban ? douban.year : "") || metadata.year });
 
-    const tmdb = await findTmdbPoster({ kind, title, uploadDir }).catch(() => ({ poster: "" }));
+    const tmdb = await findTmdbPoster({ kind: resolvedKind, title, uploadDir }).catch(() => ({ poster: "" }));
     if (tmdb.poster) {
-      return NextResponse.json({ ...tmdb, platform: ("platform" in tmdb ? tmdb.platform : "") || platform });
+      return NextResponse.json({ ...tmdb, ...metadata, platform: ("platform" in tmdb ? tmdb.platform : "") || metadata.platform });
     }
 
-    const imdb = await findImdbPoster({ kind, title, uploadDir }).catch(() => ({ poster: "" }));
+    const imdb = await findImdbPoster({ kind: resolvedKind, title, uploadDir }).catch(() => ({ poster: "" }));
     if (imdb.poster) {
-      return NextResponse.json({ ...imdb, platform });
+      return NextResponse.json({ ...imdb, ...metadata });
     }
 
     const apple=await findAppleTvSuggestion(title);
     if(apple?.imageUrl){
       try{
         const poster=await saveRemoteImageToBlob({title:apple.title,uploadDir,url:apple.imageUrl});
-        return NextResponse.json({poster,remotePoster:apple.imageUrl,source:apple.source,sourceUrl:apple.sourceUrl,title:apple.title,platform:"Apple TV+"});
+        return NextResponse.json({poster,remotePoster:apple.imageUrl,source:apple.source,sourceUrl:apple.sourceUrl,title:apple.title,...metadata,platform:metadata.platform||"Apple TV+"});
       }catch{/* Reject placeholders and continue to the next source. */}
     }
 
-    const itunes = await findItunesPoster({ kind, title, uploadDir }).catch(() => ({ poster: "" }));
+    const itunes = await findItunesPoster({ kind: resolvedKind, title, uploadDir }).catch(() => ({ poster: "" }));
     if (itunes.poster) {
-      return NextResponse.json({ ...itunes, platform });
+      return NextResponse.json({ ...itunes, ...metadata });
     }
 
     return NextResponse.json({
@@ -170,22 +183,44 @@ async function findTmdbPoster({
   };
 }
 
-async function findTmdbPlatformForTitle({ kind, title }: { kind: string; title: string }) {
+async function findTmdbMetadataForTitle({ kind, title }: { kind: string; title: string }): Promise<ShowMetadata> {
   const token = process.env.TMDB_API_KEY;
-  if (!token) return "";
+  if (!token) return { kind: "", platform: "", year: "" };
   try {
-    const searchType = isMovie(kind) ? "movie" : "tv";
-    const search = new URL(`https://api.themoviedb.org/3/search/${searchType}`);
+    const search = new URL("https://api.themoviedb.org/3/search/multi");
     search.searchParams.set("query", title);
     search.searchParams.set("language", "zh-CN");
     const response = await fetch(search, { headers: tmdbRequestHeaders(search, token), signal: AbortSignal.timeout(5000) });
-    if (!response.ok) return "";
+    if (!response.ok) return { kind: "", platform: "", year: "" };
     const data = await response.json() as { results?: TmdbResult[] };
-    const match = data.results?.[0];
-    return match?.id ? findTmdbPlatform({ id: match.id, searchType, token }) : "";
+    const candidates = (data.results ?? []).filter((item) => item.media_type === "movie" || item.media_type === "tv");
+    const requestedMovie = isMovie(kind);
+    const match = candidates.find((item) => tmdbTitles(item).some((candidate) => normalizedTitle(candidate) === normalizedTitle(title)))
+      ?? candidates.find((item) => requestedMovie ? item.media_type === "movie" : item.media_type === "tv")
+      ?? candidates[0];
+    if (!match?.id || !match.media_type) return { kind: "", platform: "", year: "" };
+    const platform = await findTmdbPlatform({ id: match.id, searchType: match.media_type, token });
+    const genreIds = match.genre_ids ?? [];
+    const resolvedKind = genreIds.includes(99)
+      ? "纪录片"
+      : match.media_type === "movie"
+        ? "电影"
+        : genreIds.includes(10764) || genreIds.includes(10767)
+          ? "综艺"
+          : "电视剧";
+    const date = match.release_date || match.first_air_date || "";
+    return { kind: resolvedKind, platform, year: date.slice(0, 4) };
   } catch {
-    return "";
+    return { kind: "", platform: "", year: "" };
   }
+}
+
+function tmdbTitles(item: TmdbResult) {
+  return [item.title, item.name, item.original_title, item.original_name].filter((value): value is string => Boolean(value));
+}
+
+function normalizedTitle(value: string) {
+  return value.normalize("NFKC").toLocaleLowerCase().replace(/[\s\p{P}\p{S}_]+/gu, "");
 }
 
 async function findTmdbPlatform({ id, searchType, token }: { id: number; searchType: "movie" | "tv"; token: string }) {

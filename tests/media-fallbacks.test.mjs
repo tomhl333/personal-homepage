@@ -43,6 +43,29 @@ test("TMDB accepts both v3 API keys and v4 read tokens",async()=>{
   assert.match(show,/endpoint\.searchParams\.set\("api_key", token\)/);
 });
 
+test("show maintenance fills platform and media kind metadata",async()=>{
+  const [show,records,panel]=await Promise.all([read("app/api/admin/show-poster/route.ts"),read("lib/action-records.ts"),read("components/HeroActivityPanel.tsx")]);
+  assert.match(show,/search\/multi/);
+  assert.match(show,/genreIds\.includes\(99\)/);
+  assert.match(show,/genreIds\.includes\(10764\)/);
+  assert.match(show,/if \(body\.metadataOnly\) return NextResponse\.json\(metadata\)/);
+  assert.match(records,/kind: input\.mediaKind \?\? asset\.result\.kind \?\? "电视剧"/);
+  assert.match(records,/metadataOnly:Boolean\(show\.poster\)/);
+  assert.match(records,/show\.platform=input\.platform\|\|asset\.result\.platform\|\|show\.platform/);
+  assert.match(records,/show\.kind=input\.mediaKind\|\|asset\.result\.kind\|\|show\.kind/);
+  assert.match(panel,/new Set\(\[show\.kind, show\.platform, show\.creator, show\.meta\]/);
+});
+
+test("book maintenance fills a missing author without downloading the cover again",async()=>{
+  const [book,records,schema]=await Promise.all([read("app/api/admin/book-cover/route.ts"),read("lib/action-records.ts"),read("app/api/actions/openapi/route.ts")]);
+  assert.match(book,/if \(body\.metadataOnly\)/);
+  assert.match(book,/author: suggestion\?\.creator \?\? author/);
+  assert.match(records,/if\(!book\.cover\|\|!book\.author\)/);
+  assert.match(records,/metadataOnly:Boolean\(book\.cover\)/);
+  assert.match(records,/if\(!book\.author&&asset\.result\.author\) book\.author=asset\.result\.author/);
+  assert.match(schema,/server automatically looks it up from the matched book source/);
+});
+
 test("WeRead is a first-class fallback for Chinese book covers",async()=>{
   const [lookup,book]=await Promise.all([read("lib/media-title-lookup.ts"),read("app/api/admin/book-cover/route.ts")]);
   assert.match(lookup,/https:\/\/weread\.qq\.com\/web\/search\/books/);
@@ -54,8 +77,8 @@ test("WeRead is a first-class fallback for Chinese book covers",async()=>{
 
 test("existing empty media records retry cover discovery",async()=>{
   const records=await read("lib/action-records.ts");
-  assert.match(records,/if\(!show\.poster\)/);
-  assert.match(records,/if\(!book\.cover\)/);
+  assert.match(records,/metadataOnly:Boolean\(show\.poster\)/);
+  assert.match(records,/metadataOnly:Boolean\(book\.cover\)/);
 });
 
 test("book and show covers keep a shared top alignment",async()=>{

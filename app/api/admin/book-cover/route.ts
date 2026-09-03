@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { saveRemoteImageToBlob } from "@/lib/blob-media";
-import { findWeReadBookSuggestion } from "@/lib/media-title-lookup";
+import { findBookTitleSuggestion, findWeReadBookSuggestion } from "@/lib/media-title-lookup";
 
 export const runtime = "nodejs";
 
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as {
     author?: string;
+    metadataOnly?: boolean;
     title?: string;
     uploadDir?: string;
   };
@@ -56,6 +57,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (body.metadataOnly) {
+      const suggestion = await findBookTitleSuggestion(title, author);
+      return NextResponse.json({ author: suggestion?.creator ?? author, source: suggestion?.source ?? "", title: suggestion?.title ?? title });
+    }
     const douban = await findDoubanBookCover({ author, title, uploadDir }).catch(() => ({ cover: "" }));
     if (douban.cover) return NextResponse.json(douban);
 

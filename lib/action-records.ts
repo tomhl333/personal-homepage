@@ -305,14 +305,15 @@ export async function commitAction({
     const shows = section(content, "看剧").shows ??= [];
     let show = shows.find((item) => item.title === (targetId ?? existingCandidates[0]?.id));
     if (!show) {
-      const asset = await internalJson(origin, "/api/admin/show-poster", authorization, { title: input.title, kind: input.mediaKind ?? "电视剧", uploadDir: "/uploads/shows" });
-      show = { title: input.title, creator: input.creator ?? asset.result.creator ?? "", platform: input.platform ?? asset.result.platform ?? "", kind: input.mediaKind ?? "电视剧", status: input.status ?? "看过", poster: asset.result.poster, posterTone: "from-fog via-paper to-moss/55", meta: asset.result.year ?? "", characters: [], notes: [] };
+      const asset = await internalJson(origin, "/api/admin/show-poster", authorization, { title: input.title, kind: input.mediaKind ?? "", uploadDir: "/uploads/shows" });
+      show = { title: input.title, creator: input.creator ?? asset.result.creator ?? "", platform: input.platform ?? asset.result.platform ?? "", kind: input.mediaKind ?? asset.result.kind ?? "电视剧", status: input.status ?? "看过", poster: asset.result.poster, posterTone: "from-fog via-paper to-moss/55", meta: asset.result.year ?? "", characters: [], notes: [] };
       shows.unshift(show);
-    }
-    if(!show.poster){
-      const asset=await internalJson(origin,"/api/admin/show-poster",authorization,{title:show.title,kind:show.kind||input.mediaKind||"电视剧",uploadDir:"/uploads/shows"});
+    } else {
+      const asset=await internalJson(origin,"/api/admin/show-poster",authorization,{title:show.title,kind:input.mediaKind||show.kind||"",metadataOnly:Boolean(show.poster),uploadDir:"/uploads/shows"});
       if(asset.result.poster) show.poster=asset.result.poster;
-      if(!show.platform&&asset.result.platform) show.platform=asset.result.platform;
+      show.platform=input.platform||asset.result.platform||show.platform;
+      show.kind=input.mediaKind||asset.result.kind||show.kind;
+      if(!show.meta&&asset.result.year) show.meta=asset.result.year;
     }
     if (input.note && !show.notes.some((item) => related(item.text, input.note!))) {
       show.notes.unshift({ type: input.season || "观后札记", text: input.note });
@@ -328,14 +329,16 @@ export async function commitAction({
       book = { title: asset.result.title ?? input.title, author: asset.result.author ?? input.author ?? "", status: input.status ?? "在读", cover: asset.result.cover, coverTone: "from-fog via-white to-clay/30", notes: [] };
       books.unshift(book);
     }
-    if(!book.cover){
-      const asset=await internalJson(origin,"/api/admin/book-cover",authorization,{title:book.title,author:book.author||input.author||"",uploadDir:"/uploads/books"});
+    if(!book.cover||!book.author){
+      const asset=await internalJson(origin,"/api/admin/book-cover",authorization,{title:book.title,author:input.author||book.author||"",metadataOnly:Boolean(book.cover),uploadDir:"/uploads/books"});
       if(asset.result.cover) book.cover=asset.result.cover;
+      if(!book.author&&asset.result.author) book.author=asset.result.author;
     }
     if (input.note && !book.notes.some((item) => related(item.text, input.note!))) {
       book.notes.unshift({ type: "读后感", text: input.note });
     }
     book.status = input.status || book.status;
+    book.author = input.author || book.author;
     marker = input.note || book.title;
     result = { ...result, title: book.title, action: existingCandidates.length ? "updated" : "created", noteAdded: Boolean(input.note), hasCover: Boolean(book.cover) };
   } else if (recordInput.type === "journal") {
