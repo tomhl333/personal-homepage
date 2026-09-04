@@ -13,6 +13,7 @@ export type TrainingPlanInput = {
   sessionMinutes: typeof trainingPlanOptions.sessionMinutes[number];
   subjectiveState: typeof trainingPlanOptions.subjectiveState[number];
   targetFocus: typeof trainingPlanOptions.targetFocus[number];
+  avoidFloorExercises: true;
 };
 
 type TrainingConfirmation = TrainingPlanInput & { planId: string; expiresAt: number };
@@ -83,7 +84,7 @@ export function parseTrainingPlanInput(params: URLSearchParams): TrainingPlanInp
       !trainingPlanOptions.targetFocus.includes(targetFocus)) {
     throw new Error("invalid_training_plan_input");
   }
-  return { equipmentMode, sessionMinutes, subjectiveState, targetFocus };
+  return { equipmentMode, sessionMinutes, subjectiveState, targetFocus, avoidFloorExercises: true };
 }
 
 export function trainingHomepageAuth() {
