@@ -80,7 +80,7 @@ export async function GET() {
   const trainingPreviewOperation = {
     operationId: "previewTrainingPlan",
     summary: "Generate a Xunheng training plan without writing it",
-    description: "Use for requests such as today's workout plan. Ask for missing equipment, sessionMinutes, or subjectiveState before calling. This analyzes the user's real Xunheng and recovery data, then returns a plan without writing to Xunji.",
+    description: "Use for requests such as today's workout plan. Ask for missing equipment, sessionMinutes, or subjectiveState before calling. This analyzes the user's real Xunheng and recovery data, then returns a plan without writing to Xunji. The user's standing preference is to avoid floor-based movements such as hip thrusts, prone dumbbell leg curls, and exercises performed lying or prone on the floor; prefer standing, seated, machine, or bench-supported alternatives without asking again.",
     security: [{ actionApiKey: [] }],
     "x-openai-isConsequential": false,
     parameters: trainingPlanParameters,

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   if (!authorized) return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
   try {
     const input = parseTrainingPlanInput(request.nextUrl.searchParams);
-    const result = await requestTrainingPlan(`/api/training-plan?equipment=${input.equipmentMode}&minutes=${input.sessionMinutes}&subjectiveState=${input.subjectiveState}&targetFocus=${input.targetFocus}`);
+    const result = await requestTrainingPlan(`/api/training-plan?equipment=${input.equipmentMode}&minutes=${input.sessionMinutes}&subjectiveState=${input.subjectiveState}&targetFocus=${input.targetFocus}&avoidFloorExercises=true`);
     if (!result.plan?.id) throw new Error("training_plan_missing_id");
     const confirmationToken = await saveTrainingConfirmation(request.headers.get("authorization") ?? "", {
       ...input,

@@ -12,6 +12,7 @@ test("training plan Action exposes preview and commit operations", async () => {
   assert.match(openapi, /sessionMinutes/);
   assert.match(openapi, /subjectiveState/);
   assert.match(openapi, /targetFocus/);
+  assert.match(openapi, /avoid floor-based movements/);
 });
 
 test("training plan adapter keeps Xunheng behind server-side credentials", async () => {
@@ -23,6 +24,8 @@ test("training plan adapter keeps Xunheng behind server-side credentials", async
   assert.match(commit, /confirmed.*true/);
   assert.match(commit, /\/api\/training-plan/);
   assert.doesNotMatch(commit, /XUNJI_API_TOKEN/);
+  assert.match(adapter, /avoidFloorExercises: true/);
+  assert.match(await read("app/api/actions/training-plan/preview/route.ts"), /avoidFloorExercises=true/);
 });
 
 test("training plan write requires confirmation and plan identity", async () => {
